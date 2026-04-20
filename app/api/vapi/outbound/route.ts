@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateCallScript } from "@/lib/claude";
 import { createAssistant, initiateCall } from "@/lib/vapi";
+import { isOnDNC } from "@/lib/dnc";
 import type { LeadContext } from "@/lib/claude";
+
+// ─── TCPA helpers ─────────────────────────────────────────────────────────────
+
+/** Returns true if the current time in Michigan (America/Detroit) is within
+ *  the TCPA-safe window of 8:00 AM – 9:00 PM local time. */
+function isWithinCallingHours(): boolean {
+  const now = new Date();
+  const hour = Number(
+    now.toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "America/Detroit" })
+  );
+  return hour >= 8 && hour < 21; // 8am–9pm
+}
 
 // POST /api/vapi/outbound
 // Body: LeadContext + phone number
@@ -30,6 +43,22 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // ── TCPA gate 1: calling hours (8am–9pm Michigan time) ────────────────────
+    if (!isWithinCallingHours()) {
+      return NextResponse.json(
+        { error: "Outside calling hours. TCPA permits calls 8am–9pm local time only." },
+        { status: 403 }
+      );
+    }
+
+    // ── TCPA gate 2: DNC (Do Not Call) check ─────────────────────────────────
+    if (await isOnDNC(phone)) {
+      return NextResponse.json(
+        { error: "This number is on the Do Not Call list." },
+        { status: 403 }
+      );
+    }
+
     // 1. Generate personalized script via Claude
     const script = await generateCallScript(leadContext);
 

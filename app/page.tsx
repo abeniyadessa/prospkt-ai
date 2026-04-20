@@ -19,6 +19,11 @@ import {
   MagnifyingGlassIcon,
   ClockIcon,
   RecordIcon,
+  TrashIcon,
+  PlusIcon,
+  RobotIcon,
+  PhoneCallIcon,
+  LinkIcon,
 } from "@phosphor-icons/react";
 import {
   Dialog,
@@ -243,6 +248,14 @@ export default function Dashboard() {
   const [calBookings, setCalBookings] = useState<CalBooking[]>([]);
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
 
+  // Settings page
+  const [integrations, setIntegrations] = useState<Record<string, boolean>>({});
+  const [callerInfo, setCallerInfo] = useState<Record<string, string | null>>({});
+  const [dncList, setDncList] = useState<string[]>([]);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [newDncPhone, setNewDncPhone] = useState("");
+  const [dncAdding, setDncAdding] = useState(false);
+
   const fetchLeads = useCallback(async () => {
     setLeadsLoading(true);
     try {
@@ -265,6 +278,23 @@ export default function Dashboard() {
     }
   }, []);
 
+  const fetchSettings = useCallback(async () => {
+    setSettingsLoading(true);
+    try {
+      const [statusRes, dncRes] = await Promise.all([
+        fetch("/api/settings/status"),
+        fetch("/api/dnc"),
+      ]);
+      const statusData = (await statusRes.json()) as { integrations: Record<string, boolean>; caller: Record<string, string | null> };
+      const dncData = (await dncRes.json()) as { numbers: string[] };
+      setIntegrations(statusData.integrations ?? {});
+      setCallerInfo(statusData.caller ?? {});
+      setDncList(dncData.numbers ?? []);
+    } finally {
+      setSettingsLoading(false);
+    }
+  }, []);
+
   const fetchAppointments = useCallback(async () => {
     setAppointmentsLoading(true);
     try {
@@ -280,7 +310,8 @@ export default function Dashboard() {
     if (activeNav === "Leads") fetchLeads();
     if (activeNav === "Calls") fetchCalls();
     if (activeNav === "Appointments") fetchAppointments();
-  }, [activeNav, fetchLeads, fetchCalls, fetchAppointments]);
+    if (activeNav === "Settings") fetchSettings();
+  }, [activeNav, fetchLeads, fetchCalls, fetchAppointments, fetchSettings]);
 
   // Dial dialog
   const [dialLead, setDialLead] = useState<Lead | null>(null);
@@ -849,8 +880,198 @@ export default function Dashboard() {
           </>
         )}
 
+        {/* ── Settings view ──────────────────────────────────────────────── */}
+        {activeNav === "Settings" && (
+          <>
+            <div>
+              <h1 className="text-[32px] font-bold leading-tight" style={{ color: "#0A0A0A" }}>Settings</h1>
+              <p className="mt-1 text-sm" style={{ color: "#ABABAB" }}>Manage integrations, compliance, and caller config</p>
+            </div>
+
+            {settingsLoading ? (
+              <div className="flex items-center justify-center py-24 gap-2" style={{ color: "#ABABAB" }}>
+                <CircleNotchIcon size={18} className="animate-spin" aria-hidden="true" />
+                <span className="text-sm">Loading settings…</span>
+              </div>
+            ) : (
+              <div className="space-y-6">
+
+                {/* ── Integrations ─────────────────────────────────────────── */}
+                <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 border-b" style={{ borderColor: "#F0F0F0" }}>
+                    <h2 className="font-semibold text-[15px]" style={{ color: "#0A0A0A" }}>Integrations</h2>
+                    <p className="text-xs mt-0.5" style={{ color: "#ABABAB" }}>API keys are set in .env.local</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-px" style={{ backgroundColor: "#F0F0F0" }}>
+                    {([
+                      { key: "anthropic", label: "Anthropic Claude", desc: "AI call script generation", icon: RobotIcon },
+                      { key: "vapi",      label: "Vapi.ai",          desc: "AI voice caller",           icon: PhoneCallIcon },
+                      { key: "calcom",    label: "Cal.com",           desc: "Appointment booking",       icon: CalendarIcon },
+                      { key: "clickup",   label: "ClickUp",           desc: "CRM logging",               icon: CheckCircleIcon },
+                      { key: "twilio",    label: "Twilio",            desc: "SMS follow-ups",            icon: PhoneIcon },
+                      { key: "yelp",      label: "Yelp Fusion",       desc: "Lead scraping",             icon: MagnifyingGlassIcon },
+                    ] as { key: string; label: string; desc: string; icon: React.ElementType }[]).map(({ key, label, desc, icon: Icon }) => {
+                      const connected = integrations[key];
+                      return (
+                        <div key={key} className="bg-white px-6 py-5 flex items-start gap-4">
+                          <div
+                            className="size-10 rounded-xl flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: connected ? "rgba(139,158,62,0.1)" : "#F5F5F5" }}
+                          >
+                            <Icon size={18} color={connected ? "#8B9E3E" : "#ABABAB"} aria-hidden="true" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold truncate" style={{ color: "#0A0A0A" }}>{label}</p>
+                              <span
+                                className="shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                style={{
+                                  backgroundColor: connected ? "rgba(139,158,62,0.12)" : "rgba(171,171,171,0.12)",
+                                  color: connected ? "#8B9E3E" : "#ABABAB",
+                                }}
+                              >
+                                <span className={`size-1.5 rounded-full ${connected ? "bg-[#8B9E3E]" : "bg-[#ABABAB]"}`} />
+                                {connected ? "Connected" : "Not set"}
+                              </span>
+                            </div>
+                            <p className="text-xs mt-0.5 truncate" style={{ color: "#ABABAB" }}>{desc}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Caller Info ───────────────────────────────────────────── */}
+                <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 border-b" style={{ borderColor: "#F0F0F0" }}>
+                    <h2 className="font-semibold text-[15px]" style={{ color: "#0A0A0A" }}>Caller Configuration</h2>
+                    <p className="text-xs mt-0.5" style={{ color: "#ABABAB" }}>Active phone numbers and event types</p>
+                  </div>
+                  <div className="divide-y" style={{ borderColor: "#F0F0F0" }}>
+                    {([
+                      { label: "Outbound Phone Number", value: callerInfo.phoneNumber, icon: PhoneIcon },
+                      { label: "Vapi Phone Number ID",  value: callerInfo.vapiPhoneNumberId, icon: LinkIcon },
+                      { label: "Cal.com Event Type ID", value: callerInfo.calcomEventTypeId, icon: CalendarIcon },
+                    ] as { label: string; value: string | null; icon: React.ElementType }[]).map(({ label, value, icon: Icon }) => (
+                      <div key={label} className="flex items-center gap-4 px-6 py-4">
+                        <Icon size={16} color="#ABABAB" aria-hidden="true" />
+                        <span className="text-sm flex-1" style={{ color: "#6B6B6B" }}>{label}</span>
+                        <span className="text-sm font-mono tabular-nums" style={{ color: value ? "#0A0A0A" : "#ABABAB" }}>
+                          {value ?? "—"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── TCPA / DNC List ───────────────────────────────────────── */}
+                <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+                  <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "#F0F0F0" }}>
+                    <div>
+                      <h2 className="font-semibold text-[15px]" style={{ color: "#0A0A0A" }}>Do Not Call List</h2>
+                      <p className="text-xs mt-0.5" style={{ color: "#ABABAB" }}>Numbers are auto-added when a lead opts out</p>
+                    </div>
+                    <span className="rounded-full px-2.5 py-1 text-xs font-medium tabular-nums" style={{ backgroundColor: "#F5F0E8", color: "#6B6B6B" }}>
+                      {dncList.length} number{dncList.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+
+                  {/* Add number manually */}
+                  <div className="flex items-center gap-2 px-6 py-4 border-b" style={{ borderColor: "#F0F0F0" }}>
+                    <input
+                      type="tel"
+                      placeholder="+15551234567"
+                      value={newDncPhone}
+                      onChange={(e) => setNewDncPhone(e.target.value)}
+                      onKeyDown={async (e) => {
+                        if (e.key === "Enter" && newDncPhone.trim() && !dncAdding) {
+                          setDncAdding(true);
+                          await fetch("/api/dnc", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: newDncPhone.trim() }) });
+                          setDncList((p) => [...new Set([...p, newDncPhone.trim()])]);
+                          setNewDncPhone("");
+                          setDncAdding(false);
+                        }
+                      }}
+                      className="flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2"
+                      style={{ borderColor: "#E0E0E0", color: "#0A0A0A" }}
+                      aria-label="Add phone number to DNC list"
+                    />
+                    <button
+                      disabled={dncAdding || !newDncPhone.trim()}
+                      onClick={async () => {
+                        if (!newDncPhone.trim()) return;
+                        setDncAdding(true);
+                        await fetch("/api/dnc", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: newDncPhone.trim() }) });
+                        setDncList((p) => [...new Set([...p, newDncPhone.trim()])]);
+                        setNewDncPhone("");
+                        setDncAdding(false);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      style={{ backgroundColor: "#0A0A0A" }}
+                    >
+                      {dncAdding ? <CircleNotchIcon size={13} className="animate-spin" aria-hidden="true" /> : <PlusIcon size={13} aria-hidden="true" />}
+                      Add
+                    </button>
+                  </div>
+
+                  {dncList.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 gap-2">
+                      <CheckCircleIcon size={22} color="#8B9E3E" aria-hidden="true" />
+                      <p className="text-sm" style={{ color: "#ABABAB" }}>DNC list is empty — no blocked numbers</p>
+                    </div>
+                  ) : (
+                    <ul role="list" className="divide-y" style={{ borderColor: "#F0F0F0" }}>
+                      {dncList.map((phone) => (
+                        <li key={phone} className="flex items-center justify-between px-6 py-3">
+                          <span className="text-sm font-mono tabular-nums" style={{ color: "#0A0A0A" }}>{phone}</span>
+                          <button
+                            onClick={async () => {
+                              await fetch(`/api/dnc?phone=${encodeURIComponent(phone)}`, { method: "DELETE" });
+                              setDncList((p) => p.filter((n) => n !== phone));
+                            }}
+                            className="rounded-lg p-1.5 transition-colors hover:bg-[#FEF2F2]"
+                            aria-label={`Remove ${phone} from DNC list`}
+                          >
+                            <TrashIcon size={14} color="#E8706A" aria-hidden="true" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* ── TCPA Calling Hours ────────────────────────────────────── */}
+                <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 border-b" style={{ borderColor: "#F0F0F0" }}>
+                    <h2 className="font-semibold text-[15px]" style={{ color: "#0A0A0A" }}>TCPA Calling Hours</h2>
+                    <p className="text-xs mt-0.5" style={{ color: "#ABABAB" }}>Calls outside this window are automatically blocked</p>
+                  </div>
+                  <div className="px-6 py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <ClockIcon size={18} color="#ABABAB" aria-hidden="true" />
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: "#0A0A0A" }}>8:00 AM – 9:00 PM</p>
+                        <p className="text-xs" style={{ color: "#ABABAB" }}>America/Detroit (Michigan local time)</p>
+                      </div>
+                    </div>
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+                      style={{ backgroundColor: "rgba(139,158,62,0.12)", color: "#8B9E3E" }}
+                    >
+                      <span className="size-1.5 rounded-full bg-[#8B9E3E]" />
+                      Enforced
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </>
+        )}
+
         {/* ── Home view ──────────────────────────────────────────────────── */}
-        {(activeNav === "Home" || activeNav === "Settings" || activeNav === "Help") && (<>
+        {(activeNav === "Home" || activeNav === "Help") && (<>
 
           {/* Greeting row */}
           <div className="flex items-start justify-between gap-4">

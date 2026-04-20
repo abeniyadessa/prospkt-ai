@@ -387,9 +387,13 @@ export default function Dashboard() {
         style={{ backgroundColor: "#0A0A0A" }}
       >
         {/* Logo */}
-        <div className="flex items-center px-5 py-6">
+        <div className="flex items-center px-5 py-5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="Prospkt" width={130} height={44} />
+          <img
+            src="/logo.png"
+            alt="Prospkt"
+            style={{ width: 140, mixBlendMode: "screen" }}
+          />
         </div>
 
         {/* Nav */}

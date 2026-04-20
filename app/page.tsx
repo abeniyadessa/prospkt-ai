@@ -244,6 +244,19 @@ export default function Dashboard() {
   const [vapiCalls, setVapiCalls] = useState<VapiCallRecord[]>([]);
   const [callsLoading, setCallsLoading] = useState(false);
 
+  // Analytics
+  const [analytics, setAnalytics] = useState<{
+    totalLeads: number;
+    callsToday: number;
+    bookedThisWeek: number;
+    conversionRate: number;
+  } | null>(null);
+
+  // Auto-dialer
+  const [autoDialing, setAutoDialing] = useState(false);
+  const [autoDialStop, setAutoDialStop] = useState(false);
+  const [autoDialProgress, setAutoDialProgress] = useState<{ current: number; total: number; lead: string; status: string } | null>(null);
+
   // Appointments page
   const [calBookings, setCalBookings] = useState<CalBooking[]>([]);
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
@@ -278,6 +291,16 @@ export default function Dashboard() {
     }
   }, []);
 
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      const res = await fetch("/api/analytics");
+      const data = await res.json() as { totalLeads: number; callsToday: number; bookedThisWeek: number; conversionRate: number };
+      setAnalytics(data);
+    } catch {
+      // non-fatal
+    }
+  }, []);
+
   const fetchSettings = useCallback(async () => {
     setSettingsLoading(true);
     try {
@@ -307,11 +330,12 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    if (activeNav === "Home") fetchAnalytics();
     if (activeNav === "Leads") fetchLeads();
     if (activeNav === "Calls") fetchCalls();
     if (activeNav === "Appointments") fetchAppointments();
     if (activeNav === "Settings") fetchSettings();
-  }, [activeNav, fetchLeads, fetchCalls, fetchAppointments, fetchSettings]);
+  }, [activeNav, fetchAnalytics, fetchLeads, fetchCalls, fetchAppointments, fetchSettings]);
 
   // Dial dialog
   const [dialLead, setDialLead] = useState<Lead | null>(null);
@@ -319,6 +343,76 @@ export default function Dashboard() {
   const [dialing, setDialing] = useState(false);
   const [dialResult, setDialResult] = useState<{ callId: string } | null>(null);
   const [dialError, setDialError] = useState<string | null>(null);
+
+  async function startAutoDial(leads: Lead[]) {
+    if (leads.length === 0) return;
+    setAutoDialing(true);
+    setAutoDialStop(false);
+
+    const queue = [...leads].sort((a, b) => b.priorityScore - a.priorityScore);
+
+    for (let i = 0; i < queue.length; i++) {
+      if (autoDialStop) break;
+
+      const lead = queue[i];
+      setAutoDialProgress({ current: i + 1, total: queue.length, lead: lead.name, status: "Dialing…" });
+
+      try {
+        const res = await fetch("/api/vapi/outbound", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            leadId: lead.id,
+            phone: lead.phone,
+            name: lead.name,
+            category: lead.category,
+            city: lead.city,
+            websiteStatus: lead.websiteStatus,
+            priorityScore: lead.priorityScore,
+          }),
+        });
+
+        const data = (await res.json()) as { callId?: string; error?: string };
+
+        if (!res.ok || !data.callId) {
+          setAutoDialProgress((p) => p && ({ ...p, status: `Skipped — ${data.error ?? "error"}` }));
+          await delay(3000);
+          continue;
+        }
+
+        // Poll until the call ends (max 3 min + 30s buffer)
+        setAutoDialProgress((p) => p && ({ ...p, status: "In call…" }));
+        const callId = data.callId;
+        const deadline = Date.now() + 210_000; // 3.5 min
+
+        while (Date.now() < deadline) {
+          await delay(8000);
+          if (autoDialStop) break;
+          try {
+            const statusRes = await fetch(`/api/vapi/call/${callId}`);
+            const callData = (await statusRes.json()) as { status?: string; endedReason?: string };
+            if (callData.status === "ended" || callData.endedReason) break;
+          } catch {
+            break;
+          }
+        }
+
+        setAutoDialProgress((p) => p && ({ ...p, status: "Done — waiting…" }));
+        await delay(5000); // brief gap between calls
+      } catch {
+        setAutoDialProgress((p) => p && ({ ...p, status: "Error — skipping" }));
+        await delay(3000);
+      }
+    }
+
+    setAutoDialing(false);
+    setAutoDialProgress(null);
+    setAutoDialStop(false);
+  }
+
+  function delay(ms: number) {
+    return new Promise<void>((resolve) => setTimeout(resolve, ms));
+  }
 
   async function searchBusinesses() {
     if (!bizQuery.trim()) return;
@@ -566,8 +660,45 @@ export default function Dashboard() {
                     {scraping ? <><CircleNotchIcon size={11} className="animate-spin" aria-hidden="true" />Scraping…</> : <>Run Scraper <ArrowRightIcon size={11} aria-hidden="true" /></>}
                   </button>
                   <button onClick={fetchLeads} className="rounded-full border px-3 py-1.5 text-xs font-medium" style={{ borderColor: "#E0E0E0", color: "#6B6B6B" }}>Refresh</button>
+                  <button
+                    onClick={() => {
+                      if (autoDialing) { setAutoDialStop(true); return; }
+                      const filtered = allLeads.filter(l => l.name.toLowerCase().includes(leadsSearch.toLowerCase()) || l.city.toLowerCase().includes(leadsSearch.toLowerCase()) || l.category.toLowerCase().includes(leadsSearch.toLowerCase()));
+                      startAutoDial(filtered);
+                    }}
+                    disabled={allLeads.length === 0}
+                    className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-opacity hover:opacity-80 disabled:opacity-40 text-white"
+                    style={{ backgroundColor: autoDialing ? "#E8706A" : "#8B9E3E" }}
+                  >
+                    {autoDialing
+                      ? <><CircleNotchIcon size={11} className="animate-spin" aria-hidden="true" />Stop Dialer</>
+                      : <><PhoneCallIcon size={11} aria-hidden="true" />Auto-Dial Queue</>}
+                  </button>
                 </div>
               </div>
+
+              {/* Auto-dial progress bar */}
+              {autoDialProgress && (
+                <div className="px-6 py-3 border-b flex items-center gap-4" style={{ borderColor: "#F0F0F0", backgroundColor: "#F9F9F9" }}>
+                  <CircleNotchIcon size={14} className="animate-spin shrink-0" color="#8B9E3E" aria-hidden="true" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium truncate" style={{ color: "#0A0A0A" }}>
+                        {autoDialProgress.lead} — {autoDialProgress.status}
+                      </span>
+                      <span className="text-xs tabular-nums shrink-0 ml-3" style={{ color: "#ABABAB" }}>
+                        {autoDialProgress.current} / {autoDialProgress.total}
+                      </span>
+                    </div>
+                    <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: "#E0E0E0" }}>
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ backgroundColor: "#8B9E3E", width: `${(autoDialProgress.current / autoDialProgress.total) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {leadsLoading ? (
                 <div className="flex items-center justify-center py-16 gap-2" style={{ color: "#ABABAB" }}>
@@ -1109,74 +1240,52 @@ export default function Dashboard() {
             {/* Total Leads — olive */}
             <div className="rounded-2xl p-5" style={{ backgroundColor: "#8B9E3E" }}>
               <div className="flex items-start justify-between">
-                <p className="text-[11px] font-semibold tracking-widest uppercase text-white/70">
-                  Total Leads
-                </p>
+                <p className="text-[11px] font-semibold tracking-widest uppercase text-white/70">Total Leads</p>
                 <CrosshairIcon size={18} color="rgba(255,255,255,0.5)" weight="regular" aria-hidden="true" />
               </div>
               <p className="mt-3 text-[56px] leading-none font-bold tabular-nums text-white">
-                {leads.length}
+                {analytics?.totalLeads ?? leads.length}
               </p>
               <p className="mt-2 text-xs text-white/60">
-                {lastScrapedCity ? `Last: ${lastScrapedCity}` : "No scrapes yet"}
+                {lastScrapedCity ? `Last: ${lastScrapedCity}` : "Scraped from Yelp"}
               </p>
             </div>
 
             {/* Calls Today — coral */}
             <div className="rounded-2xl p-5" style={{ backgroundColor: "#E8706A" }}>
               <div className="flex items-start justify-between">
-                <p className="text-[11px] font-semibold tracking-widest uppercase text-white/70">
-                  Calls Today
-                </p>
+                <p className="text-[11px] font-semibold tracking-widest uppercase text-white/70">Calls Today</p>
                 <PhoneIcon size={18} color="rgba(255,255,255,0.5)" weight="regular" aria-hidden="true" />
               </div>
               <p className="mt-3 text-[56px] leading-none font-bold tabular-nums text-white">
-                {calls.length}
+                {analytics?.callsToday ?? 0}
               </p>
-              <p className="mt-2 text-xs text-white/60">+0 from yesterday</p>
+              <p className="mt-2 text-xs text-white/60">{analytics?.callsToday === 1 ? "1 call placed" : `${analytics?.callsToday ?? 0} calls placed`}</p>
             </div>
 
             {/* Booked — white */}
             <div className="rounded-2xl p-5 bg-white shadow-sm">
               <div className="flex items-start justify-between">
-                <p
-                  className="text-[11px] font-semibold tracking-widest uppercase"
-                  style={{ color: "#ABABAB" }}
-                >
-                  Booked
-                </p>
+                <p className="text-[11px] font-semibold tracking-widest uppercase" style={{ color: "#ABABAB" }}>Booked</p>
                 <CalendarCheckIcon size={18} color="#E8706A" weight="regular" aria-hidden="true" />
               </div>
-              <p
-                className="mt-3 text-[56px] leading-none font-bold tabular-nums"
-                style={{ color: "#0A0A0A" }}
-              >
-                {bookedCount}
+              <p className="mt-3 text-[56px] leading-none font-bold tabular-nums" style={{ color: "#0A0A0A" }}>
+                {analytics?.bookedThisWeek ?? 0}
               </p>
-              <p className="mt-2 text-xs" style={{ color: "#ABABAB" }}>
-                +0 this week
-              </p>
+              <p className="mt-2 text-xs" style={{ color: "#ABABAB" }}>This week</p>
             </div>
 
             {/* Conversion — white */}
             <div className="rounded-2xl p-5 bg-white shadow-sm">
               <div className="flex items-start justify-between">
-                <p
-                  className="text-[11px] font-semibold tracking-widest uppercase"
-                  style={{ color: "#ABABAB" }}
-                >
-                  Conversion
-                </p>
+                <p className="text-[11px] font-semibold tracking-widest uppercase" style={{ color: "#ABABAB" }}>Conversion</p>
                 <TrendUpIcon size={18} color="#8B9E3E" weight="regular" aria-hidden="true" />
               </div>
-              <p
-                className="mt-3 text-[56px] leading-none font-bold tabular-nums"
-                style={{ color: "#0A0A0A" }}
-              >
-                {conversionPct}%
+              <p className="mt-3 text-[56px] leading-none font-bold tabular-nums" style={{ color: "#0A0A0A" }}>
+                {analytics?.conversionRate ?? 0}%
               </p>
               <p className="mt-2 text-xs" style={{ color: "#ABABAB" }}>
-                {bookedCount} / {calls.length} calls
+                {analytics ? `${analytics.bookedThisWeek} booked this week` : "No calls yet"}
               </p>
             </div>
           </div>

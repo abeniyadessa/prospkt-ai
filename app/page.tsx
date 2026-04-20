@@ -27,7 +27,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -389,13 +388,8 @@ export default function Dashboard() {
       >
         {/* Logo */}
         <div className="flex items-center px-5 py-6">
-          <Image
-            src="/logo.png"
-            alt="Prospkt"
-            width={120}
-            height={40}
-            priority
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Prospkt" width={130} height={44} />
         </div>
 
         {/* Nav */}

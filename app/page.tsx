@@ -1279,6 +1279,22 @@ export default function Dashboard() {
                 </p>
               </div>
 
+              {/* TCPA calling hours warning */}
+              {(() => {
+                const hour = new Date().toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "America/Detroit" });
+                const h = Number(hour);
+                return (h < 8 || h >= 21) ? (
+                  <div
+                    className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs"
+                    style={{ backgroundColor: "rgba(232,160,48,0.1)", color: "#E8A030" }}
+                    role="alert"
+                  >
+                    <ClockIcon size={13} weight="fill" aria-hidden="true" />
+                    Outside TCPA calling hours (8am–9pm ET). The call will be blocked.
+                  </div>
+                ) : null;
+              })()}
+
               {dialError && (
                 <div
                   id="dial-error"

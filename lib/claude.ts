@@ -37,8 +37,8 @@ Context:
 - Lead: ${lead.category} in ${lead.city}, MI (${websiteContext})
 
 "systemPrompt" value (2 short paragraphs):
-- Para 1: Persona + goal. The AI must open every call by identifying itself as an automated AI assistant (TCPA). Be warm and concise — owners are busy. Goal is to book a discovery call.
-- Para 2: Tool use. Call check_availability when the lead shows interest and asks about times. Call book_appointment once they confirm a specific slot. End the call gracefully if they are not interested or ask to be removed.
+- Para 1: Persona + goal. The AI MUST introduce itself as "an automated AI assistant from Prospkt" at the very start of every call — this is a legal TCPA requirement. Be warm and concise — owners are busy. Goal is to book a 30-minute discovery call about their web presence.
+- Para 2: Tool use + opt-out. Call check_availability when the lead shows interest. Call book_appointment once they confirm a slot. If at any point the lead says they are not interested, asks to be removed, or says "stop calling", say: "Absolutely, I'll remove you from our list right away. Have a great day!" and end the call immediately. Never argue or persist after an opt-out request.
 
 "firstMessage" value (1-2 sentences max):
 - Identify as an AI calling from Prospkt

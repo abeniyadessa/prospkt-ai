@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAvailableSlots, bookSlot } from "@/lib/calendar";
 import { logCall, type CallOutcome } from "@/lib/clickup";
 import { sendVoicemailFollowUp, sendOptOutConfirmation, sendBookingConfirmation } from "@/lib/sms";
+import { addToDNC } from "@/lib/dnc";
 
 // POST /api/vapi/webhook
 // Vapi fires this for two types of events:
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest) {
       console.error("[vapi/webhook] ClickUp log failed:", err);
     }
 
-    // Send SMS follow-up based on outcome (fire and forget)
+    // Send SMS follow-up + DNC handling based on outcome (fire and forget)
     const phone = meta.phone;
     const businessName = meta.businessName ?? "there";
     const outcomeStr = outcome as string;
@@ -176,11 +177,13 @@ export async function POST(request: NextRequest) {
           await sendBookingConfirmation(phone, businessName);
           console.log("[vapi/webhook] Booking confirmation SMS sent to", phone);
         } else if (outcomeStr === "not-interested") {
+          // TCPA: add to DNC and send opt-out confirmation
+          await addToDNC(phone);
           await sendOptOutConfirmation(phone, businessName);
-          console.log("[vapi/webhook] Opt-out SMS sent to", phone);
+          console.log("[vapi/webhook] Added to DNC + opt-out SMS sent to", phone);
         }
       } catch (err) {
-        console.error("[vapi/webhook] SMS failed:", err);
+        console.error("[vapi/webhook] SMS/DNC failed:", err);
       }
     }
   }

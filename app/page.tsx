@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -387,15 +388,14 @@ export default function Dashboard() {
         style={{ backgroundColor: "#0A0A0A" }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 py-6">
-          <div
-            className="size-8 rounded-lg flex items-center justify-center shrink-0"
-            style={{ backgroundColor: "#E8706A" }}
-            aria-hidden="true"
-          >
-            <CrosshairIcon size={15} color="#fff" weight="bold" />
-          </div>
-          <span className="text-white font-bold text-base">Prospkt</span>
+        <div className="flex items-center px-5 py-6">
+          <Image
+            src="/logo.png"
+            alt="Prospkt"
+            width={120}
+            height={40}
+            priority
+          />
         </div>
 
         {/* Nav */}

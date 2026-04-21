@@ -99,7 +99,7 @@ export async function createAssistant(config: AssistantConfig): Promise<{ id: st
       provider: "anthropic",
       model: "claude-3-5-sonnet-20241022",
       messages: [{ role: "system", content: config.systemPrompt }],
-      // Tools live inside model for Vapi's Anthropic provider
+      temperature: 0.7, // slight warmth for natural variation
       ...(config.tools && config.tools.length > 0 ? { tools: config.tools } : {}),
     },
     voice: config.voice ?? (
@@ -114,12 +114,23 @@ export async function createAssistant(config: AssistantConfig): Promise<{ id: st
           }
         : {
             provider: "openai" as const,
-            voiceId: "nova", // warm, natural-sounding female — free via Vapi
+            voiceId: "nova",
           }
     ),
     firstMessage: config.firstMessage,
+    firstMessageMode: "assistant-speaks-first",
+
+    // ── Conversational feel ───────────────────────────────────────────────
+    backchannelingEnabled: true,        // says "mhm", "yeah", "right" while listening
+    backgroundDenoisingEnabled: true,   // kills background hiss
+    modelOutputInRealtime: true,        // starts speaking sooner, less dead air
+    responseDelaySeconds: 0.3,          // brief human-like pause before responding
+    silenceTimeoutSeconds: 20,          // hang up after 20s of silence
+    maxDurationSeconds: 210,            // 3.5 min max
+
     endCallFunctionEnabled: true,
     recordingEnabled: true,
+    transcriptsEnabled: true,
   };
 
   const res = await fetch(`${VAPI_API}/assistant`, {

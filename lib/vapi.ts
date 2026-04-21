@@ -70,6 +70,10 @@ export interface AssistantConfig {
   voice?: {
     provider: "11labs" | "openai" | "deepgram";
     voiceId: string;
+    stability?: number;
+    similarityBoost?: number;
+    style?: number;
+    useSpeakerBoost?: boolean;
   };
   tools?: VapiTool[];
 }
@@ -99,8 +103,12 @@ export async function createAssistant(config: AssistantConfig): Promise<{ id: st
       ...(config.tools && config.tools.length > 0 ? { tools: config.tools } : {}),
     },
     voice: config.voice ?? {
-      provider: "openai",
-      voiceId: "alloy",
+      provider: "11labs",
+      voiceId: process.env.ELEVENLABS_VOICE_ID ?? "nPczCjzI2devNBz1zQrb", // Brian — natural conversational male
+      stability: 0.4,
+      similarityBoost: 0.8,
+      style: 0.1,
+      useSpeakerBoost: true,
     },
     firstMessage: config.firstMessage,
     endCallFunctionEnabled: true,

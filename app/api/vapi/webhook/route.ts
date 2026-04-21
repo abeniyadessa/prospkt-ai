@@ -3,6 +3,7 @@ import { getAvailableSlots, bookSlot } from "@/lib/calendar";
 import { logCall, type CallOutcome } from "@/lib/clickup";
 import { sendVoicemailFollowUp, sendOptOutConfirmation, sendBookingConfirmation } from "@/lib/sms";
 import { addToDNC } from "@/lib/dnc";
+import { sendBookingNotification } from "@/lib/email";
 
 // POST /api/vapi/webhook
 // Vapi fires this for two types of events:
@@ -91,6 +92,15 @@ export async function POST(request: NextRequest) {
             timeZone: "America/Detroit",
             notes: "Booked via Prospkt AI sales call",
           });
+          // Fire email notification (non-blocking)
+          sendBookingNotification({
+            businessName: "Business",
+            attendeeName: args.attendeeName ?? "Business Owner",
+            attendeeEmail: args.attendeeEmail ?? "",
+            startTime: args.start,
+            phone: "",
+          }).catch((e) => console.error("[webhook] email error:", e));
+
           results.push({
             toolCallId: toolCall.id,
             result: `Booking confirmed! The discovery call is set for ${new Date(booking.start).toLocaleString("en-US", {

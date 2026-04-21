@@ -1,6 +1,19 @@
 import Anthropic from "@anthropic-ai/sdk";
+import fs from "fs/promises";
+import path from "path";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+const SCRIPT_FILE = path.join(process.cwd(), "data", "script-override.json");
+
+async function getScriptOverride(): Promise<{ systemPromptSuffix: string; firstMessageTemplate: string }> {
+  try {
+    const raw = await fs.readFile(SCRIPT_FILE, "utf-8");
+    return JSON.parse(raw) as { systemPromptSuffix: string; firstMessageTemplate: string };
+  } catch {
+    return { systemPromptSuffix: "", firstMessageTemplate: "" };
+  }
+}
 
 export interface LeadContext {
   name: string;
@@ -72,5 +85,18 @@ JSON output:`;
   }
 
   const parsed = JSON.parse(raw) as CallScript;
+
+  // Apply any custom overrides from Settings
+  const override = await getScriptOverride();
+  if (override.systemPromptSuffix?.trim()) {
+    parsed.systemPrompt += "\n\n" + override.systemPromptSuffix.trim();
+  }
+  if (override.firstMessageTemplate?.trim()) {
+    parsed.firstMessage = override.firstMessageTemplate
+      .replace("{businessName}", lead.name)
+      .replace("{city}", lead.city)
+      .replace("{category}", lead.category);
+  }
+
   return parsed;
 }

@@ -24,6 +24,12 @@ import {
   RobotIcon,
   PhoneCallIcon,
   LinkIcon,
+  StarIcon,
+  MapPinIcon,
+  ArrowSquareOutIcon,
+  TextAlignLeftIcon,
+  XIcon,
+  FloppyDiskIcon,
 } from "@phosphor-icons/react";
 import {
   Dialog,
@@ -257,6 +263,18 @@ export default function Dashboard() {
   const [autoDialStop, setAutoDialStop] = useState(false);
   const [autoDialProgress, setAutoDialProgress] = useState<{ current: number; total: number; lead: string; status: string } | null>(null);
 
+  // Transcript viewer
+  const [transcriptCall, setTranscriptCall] = useState<VapiCallRecord | null>(null);
+
+  // Lead detail drawer
+  const [detailLead, setDetailLead] = useState<Lead | null>(null);
+
+  // Script editor (Settings)
+  const [scriptSuffix, setScriptSuffix] = useState("");
+  const [firstMsgTemplate, setFirstMsgTemplate] = useState("");
+  const [scriptSaving, setScriptSaving] = useState(false);
+  const [scriptSaved, setScriptSaved] = useState(false);
+
   // Appointments page
   const [calBookings, setCalBookings] = useState<CalBooking[]>([]);
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
@@ -304,15 +322,19 @@ export default function Dashboard() {
   const fetchSettings = useCallback(async () => {
     setSettingsLoading(true);
     try {
-      const [statusRes, dncRes] = await Promise.all([
+      const [statusRes, dncRes, scriptRes] = await Promise.all([
         fetch("/api/settings/status"),
         fetch("/api/dnc"),
+        fetch("/api/settings/script"),
       ]);
       const statusData = (await statusRes.json()) as { integrations: Record<string, boolean>; caller: Record<string, string | null> };
       const dncData = (await dncRes.json()) as { numbers: string[] };
+      const scriptData = (await scriptRes.json()) as { systemPromptSuffix: string; firstMessageTemplate: string };
       setIntegrations(statusData.integrations ?? {});
       setCallerInfo(statusData.caller ?? {});
       setDncList(dncData.numbers ?? []);
+      setScriptSuffix(scriptData.systemPromptSuffix ?? "");
+      setFirstMsgTemplate(scriptData.firstMessageTemplate ?? "");
     } finally {
       setSettingsLoading(false);
     }
@@ -726,7 +748,7 @@ export default function Dashboard() {
                       {allLeads
                         .filter(l => l.name.toLowerCase().includes(leadsSearch.toLowerCase()) || l.city.toLowerCase().includes(leadsSearch.toLowerCase()) || l.category.toLowerCase().includes(leadsSearch.toLowerCase()))
                         .map((lead) => (
-                        <tr key={lead.id} className="border-t hover:bg-[#FAFAFA] transition-colors" style={{ borderColor: "#F0F0F0" }}>
+                        <tr key={lead.id} className="border-t hover:bg-[#FAFAFA] transition-colors cursor-pointer" style={{ borderColor: "#F0F0F0" }} onClick={() => setDetailLead(lead)}>
                           <td className="px-6 py-4 font-medium" style={{ color: "#0A0A0A" }}>{lead.name}</td>
                           <td className="px-6 py-4" style={{ color: "#6B6B6B" }}>{lead.category}</td>
                           <td className="px-6 py-4" style={{ color: "#6B6B6B" }}>{lead.city}</td>
@@ -901,7 +923,12 @@ export default function Dashboard() {
                           : "#8B9E3E";
 
                         return (
-                          <tr key={call.id} className="border-t hover:bg-[#FAFAFA] transition-colors" style={{ borderColor: "#F0F0F0" }}>
+                          <tr
+                            key={call.id}
+                            className="border-t hover:bg-[#FAFAFA] transition-colors cursor-pointer"
+                            style={{ borderColor: "#F0F0F0" }}
+                            onClick={() => setTranscriptCall(call)}
+                          >
                             <td className="px-6 py-4 font-medium" style={{ color: "#0A0A0A" }}>{businessName}</td>
                             <td className="px-6 py-4 tabular-nums text-xs" style={{ color: "#6B6B6B" }}>
                               {startDate ? startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
@@ -919,13 +946,9 @@ export default function Dashboard() {
                               <p className="text-xs truncate" style={{ color: "#6B6B6B" }}>{call.summary ?? "—"}</p>
                             </td>
                             <td className="px-6 py-4">
-                              {call.recordingUrl && (
-                                <a href={call.recordingUrl} target="_blank" rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: "#E8706A" }}
-                                  aria-label="Listen to recording">
-                                  <RecordIcon size={12} aria-hidden="true" />Listen
-                                </a>
-                              )}
+                              <span className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: "#ABABAB" }}>
+                                <TextAlignLeftIcon size={12} aria-hidden="true" />View
+                              </span>
                             </td>
                           </tr>
                         );
@@ -1193,6 +1216,70 @@ export default function Dashboard() {
                       <span className="size-1.5 rounded-full bg-[#8B9E3E]" />
                       Enforced
                     </span>
+                  </div>
+                </div>
+
+                {/* ── Call Script Editor ───────────────────────────────────── */}
+                <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 border-b" style={{ borderColor: "#F0F0F0" }}>
+                    <h2 className="font-semibold text-[15px]" style={{ color: "#0A0A0A" }}>Call Script Editor</h2>
+                    <p className="text-xs mt-0.5" style={{ color: "#ABABAB" }}>Customise what the AI says — Claude still generates the base script, these are applied on top</p>
+                  </div>
+                  <div className="px-6 py-5 space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#ABABAB" }}>
+                        Opening Message Override
+                      </label>
+                      <input
+                        type="text"
+                        value={firstMsgTemplate}
+                        onChange={(e) => { setFirstMsgTemplate(e.target.value); setScriptSaved(false); }}
+                        placeholder='e.g. "Hi, this is an automated AI calling from Prospkt about {businessName}…"'
+                        className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:ring-2"
+                        style={{ borderColor: "#E0E0E0", color: "#0A0A0A" }}
+                      />
+                      <p className="text-[11px]" style={{ color: "#ABABAB" }}>Variables: {"{businessName}"}, {"{city}"}, {"{category}"}. Leave blank to use AI-generated message.</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#ABABAB" }}>
+                        Extra Instructions
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={scriptSuffix}
+                        onChange={(e) => { setScriptSuffix(e.target.value); setScriptSaved(false); }}
+                        placeholder="e.g. Always mention we offer a free website audit. Never discuss pricing on the call."
+                        className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:ring-2 resize-none"
+                        style={{ borderColor: "#E0E0E0", color: "#0A0A0A" }}
+                      />
+                      <p className="text-[11px]" style={{ color: "#ABABAB" }}>Appended to every generated system prompt.</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={async () => {
+                          setScriptSaving(true);
+                          await fetch("/api/settings/script", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ systemPromptSuffix: scriptSuffix, firstMessageTemplate: firstMsgTemplate }),
+                          });
+                          setScriptSaving(false);
+                          setScriptSaved(true);
+                        }}
+                        disabled={scriptSaving}
+                        className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                        style={{ backgroundColor: "#0A0A0A" }}
+                      >
+                        {scriptSaving
+                          ? <><CircleNotchIcon size={13} className="animate-spin" aria-hidden="true" />Saving…</>
+                          : <><FloppyDiskIcon size={13} aria-hidden="true" />Save Script</>}
+                      </button>
+                      {scriptSaved && (
+                        <span className="text-xs font-medium" style={{ color: "#8B9E3E" }}>
+                          <CheckCircleIcon size={13} className="inline mr-1" aria-hidden="true" />Saved
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1662,6 +1749,136 @@ export default function Dashboard() {
                   )}
                 </button>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Transcript viewer ──────────────────────────────────────────────── */}
+      <Dialog open={!!transcriptCall} onOpenChange={(o) => !o && setTranscriptCall(null)}>
+        <DialogContent className="max-w-2xl rounded-2xl" style={{ fontFamily: "'Switzer', sans-serif" }}>
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold" style={{ color: "#0A0A0A" }}>
+              {transcriptCall?.metadata?.businessName ?? "Call"} — Transcript
+            </DialogTitle>
+          </DialogHeader>
+          {transcriptCall && (
+            <div className="space-y-4 mt-1 max-h-[70vh] overflow-y-auto pr-1">
+              {/* Meta row */}
+              <div className="flex flex-wrap gap-3 text-xs" style={{ color: "#6B6B6B" }}>
+                {transcriptCall.startedAt && (
+                  <span>{new Date(transcriptCall.startedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
+                )}
+                {transcriptCall.startedAt && transcriptCall.endedAt && (
+                  <span>{Math.round((new Date(transcriptCall.endedAt).getTime() - new Date(transcriptCall.startedAt).getTime()) / 1000)}s</span>
+                )}
+                {transcriptCall.endedReason && (
+                  <span className="capitalize">{transcriptCall.endedReason.replace(/-/g, " ")}</span>
+                )}
+                {transcriptCall.recordingUrl && (
+                  <a href={transcriptCall.recordingUrl} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-medium" style={{ color: "#E8706A" }}>
+                    <RecordIcon size={11} aria-hidden="true" />Listen to recording
+                    <ArrowSquareOutIcon size={11} aria-hidden="true" />
+                  </a>
+                )}
+              </div>
+              {/* Summary */}
+              {transcriptCall.summary && (
+                <div className="rounded-xl p-4" style={{ backgroundColor: "#F5F0E8" }}>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase mb-2" style={{ color: "#ABABAB" }}>Summary</p>
+                  <p className="text-sm leading-relaxed" style={{ color: "#0A0A0A" }}>{transcriptCall.summary}</p>
+                </div>
+              )}
+              {/* Full transcript */}
+              {transcriptCall.transcript ? (
+                <div>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase mb-2" style={{ color: "#ABABAB" }}>Full Transcript</p>
+                  <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: "#E0E0E0" }}>
+                    {transcriptCall.transcript.split("\n").filter(Boolean).map((line, i) => {
+                      const isAI = line.toLowerCase().startsWith("ai:") || line.toLowerCase().startsWith("assistant:");
+                      return (
+                        <p key={i} className="text-sm leading-relaxed" style={{ color: isAI ? "#0A0A0A" : "#E8706A" }}>
+                          {line}
+                        </p>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 gap-2">
+                  <TextAlignLeftIcon size={22} color="#ABABAB" aria-hidden="true" />
+                  <p className="text-sm" style={{ color: "#ABABAB" }}>No transcript available for this call</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Lead detail drawer ─────────────────────────────────────────────── */}
+      <Dialog open={!!detailLead} onOpenChange={(o) => !o && setDetailLead(null)}>
+        <DialogContent className="max-w-md rounded-2xl" style={{ fontFamily: "'Switzer', sans-serif" }}>
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold" style={{ color: "#0A0A0A" }}>
+              {detailLead?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {detailLead && (
+            <div className="space-y-5 mt-1">
+              {/* Score + status row */}
+              <div className="flex items-center gap-3">
+                <ScorePill score={detailLead.priorityScore} />
+                <WebsiteBadge status={detailLead.websiteStatus} />
+                <span className="text-xs px-2.5 py-0.5 rounded-full" style={{ backgroundColor: "#F5F0E8", color: "#6B6B6B" }}>
+                  {detailLead.category}
+                </span>
+              </div>
+
+              {/* Info rows */}
+              <div className="rounded-xl border divide-y" style={{ borderColor: "#E0E0E0" }}>
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <PhoneIcon size={15} color="#ABABAB" aria-hidden="true" />
+                  <span className="text-sm font-mono tabular-nums" style={{ color: "#0A0A0A" }}>{detailLead.phone}</span>
+                </div>
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <MapPinIcon size={15} color="#ABABAB" aria-hidden="true" />
+                  <span className="text-sm" style={{ color: "#0A0A0A" }}>{detailLead.address || detailLead.city}</span>
+                </div>
+                {(detailLead as Lead & { yelpRating?: number; yelpReviewCount?: number }).yelpRating && (
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <StarIcon size={15} color="#E8A030" weight="fill" aria-hidden="true" />
+                    <span className="text-sm tabular-nums" style={{ color: "#0A0A0A" }}>
+                      {(detailLead as Lead & { yelpRating?: number; yelpReviewCount?: number }).yelpRating} · {(detailLead as Lead & { yelpRating?: number; yelpReviewCount?: number }).yelpReviewCount} reviews
+                    </span>
+                  </div>
+                )}
+                {(detailLead as Lead & { yelpUrl?: string }).yelpUrl && (
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <ArrowSquareOutIcon size={15} color="#ABABAB" aria-hidden="true" />
+                    <a
+                      href={(detailLead as Lead & { yelpUrl?: string }).yelpUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm truncate"
+                      style={{ color: "#E8706A" }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      View on Yelp
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Call button */}
+              <button
+                onClick={() => { setDetailLead(null); openDialDialog(detailLead); }}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white"
+                style={{ backgroundColor: "#E8706A" }}
+              >
+                <PhoneIcon size={14} weight="fill" aria-hidden="true" />
+                Call {detailLead.name}
+              </button>
             </div>
           )}
         </DialogContent>

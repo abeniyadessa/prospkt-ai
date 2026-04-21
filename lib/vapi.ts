@@ -102,14 +102,21 @@ export async function createAssistant(config: AssistantConfig): Promise<{ id: st
       // Tools live inside model for Vapi's Anthropic provider
       ...(config.tools && config.tools.length > 0 ? { tools: config.tools } : {}),
     },
-    voice: config.voice ?? {
-      provider: "11labs",
-      voiceId: process.env.ELEVENLABS_VOICE_ID ?? "nPczCjzI2devNBz1zQrb", // Brian — natural conversational male
-      stability: 0.4,
-      similarityBoost: 0.8,
-      style: 0.1,
-      useSpeakerBoost: true,
-    },
+    voice: config.voice ?? (
+      process.env.ELEVENLABS_VOICE_ID && process.env.ELEVENLABS_API_KEY && process.env.ELEVENLABS_API_KEY !== "your_key_here"
+        ? {
+            provider: "11labs" as const,
+            voiceId: process.env.ELEVENLABS_VOICE_ID,
+            stability: 0.4,
+            similarityBoost: 0.8,
+            style: 0.1,
+            useSpeakerBoost: true,
+          }
+        : {
+            provider: "openai" as const,
+            voiceId: "nova", // warm, natural-sounding female — free via Vapi
+          }
+    ),
     firstMessage: config.firstMessage,
     endCallFunctionEnabled: true,
     recordingEnabled: true,

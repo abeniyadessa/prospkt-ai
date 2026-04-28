@@ -96,11 +96,11 @@ export default function MarketingPage() {
   return (
     <main className="min-h-dvh bg-[#f5f3ef] text-[#171717]">
       <header className="fixed inset-x-0 top-0 z-50 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6 lg:px-10">
-        <div className="mx-auto flex w-fit max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border border-white/65 bg-white/92 px-3 py-3 shadow-xl shadow-black/10 sm:max-w-[calc(100vw-3rem)] sm:gap-4 sm:px-4">
+        <div className="mx-auto flex w-full max-w-md items-center justify-between gap-4 rounded-lg border border-white/70 bg-white/95 px-4 py-3 shadow-lg sm:max-w-xl lg:w-fit lg:max-w-[calc(100vw-3rem)] lg:justify-start lg:bg-white/92 lg:px-4">
           <a
             href="#top"
             aria-label="Kincaid Building Group home"
-            className="flex min-h-14 shrink-0 items-center px-2"
+            className="flex min-h-12 shrink-0 items-center"
           >
             <Image
               src="/kincaid/kincaid-full-logo-2019-transparent-clean.png"
@@ -108,7 +108,7 @@ export default function MarketingPage() {
               width={280}
               height={94}
               priority
-              className="h-auto w-[150px] sm:w-[205px]"
+              className="h-auto w-[184px] max-w-[58vw] sm:w-[205px]"
             />
           </a>
           <nav className="hidden items-center border-l border-black/10 pl-4 lg:flex" aria-label="Primary">
@@ -135,18 +135,18 @@ export default function MarketingPage() {
             >
               Start a project
             </a>
-            <details className="relative lg:hidden">
+            <details className="group lg:hidden">
               <summary
                 aria-label="Open navigation menu"
-                className="flex min-h-10 list-none items-center justify-center rounded-md border border-black/10 bg-white/60 px-3 text-zinc-800 hover:bg-black/5 [&::-webkit-details-marker]:hidden"
+                className="flex size-14 list-none items-center justify-center rounded-md border border-black/10 bg-white text-zinc-800 shadow-sm hover:bg-[#f5f3ef] [&::-webkit-details-marker]:hidden"
               >
-                <Menu aria-hidden="true" size={20} />
+                <Menu aria-hidden="true" size={24} />
               </summary>
-              <div className="absolute right-0 top-full mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-black/10 bg-white shadow-xl shadow-black/15">
-                <nav className="grid p-2" aria-label="Mobile primary">
+              <div className="fixed inset-x-4 top-[calc(max(0.75rem,env(safe-area-inset-top))+5.75rem)] overflow-hidden rounded-lg border border-black/10 bg-white shadow-xl shadow-black/20 sm:inset-x-auto sm:right-6 sm:w-80">
+                <nav className="grid p-3" aria-label="Mobile primary">
                   {navItems.map(([label, href]) => (
                     <a
-                      className="rounded-md px-4 py-3 text-sm font-bold uppercase text-zinc-800 hover:bg-[#f5f3ef] hover:text-[#b4111a]"
+                      className="flex min-h-12 items-center rounded-md px-4 text-sm font-bold uppercase text-zinc-800 hover:bg-[#f5f3ef] hover:text-[#b4111a]"
                       href={href}
                       key={label}
                     >
@@ -154,16 +154,16 @@ export default function MarketingPage() {
                     </a>
                   ))}
                 </nav>
-                <div className="border-t border-black/10 p-3">
+                <div className="border-t border-black/10 p-4">
                   <a
                     href="#contact"
-                    className="mb-2 flex min-h-11 items-center justify-center rounded-md bg-[#b4111a] px-4 text-sm font-bold uppercase text-white hover:bg-black"
+                    className="mb-3 flex min-h-12 items-center justify-center rounded-md bg-[#b4111a] px-4 text-sm font-bold uppercase text-white hover:bg-black"
                   >
                     Start a project
                   </a>
                   <a
                     href="tel:15173328210"
-                    className="flex min-h-11 items-center justify-center rounded-md bg-[#f5f3ef] px-4 text-sm font-bold uppercase text-zinc-800 hover:text-[#b4111a]"
+                    className="flex min-h-12 items-center justify-center rounded-md bg-[#f5f3ef] px-4 text-sm font-bold uppercase text-zinc-800 hover:text-[#b4111a]"
                   >
                     (517) 332-8210
                   </a>
@@ -190,10 +190,10 @@ export default function MarketingPage() {
         <div className="absolute inset-0 bg-black/45" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_75%,rgba(180,17,26,0.34),transparent_34%)]" />
 
-        <div className="relative mx-auto grid min-h-[100svh] max-w-7xl content-end gap-7 px-5 pb-8 pt-28 sm:px-8 sm:pt-32 lg:grid-cols-[1fr_380px] lg:items-end lg:px-10 lg:pb-16">
+        <div className="relative mx-auto grid min-h-[100svh] max-w-7xl content-end gap-7 px-5 pb-14 pt-36 sm:px-8 sm:pt-36 lg:grid-cols-[1fr_380px] lg:items-end lg:px-10 lg:pb-16">
           <div className="max-w-4xl text-white">
             <p className="text-sm font-bold uppercase text-[#ff5a63]">Kincaid Building Group</p>
-            <h1 className="mt-4 max-w-4xl text-balance text-[2.55rem] font-semibold uppercase leading-[1.08] sm:mt-5 sm:text-5xl lg:text-6xl">
+            <h1 className="mt-4 max-w-4xl text-balance text-4xl font-semibold uppercase leading-[1.08] sm:mt-5 sm:text-5xl lg:text-6xl">
               Build the project before the project builds risk.
             </h1>
             <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-zinc-100 sm:mt-6 sm:text-lg sm:leading-8">

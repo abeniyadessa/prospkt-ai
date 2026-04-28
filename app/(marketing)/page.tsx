@@ -96,7 +96,7 @@ export default function MarketingPage() {
   return (
     <main className="min-h-dvh bg-[#f5f3ef] text-[#171717]">
       <header className="fixed inset-x-0 top-0 z-50 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6 lg:px-10">
-        <div className="mx-auto flex w-fit max-w-[calc(100vw-1rem)] items-center gap-2 rounded-lg border border-white/65 bg-white/92 px-3 py-3 shadow-xl shadow-black/10 sm:max-w-[calc(100vw-3rem)] sm:gap-4 sm:px-4">
+        <div className="mx-auto flex w-fit max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border border-white/65 bg-white/92 px-3 py-3 shadow-xl shadow-black/10 sm:max-w-[calc(100vw-3rem)] sm:gap-4 sm:px-4">
           <a
             href="#top"
             aria-label="Kincaid Building Group home"
@@ -108,7 +108,7 @@ export default function MarketingPage() {
               width={280}
               height={94}
               priority
-              className="h-auto w-[132px] sm:w-[205px]"
+              className="h-auto w-[150px] sm:w-[205px]"
             />
           </a>
           <nav className="hidden items-center border-l border-black/10 pl-4 lg:flex" aria-label="Primary">
@@ -122,7 +122,7 @@ export default function MarketingPage() {
               </a>
             ))}
           </nav>
-          <div className="flex items-center gap-2 border-l border-black/10 pl-3 sm:gap-3 sm:pl-4">
+          <div className="flex items-center gap-2 lg:border-l lg:border-black/10 lg:pl-4 xl:gap-3">
             <a
               href="tel:15173328210"
               className="hidden whitespace-nowrap text-sm font-bold uppercase text-zinc-700 hover:text-[#b4111a] xl:inline-flex"
@@ -131,7 +131,7 @@ export default function MarketingPage() {
             </a>
             <a
               href="#contact"
-              className="inline-flex min-h-10 whitespace-nowrap items-center justify-center rounded-md bg-[#b4111a] px-4 text-sm font-bold uppercase text-white hover:bg-black sm:px-5"
+              className="hidden min-h-10 whitespace-nowrap items-center justify-center rounded-md bg-[#b4111a] px-5 text-sm font-bold uppercase text-white hover:bg-black lg:inline-flex"
             >
               Start a project
             </a>
@@ -156,6 +156,12 @@ export default function MarketingPage() {
                 </nav>
                 <div className="border-t border-black/10 p-3">
                   <a
+                    href="#contact"
+                    className="mb-2 flex min-h-11 items-center justify-center rounded-md bg-[#b4111a] px-4 text-sm font-bold uppercase text-white hover:bg-black"
+                  >
+                    Start a project
+                  </a>
+                  <a
                     href="tel:15173328210"
                     className="flex min-h-11 items-center justify-center rounded-md bg-[#f5f3ef] px-4 text-sm font-bold uppercase text-zinc-800 hover:text-[#b4111a]"
                   >
@@ -168,7 +174,7 @@ export default function MarketingPage() {
         </div>
       </header>
 
-      <section id="top" className="relative min-h-dvh overflow-hidden bg-black">
+      <section id="top" className="relative min-h-[100svh] overflow-hidden bg-black">
         <video
           aria-hidden="true"
           autoPlay
@@ -184,17 +190,17 @@ export default function MarketingPage() {
         <div className="absolute inset-0 bg-black/45" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_75%,rgba(180,17,26,0.34),transparent_34%)]" />
 
-        <div className="relative mx-auto grid min-h-dvh max-w-7xl gap-8 px-5 pb-10 pt-32 sm:px-8 lg:grid-cols-[1fr_380px] lg:items-end lg:px-10 lg:pb-16">
+        <div className="relative mx-auto grid min-h-[100svh] max-w-7xl content-end gap-7 px-5 pb-8 pt-28 sm:px-8 sm:pt-32 lg:grid-cols-[1fr_380px] lg:items-end lg:px-10 lg:pb-16">
           <div className="max-w-4xl text-white">
             <p className="text-sm font-bold uppercase text-[#ff5a63]">Kincaid Building Group</p>
-            <h1 className="mt-5 max-w-4xl text-balance text-4xl font-semibold uppercase leading-tight sm:text-5xl lg:text-6xl">
+            <h1 className="mt-4 max-w-4xl text-balance text-[2.55rem] font-semibold uppercase leading-[1.08] sm:mt-5 sm:text-5xl lg:text-6xl">
               Build the project before the project builds risk.
             </h1>
-            <p className="mt-6 max-w-2xl text-pretty text-lg leading-8 text-zinc-100">
+            <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-zinc-100 sm:mt-6 sm:text-lg sm:leading-8">
               Real estate development and construction services for owners, investors, and
               developers who need a clear path from opportunity to successful delivery.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap gap-3 sm:mt-8">
               <a
                 href="#contact"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-[#b4111a] px-5 text-sm font-bold uppercase text-white hover:bg-white hover:text-black"
@@ -211,7 +217,7 @@ export default function MarketingPage() {
             </div>
           </div>
 
-          <aside className="rounded-lg border border-white/20 bg-white/92 p-5 shadow-2xl shadow-black/25">
+          <aside className="hidden rounded-lg border border-white/20 bg-white/92 p-5 shadow-2xl shadow-black/25 lg:block">
             <p className="text-sm font-bold uppercase text-[#b4111a]">Start here</p>
             <h2 className="mt-3 text-balance text-2xl font-semibold uppercase leading-tight">
               Get clarity on scope, site, budget, and next steps.

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { apiError, requireWorkspaceForApi } from "@/lib/auth";
+import { listLeads } from "@/lib/database";
+
+export const runtime = "nodejs";
 
 interface VapiCall {
   id: string;
@@ -11,24 +13,9 @@ interface VapiCall {
   metadata?: Record<string, string>;
 }
 
-interface Lead {
-  id: string;
-  category: string;
-  city: string;
-}
-
-const LEADS_FILE = path.join(process.cwd(), "data", "leads.json");
-
-async function readLeads(): Promise<Lead[]> {
-  try {
-    const raw = await fs.readFile(LEADS_FILE, "utf-8");
-    return JSON.parse(raw) as Lead[];
-  } catch {
-    return [];
-  }
-}
-
 export async function GET() {
+  try {
+    const workspace = await requireWorkspaceForApi();
   const apiKey = process.env.VAPI_API_KEY;
 
   // Fetch Vapi calls (last 100)
@@ -47,7 +34,7 @@ export async function GET() {
     }
   }
 
-  const leads = await readLeads();
+  const leads = await listLeads(workspace.id);
 
   const now = new Date();
   const startOfToday = new Date(now);
@@ -78,6 +65,9 @@ export async function GET() {
 
   return NextResponse.json({
     totalLeads: leads.length,
+    activeLeads: leads.filter((lead) => !["booked", "not_interested", "dnc"].includes(lead.status ?? "new")).length,
+    bookedLeads: leads.filter((lead) => lead.status === "booked").length,
+    followUpLeads: leads.filter((lead) => lead.status === "follow_up" || lead.status === "voicemail").length,
     callsToday: callsToday.length,
     callsThisWeek: callsThisWeek.length,
     totalCalls: calls.length,
@@ -86,4 +76,7 @@ export async function GET() {
     conversionRate,
     endedCalls: endedCalls.length,
   });
+  } catch (error) {
+    return apiError(error);
+  }
 }

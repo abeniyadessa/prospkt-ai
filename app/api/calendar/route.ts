@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiError, requireWorkspaceForApi } from "@/lib/auth";
 import { getAvailableSlots, bookSlot, type BookingRequest } from "@/lib/calendar";
 
 // GET /api/calendar?days=7
@@ -7,17 +8,23 @@ export async function GET(request: NextRequest) {
   const days = Number(request.nextUrl.searchParams.get("days") ?? "7");
 
   try {
+    await requireWorkspaceForApi();
     const slots = await getAvailableSlots(days);
     return NextResponse.json({ slots });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err);
   }
 }
 
 // POST /api/calendar
 // Body: BookingRequest — books a discovery call
 export async function POST(request: NextRequest) {
+  try {
+    await requireWorkspaceForApi();
+  } catch (error) {
+    return apiError(error);
+  }
+
   let body: BookingRequest;
   try {
     body = (await request.json()) as BookingRequest;
@@ -36,7 +43,6 @@ export async function POST(request: NextRequest) {
     const booking = await bookSlot(body);
     return NextResponse.json({ booking });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err);
   }
 }

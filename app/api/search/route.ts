@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiError, requireWorkspaceForApi } from "@/lib/auth";
+import { isCallablePhone, isOnDNC, normalise } from "@/lib/dnc";
+
+export const runtime = "nodejs";
 
 interface YelpBusiness {
   id: string;
@@ -25,6 +29,14 @@ interface YelpSearchResponse {
 }
 
 export async function GET(request: NextRequest) {
+  let workspaceId: string;
+  try {
+    const workspace = await requireWorkspaceForApi();
+    workspaceId = workspace.id;
+  } catch (error) {
+    return apiError(error);
+  }
+
   const q = request.nextUrl.searchParams.get("q")?.trim();
   const city = request.nextUrl.searchParams.get("city")?.trim() ?? "Michigan";
 
@@ -58,13 +70,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Shape results the same as leads
-    const results = (data.businesses ?? [])
-      .filter((b) => b.phone)
-      .map((b) => ({
+    // Shape results the same as leads, but only return numbers that can enter the queue.
+    const results = [];
+    for (const b of data.businesses ?? []) {
+      const phone = normalise(b.phone ?? "");
+      if (!isCallablePhone(phone) || (await isOnDNC(phone, workspaceId))) continue;
+
+      const now = new Date().toISOString();
+      results.push({
         id: `yelp-${b.id}`,
         name: b.name,
-        phone: b.phone,
+        phone,
         address: [b.location.address1, b.location.city, b.location.state]
           .filter(Boolean)
           .join(", "),
@@ -78,8 +94,12 @@ export async function GET(request: NextRequest) {
         yelpUrl: b.url,
         yelpRating: b.rating,
         yelpReviewCount: b.review_count,
-        scrapedAt: new Date().toISOString(),
-      }));
+        scrapedAt: now,
+        status: "new",
+        statusUpdatedAt: now,
+        callAttempts: 0,
+      });
+    }
 
     return NextResponse.json({ results, total: data.total });
   } catch (err) {

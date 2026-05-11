@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { apiError, requireWorkspaceForApi } from "@/lib/auth";
 
 export async function GET() {
   try {
+    await requireWorkspaceForApi();
     const res = await fetch(
       "https://api.cal.com/v2/bookings?status=upcoming&limit=50",
       {
@@ -21,7 +23,6 @@ export async function GET() {
     const data = (await res.json()) as { data: unknown[] };
     return NextResponse.json({ appointments: data.data ?? [] });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err);
   }
 }

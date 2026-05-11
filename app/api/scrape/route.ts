@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiError, requireWorkspaceRole } from "@/lib/auth";
 import { scrapeAndSave } from "@/lib/scraper";
 
+export const runtime = "nodejs";
+
 export async function GET(request: NextRequest) {
+  let workspaceId: string;
+  try {
+    const workspace = await requireWorkspaceRole(["owner", "admin"]);
+    workspaceId = workspace.id;
+  } catch (error) {
+    return apiError(error);
+  }
+
   const { searchParams } = new URL(request.url);
   const city = searchParams.get("city")?.trim();
 
@@ -20,7 +31,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await scrapeAndSave(city);
+    const result = await scrapeAndSave(city, workspaceId);
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

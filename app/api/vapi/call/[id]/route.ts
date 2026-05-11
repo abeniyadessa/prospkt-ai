@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiError, requireWorkspaceForApi } from "@/lib/auth";
 
 // GET /api/vapi/call/[id] — poll a single Vapi call's status
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
+    await requireWorkspaceForApi();
+  } catch (error) {
+    return apiError(error);
+  }
+
   const { id } = await params;
   const apiKey = process.env.VAPI_API_KEY;
   if (!apiKey) {

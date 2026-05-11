@@ -23,6 +23,7 @@ import type {
   WorkspaceUser,
 } from "@/lib/types";
 import { DEFAULT_WORKSPACE_ID, GLOBAL_DNC_WORKSPACE_ID, resolveWorkspaceId } from "@/lib/workspace-context";
+import { getPlaybookById, inferDefaultPlaybook } from "@/lib/campaigns";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_FILE = process.env.PROSPKT_DB_PATH ?? path.join(DATA_DIR, "prospkt.sqlite");
@@ -776,6 +777,30 @@ export function completeOnboarding(
     },
     workspaceId
   );
+
+  const playbookId = inferDefaultPlaybook({
+    offer: input.offer,
+    targetBuyer: input.targetBuyer,
+    pitch: input.pitch,
+  });
+  const playbook = getPlaybookById(playbookId);
+  if (playbook) {
+    addAgentEvent(
+      {
+        type: "report",
+        severity: "success",
+        message: `Campaign activated: ${playbook.title}`,
+        metadata: {
+          playbookId,
+          lane: playbook.lane,
+          goal: playbook.goal,
+          source: playbook.defaultSource,
+        },
+      },
+      workspaceId
+    );
+  }
+
   return getOnboardingProfile(workspaceId) as OnboardingProfile;
 }
 

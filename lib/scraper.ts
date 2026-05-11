@@ -1,4 +1,5 @@
-import { getWorkspaceSettings, listLeads, upsertLeads } from "@/lib/database";
+import { getOnboardingProfile, getWorkspaceSettings, listLeads, upsertLeads } from "@/lib/database";
+import { getPlaybookById, inferDefaultPlaybook } from "@/lib/campaigns";
 import { isCallablePhone, isOnDNC, normalise } from "@/lib/dnc";
 import type { CampaignLane, LeadContactType, LeadStatus } from "@/lib/types";
 
@@ -253,6 +254,9 @@ export async function scrapeCity(
 ): Promise<Lead[]> {
   // Resolve category list: explicit → workspace settings → default
   const settings = workspaceId ? getWorkspaceSettings(workspaceId) : null;
+  const onboarding = workspaceId ? getOnboardingProfile(workspaceId) : null;
+  const playbookId = onboarding ? inferDefaultPlaybook(onboarding) : "new-customer-outreach";
+  const playbook = getPlaybookById(playbookId);
   const sourceCategories =
     options.categories?.length
       ? options.categories
@@ -344,8 +348,8 @@ export async function scrapeCity(
       serviceNeed: "New customer outreach",
       serviceArea: address,
       estimateValueCents: null,
-      campaignLane: "cold_b2b",
-      playbook: "new-customer-outreach",
+      campaignLane: playbook?.lane ?? "cold_b2b",
+      playbook: playbookId,
     };
   });
 

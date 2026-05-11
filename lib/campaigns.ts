@@ -82,6 +82,31 @@ export const campaignPlaybooks: CampaignPlaybook[] = [
   },
 ];
 
+export function getPlaybookById(id: string): CampaignPlaybook | undefined {
+  return campaignPlaybooks.find((p) => p.id === id);
+}
+
+export function inferDefaultPlaybook(profile: {
+  offer?: string | null;
+  targetBuyer?: string | null;
+  pitch?: string | null;
+}): CampaignPlaybookId {
+  const text = `${profile.offer ?? ""} ${profile.targetBuyer ?? ""} ${profile.pitch ?? ""}`.toLowerCase();
+  if (/missed call|form (lead|fill|submission)|inbound (lead|inquiry)/.test(text)) {
+    return "missed-call-recovery";
+  }
+  if (/\bestimate\b|\bquote\b|follow.?up|unsold|open opportunit/.test(text)) {
+    return "estimate-follow-up";
+  }
+  if (/past customer|repeat customer|reactivat|win.?back|former client/.test(text)) {
+    return "past-customer-reactivation";
+  }
+  if (/\breview\b|testimonial|post.?service/.test(text)) {
+    return "review-follow-up";
+  }
+  return "new-customer-outreach";
+}
+
 export const campaignLaneSummaries: Record<
   CampaignLane,
   { title: string; description: string; guardrail: string }

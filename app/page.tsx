@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { ActivityLogTicker, type ActivityEvent } from "@/components/marketing/activity-log-ticker";
 import {
   LightningIcon,
   ArrowRightIcon,
@@ -26,7 +27,6 @@ import {
   PhoneCallIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  DatabaseIcon,
 } from "@phosphor-icons/react/dist/ssr";
 
 export default function MarketingPage() {
@@ -80,19 +80,19 @@ function SiteNav() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
+          <AuthRouteButton
             href="/sign-in"
             className="hidden h-8 items-center rounded-lg px-3 text-[12.5px] font-medium text-foreground transition-colors hover:bg-[color:var(--elevated)] sm:inline-flex"
           >
             Sign in
-          </Link>
-          <Link
+          </AuthRouteButton>
+          <AuthRouteButton
             href="/sign-up"
             className="press inline-flex h-8 items-center gap-1.5 rounded-lg bg-foreground px-3.5 text-[12.5px] font-medium text-white transition-colors hover:bg-[#1F1F1F]"
           >
             Start free
             <ArrowRightIcon size={12} />
-          </Link>
+          </AuthRouteButton>
         </div>
       </div>
     </header>
@@ -114,28 +114,33 @@ function NavLink({ href, children }: { href: string; children: ReactNode }) {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-[1240px] px-6 pb-20 pt-20 md:pb-32 md:pt-28">
+    <section className="hero-shell relative overflow-hidden">
+      <div className="hero-right-field" aria-hidden />
+      <div className="relative z-10 mx-auto max-w-[1240px] px-6 pb-20 pt-20 md:pb-32 md:pt-28">
         <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-6">
-            <Eyebrow>Live in private beta</Eyebrow>
-            <h1 className="mt-5 text-balance text-[44px] font-semibold tracking-[-0.025em] leading-[0.98] text-foreground md:text-[60px] lg:text-[72px]">
-              Go to market with <span style={{ color: "#9F9F9E" }}>a guarded AI rep</span> that
-              calls, qualifies, and books for you.
+            <div className="fade-up motion-delay-1">
+              <Eyebrow>Live in private beta</Eyebrow>
+            </div>
+            <h1 className="fade-up motion-delay-2 mt-5 max-w-[680px] text-balance text-[42px] font-semibold leading-[1.05] text-foreground md:text-[58px] lg:text-[68px]">
+              <span className="block">Turn service leads</span>
+              <span className="block">into booked jobs</span>
+              <span className="block text-subtle">with an AI sales rep</span>
+              <span className="block">that follows up.</span>
             </h1>
-            <p className="mt-7 max-w-[560px] text-pretty text-[16px] leading-relaxed text-muted-foreground md:text-[17.5px]">
-              Prospkt is a guarded autopilot for local service outbound. It finds prospects with
-              broken websites, qualifies the best fit, calls inside strict limits, and drops booked
-              calls onto your Cal.com with every action logged.
+            <p className="fade-up motion-delay-3 mt-6 max-w-[560px] text-pretty text-[16px] leading-relaxed text-muted-foreground md:text-[17px]">
+              Prospkt finds, calls, follows up, books, and logs revenue opportunities for
+              service businesses while the owner keeps control of campaigns, budgets, opt-outs,
+              and every next step.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Link
+            <div className="fade-up motion-delay-4 mt-9 flex flex-wrap items-center gap-3">
+              <AuthRouteButton
                 href="/sign-up"
                 className="press inline-flex h-11 items-center gap-1.5 rounded-lg bg-foreground px-5 text-[14px] font-medium text-white transition-colors hover:bg-[#1F1F1F]"
               >
                 Start building for free
                 <ArrowRightIcon size={13} />
-              </Link>
+              </AuthRouteButton>
               <Link
                 href="#chapters"
                 className="press inline-flex h-11 items-center gap-1.5 rounded-lg border border-border bg-surface px-5 text-[14px] font-medium transition-colors hover:bg-[color:var(--elevated)]"
@@ -144,17 +149,17 @@ function Hero() {
               </Link>
             </div>
 
-            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="fade-up motion-delay-5 mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
               <RatingBadge label="G2" value="4.9" />
               <RatingBadge label="Operator NPS" value="72" />
               <span className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
                 <ShieldCheckIcon size={12} color="#2E7D4F" weight="fill" />
-                TCPA enforced at the API layer
+                Guardrails enforced before every call
               </span>
             </div>
           </div>
 
-          <div className="relative lg:col-span-6">
+          <div className="fade-up motion-delay-3 relative lg:col-span-6">
             <AgentSystemVisual />
           </div>
         </div>
@@ -171,119 +176,120 @@ function Hero() {
 function AgentSystemVisual() {
   const agents = [
     {
-      title: "Discovery",
-      label: "Find leads",
+      title: "Campaigns",
+      label: "Choose playbook",
       icon: MagnifyingGlassIcon,
-      className: "left-4 top-8 md:left-8",
+      className: "left-4 top-6 sm:left-6 md:left-10 md:top-9",
       tone: { bg: "#FFE5DB", fg: "#D55B50" },
     },
     {
       title: "Qualifier",
-      label: "Score fit",
+      label: "Check source",
       icon: FunnelIcon,
-      className: "right-3 top-12 md:right-8",
+      className: "right-4 top-6 sm:right-6 md:right-10 md:top-9",
       tone: { bg: "#EFE7FA", fg: "#7752B8" },
     },
     {
       title: "Caller",
-      label: "Dial safely",
+      label: "Follow up",
       icon: PhoneCallIcon,
-      className: "left-2 bottom-24 md:left-10",
+      className: "bottom-6 left-4 sm:left-6 md:bottom-9 md:left-10",
       tone: { bg: "#E8F0DC", fg: "#5C7A2E" },
     },
     {
       title: "Booking",
-      label: "Cal.com sync",
+      label: "Book jobs",
       icon: CalendarCheckIcon,
-      className: "right-5 bottom-24 md:right-12",
+      className: "bottom-6 right-4 sm:right-6 md:bottom-9 md:right-10",
       tone: { bg: "#FCEFD1", fg: "#B47A1F" },
     },
-    {
-      title: "CRM memory",
-      label: "Log outcome",
-      icon: DatabaseIcon,
-      className: "left-1/2 top-[78%] -translate-x-1/2",
-      tone: { bg: "#E2E7F5", fg: "#4B5FAE" },
-    },
   ];
 
-  const events = [
-    ["08:31", "Skipped J&H Automotive", "Weekend paused"],
-    ["08:32", "Queued Eastbrook Auto", "9/10 fit"],
-    ["08:35", "Called Detroit Chiropractic", "Booked"],
+  const events: ActivityEvent[] = [
+    ["08:31", "Found 14 missed-call records", "Warm recovery"],
+    ["08:32", "A1 Roofing estimate queued", "$4.2k"],
+    ["08:33", "Skipped consumer cold record", "Consent missing"],
+    ["08:34", "Miller HVAC answered", "Interested"],
+    ["08:35", "Service job booked", "Tue, 10:30 AM"],
+    ["08:36", "CRM memory updated", "Follow-up saved"],
   ];
+
+  const eventSlots: ActivityEvent[][] = [
+    [events[0], events[2], events[4]],
+    [events[1], events[3], events[5]],
+  ];
+
+  const guardrails = ["20 call cap", "$5 spend cap", "DNC scrub", "Source notes", "CRM memory"];
 
   return (
-    <div className="agent-visual relative min-h-[520px] overflow-hidden rounded-[28px] border border-hairline bg-surface p-5 shadow-[0_24px_70px_-36px_rgba(0,0,0,0.28)]">
-      <div className="absolute inset-0 agent-grid" aria-hidden />
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        viewBox="0 0 560 520"
-        fill="none"
-        aria-hidden
-      >
-        <path className="agent-flow-line agent-flow-a" d="M280 250 C190 160 150 115 84 88" />
-        <path className="agent-flow-line agent-flow-b" d="M280 250 C365 150 405 112 484 94" />
-        <path className="agent-flow-line agent-flow-c" d="M280 250 C180 285 112 335 72 404" />
-        <path className="agent-flow-line agent-flow-d" d="M280 250 C378 286 438 340 490 398" />
-        <path className="agent-flow-line agent-flow-e" d="M280 250 C278 336 278 404 280 468" />
-      </svg>
+    <div className="agent-visual relative overflow-visible px-1 py-2">
+      <div className="absolute inset-x-[-24px] top-[-16px] h-[540px] agent-grid" aria-hidden />
+      <div className="relative z-10">
+        <div className="relative h-[420px] overflow-visible sm:h-[450px] md:h-[486px]">
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            viewBox="0 0 640 500"
+            preserveAspectRatio="none"
+            fill="none"
+            aria-hidden
+          >
+            <path className="agent-flow-line agent-flow-a" d="M320 250 C250 154 176 82 84 70" />
+            <path className="agent-flow-line agent-flow-b" d="M320 250 C390 154 464 82 556 70" />
+            <path className="agent-flow-line agent-flow-c" d="M320 250 C248 342 176 420 84 430" />
+            <path className="agent-flow-line agent-flow-d" d="M320 250 C392 342 464 420 556 430" />
+          </svg>
 
-      <div className="absolute left-1/2 top-1/2 z-10 flex size-44 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-hairline bg-surface shadow-[0_22px_70px_-34px_rgba(0,0,0,0.45)]">
-        <span className="agent-orbit agent-orbit-one" aria-hidden />
-        <span className="agent-orbit agent-orbit-two" aria-hidden />
-        <div className="text-center">
-          <span className="mx-auto flex size-11 items-center justify-center rounded-xl bg-foreground text-white">
-            <LightningIcon size={18} weight="fill" />
-          </span>
-          <p className="mt-3 text-[15px] font-semibold tracking-tight text-foreground">
-            Guarded agent
-          </p>
-          <p className="mt-1 text-[11.5px] text-muted-foreground">
-            20 calls / $5 cap
-          </p>
-        </div>
-      </div>
-
-      {agents.map((agent, index) => (
-        <AgentNode key={agent.title} index={index} {...agent} />
-      ))}
-
-      <div className="absolute bottom-5 left-5 right-5 z-20 grid gap-3 md:grid-cols-[1fr_0.85fr]">
-        <div className="rounded-xl border border-hairline bg-white/88 p-3 backdrop-blur-md">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <p className="text-[11.5px] font-semibold text-foreground">Activity log</p>
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E8F3EC] px-2 py-1 text-[10.5px] font-medium text-[#2E7D4F]">
-              <span className="agent-live-dot size-1.5 rounded-full bg-[#2E7D4F]" aria-hidden />
-              Live
-            </span>
+          <div className="absolute left-1/2 top-1/2 z-10 flex size-40 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-hairline bg-white/88 shadow-lg md:size-48">
+            <span className="agent-orbit agent-orbit-one" aria-hidden />
+            <span className="agent-orbit agent-orbit-two" aria-hidden />
+            <div className="text-center">
+              <span className="mx-auto flex size-11 items-center justify-center rounded-xl bg-foreground text-white">
+                <LightningIcon size={18} weight="fill" />
+              </span>
+              <p className="mt-3 text-[14px] font-medium text-foreground">
+                Prospkt Agent
+              </p>
+              <p className="mt-1 text-[11.5px] text-muted-foreground">
+                Guarded AI rep
+              </p>
+              <span className="mt-2 inline-flex rounded-md bg-[color:var(--elevated)] px-2 py-1 text-[10px] text-muted-foreground">
+                20 calls / $5 cap
+              </span>
+            </div>
           </div>
-          <div className="space-y-1.5">
-            {events.map(([time, message, detail], index) => (
-              <div
-                key={`${time}-${message}`}
-                className="agent-event-row grid grid-cols-[42px_1fr_auto] items-center gap-2 rounded-lg bg-[color:var(--elevated)] px-2.5 py-2"
-                style={{ animationDelay: `${index * 900}ms` }}
-              >
-                <span className="text-[10px] tabular-nums text-muted-foreground">{time}</span>
-                <span className="truncate text-[11.5px] font-medium text-foreground">
-                  {message}
+
+          {agents.map((agent, index) => (
+            <AgentNode key={agent.title} index={index} {...agent} />
+          ))}
+        </div>
+
+        <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(220px,0.55fr)]">
+          <div className="rounded-xl border border-hairline bg-white/86 p-3 shadow-sm">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <p className="text-[11.5px] font-medium text-muted-foreground">Activity log</p>
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E8F3EC] px-2 py-1 text-[10.5px] text-[#2E7D4F]">
+                <span className="agent-live-dot size-1.5 rounded-full bg-[#2E7D4F]" aria-hidden />
+                Live
+              </span>
+            </div>
+            <ActivityLogTicker slots={eventSlots} />
+          </div>
+
+          <div className="rounded-xl border border-hairline bg-white/86 p-3 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[11.5px] font-medium text-muted-foreground">Guardrails</p>
+              <CheckIcon size={13} weight="bold" color="#2E7D4F" />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {guardrails.map((label) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center rounded-md bg-[color:var(--elevated)] px-2.5 py-1 text-[10.5px] text-muted-foreground"
+                >
+                  {label}
                 </span>
-                <span className="text-[10px] text-muted-foreground">{detail}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-hairline bg-white/88 p-3 backdrop-blur-md">
-          <p className="text-[11.5px] font-semibold text-foreground">Guardrails</p>
-          <div className="mt-3 space-y-2">
-            {["DNC scrub", "Local 8am-9pm", "SMS policy"].map((label) => (
-              <div key={label} className="flex items-center justify-between gap-3">
-                <span className="text-[11.5px] text-muted-foreground">{label}</span>
-                <CheckIcon size={13} weight="bold" color="#2E7D4F" />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -307,22 +313,25 @@ function AgentNode({
   index: number;
 }) {
   return (
-    <div
-      className={`agent-node absolute z-20 flex w-[154px] items-center gap-3 rounded-xl border border-hairline bg-white/90 p-3 shadow-[0_16px_40px_-28px_rgba(0,0,0,0.4)] backdrop-blur-md ${className}`}
-      style={{ animationDelay: `${index * 180}ms` }}
-    >
-      <span
-        className="flex size-9 shrink-0 items-center justify-center rounded-lg"
-        style={{ backgroundColor: tone.bg, color: tone.fg }}
+    <div className={`absolute z-20 ${className}`}>
+      <div
+        data-motion={index % 4}
+        className="agent-node flex w-[144px] items-center gap-3 rounded-xl border border-hairline bg-white/86 p-3 shadow-sm backdrop-blur-md sm:w-[164px] md:w-[184px]"
+        style={{ animationDelay: `${index * -900}ms` }}
       >
-        <Icon size={16} aria-hidden />
-      </span>
-      <span className="min-w-0">
-        <span className="block truncate text-[12.5px] font-semibold text-foreground">
-          {title}
+        <span
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg"
+          style={{ backgroundColor: tone.bg, color: tone.fg }}
+        >
+          <Icon size={16} aria-hidden />
         </span>
-        <span className="block truncate text-[10.5px] text-muted-foreground">{label}</span>
-      </span>
+        <span className="min-w-0">
+          <span className="block truncate text-[12.5px] font-medium text-foreground">
+            {title}
+          </span>
+          <span className="block truncate text-[10.5px] text-muted-foreground">{label}</span>
+        </span>
+      </div>
     </div>
   );
 }
@@ -353,12 +362,36 @@ function RatingBadge({ label, value }: { label: string; value: string }) {
 /* Powered by */
 
 const stack = [
-  { name: "Vapi", role: "Voice infrastructure" },
-  { name: "OpenAI Realtime", role: "Speech-to-speech model" },
-  { name: "Cal.com", role: "Bookings" },
-  { name: "Twilio", role: "SMS follow-ups" },
-  { name: "Built-in CRM", role: "Activity log + pipeline" },
-  { name: "Yelp", role: "Lead source" },
+  {
+    name: "Vapi",
+    role: "Voice infrastructure",
+    logo: "https://img.logokit.com/vapi.ai",
+  },
+  {
+    name: "OpenAI",
+    role: "Realtime voice model",
+    logo: "https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/openai.svg",
+  },
+  {
+    name: "Cal.com",
+    role: "Bookings",
+    logo: null,
+  },
+  {
+    name: "Twilio",
+    role: "SMS follow-ups",
+    logo: "https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/twilio.svg",
+  },
+  {
+    name: "Prospkt CRM",
+    role: "Activity log + pipeline",
+    logo: null,
+  },
+  {
+    name: "Yelp",
+    role: "Lead source",
+    logo: "https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/yelp.svg",
+  },
 ];
 
 function PoweredBy() {
@@ -368,16 +401,9 @@ function PoweredBy() {
         <p className="mb-4 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           Powered by best-in-class infrastructure
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
+        <div className="scroll-reveal mx-auto grid max-w-[980px] grid-cols-2 justify-items-center gap-x-5 gap-y-5 sm:grid-cols-3 lg:grid-cols-6">
           {stack.map((s) => (
-            <span key={s.name} className="inline-flex items-baseline gap-2">
-              <span className="text-[15px] font-semibold tracking-tight text-foreground">
-                {s.name}
-              </span>
-              <span className="hidden text-[10.5px] text-muted-foreground md:inline">
-                {s.role}
-              </span>
-            </span>
+            <PartnerLogo key={s.name} {...s} />
           ))}
         </div>
       </div>
@@ -385,13 +411,56 @@ function PoweredBy() {
   );
 }
 
+function PartnerLogo({
+  name,
+  role,
+  logo,
+}: {
+  name: string;
+  role: string;
+  logo: string | null;
+}) {
+  return (
+    <div
+      className="flex h-10 w-[148px] items-center justify-center text-muted-foreground opacity-78 transition-opacity hover:opacity-100"
+      aria-label={`${name}: ${role}`}
+    >
+      <span className="inline-flex items-center gap-2.5">
+        {logo ? (
+          <span
+            className="size-6 bg-current"
+            style={{
+              maskImage: `url(${logo})`,
+              WebkitMaskImage: `url(${logo})`,
+              maskRepeat: "no-repeat",
+              WebkitMaskRepeat: "no-repeat",
+              maskPosition: "center",
+              WebkitMaskPosition: "center",
+              maskSize: "contain",
+              WebkitMaskSize: "contain",
+            }}
+            aria-hidden
+          />
+        ) : name === "Prospkt CRM" ? (
+          <LightningIcon size={18} weight="fill" aria-hidden />
+        ) : (
+          null
+        )}
+        <span className="block truncate text-[16px] font-semibold leading-none">
+          {name}
+        </span>
+      </span>
+    </div>
+  );
+}
+
 /* Stats */
 
 const stats = [
-  { value: "40-60", label: "Leads per city, per scrape run" },
-  { value: "<2 min", label: "Average call duration" },
-  { value: "100%", label: "TCPA-compliant by default" },
-  { value: "24/7", label: "Webhook-driven booking sync" },
+  { value: "3 lanes", label: "Warm recovery, cold B2B, guarded consumer" },
+  { value: "20/day", label: "Default live-call cap per workspace" },
+  { value: "100%", label: "Calls logged back to CRM memory" },
+  { value: "24/7", label: "Webhook-driven booking and activity sync" },
 ];
 
 function Stats() {
@@ -399,7 +468,7 @@ function Stats() {
     <section className="py-16 md:py-20">
       <div className="mx-auto max-w-[1240px] px-6">
         <div
-          className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-hairline md:grid-cols-4"
+          className="scroll-reveal grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-hairline md:grid-cols-4"
           style={{ backgroundColor: "var(--hairline)" }}
         >
           {stats.map((s) => (
@@ -430,20 +499,20 @@ function Chapters() {
       <div className="mx-auto max-w-[1240px] px-6">
         <SectionHeader
           eyebrow="Product"
-          title="Every part of outbound, in one workspace."
-          description="Most teams stitch together a scraper, a dialer, a calendar, and a CRM. Prospkt collapses the entire stack into one product, and one operator can run it."
+          title="The revenue layer service businesses are missing."
+          description="Jobber, ServiceTitan, and Housecall Pro can run the operation. Prospkt owns the sales motion around it: campaigns, calls, follow-up, booking, CRM memory, and owner control."
         />
 
         <div className="mt-16 space-y-6">
           <Chapter
             number="01"
-            eyebrow="Lead engine"
-            title="A self-replenishing pipeline of low-hanging local leads."
-            body="Pick a city, hit Run scraper. Prospkt pulls verified Yelp businesses, scores each one 1-10 on website quality, review velocity, and category fit, then queues the high scorers for outreach. New status filters let you track the entire lifecycle."
+            eyebrow="Campaign playbooks"
+            title="Run the follow-up your team never gets to."
+            body="Choose a lane: missed call recovery, estimate follow-up, past customer reactivation, booking confirmation, review request, or sourced cold B2B. Prospkt applies the right script, source rules, and guardrails before anything dials."
             bullets={[
-              "Yelp Fusion + Google enrichment on every record",
-              "Phone validation and DNC scrub before queueing",
-              "Lifecycle pipeline: new to queued to called to booked",
+              "Warm recovery for missed calls, forms, quotes, and past customers",
+              "Cold B2B for property managers, commercial accounts, and partners",
+              "Cold consumer is locked behind stricter compliance controls",
             ]}
             mockup={<LeadsMockup />}
             tone={{ bg: "#FFE5DB", fg: "#D55B50" }}
@@ -452,27 +521,56 @@ function Chapters() {
 
           <Chapter
             number="02"
-            eyebrow="AI caller"
-            title="Natural-sounding voice that qualifies in real time."
-            body="Prospkt opens with a federally-compliant disclosure, then runs your script through a state-of-the-art AI script engine and an ElevenLabs voice. It handles voicemail, accepts opt-outs gracefully, and books a Cal.com slot without leaving the call."
+            eyebrow="Built-in CRM"
+            title="A service-sales workspace that remembers every opportunity."
+            body="Every contact has one CRM record with contact type, source, consent note, service need, service area, estimate value, lifecycle status, notes, calls, transcripts, follow-ups, DNC state, and booking context."
             bullets={[
-              "ElevenLabs voice auto-upgrades when a key is configured",
+              "Service records for consumers, businesses, past customers, and commercial accounts",
+              "Lead drawer with source, service need, estimate value, notes, and call history",
+              "Pipeline, calls, bookings, and memory all read from the same record",
+            ]}
+            mockup={<CrmMockup />}
+            tone={{ bg: "#E2E7F5", fg: "#4B5FAE" }}
+          />
+
+          <Chapter
+            number="03"
+            eyebrow="Agent control"
+            title="Let the AI rep work without losing control."
+            body="Home is the command center. Owners can see active campaigns, calls today, booked jobs, spend, skipped reasons, and pause all automation before a campaign crosses a line."
+            bullets={[
+              "Daily caps: 20 calls and $5 spend by default",
+              "Pause-all, dry-run, refresh, and status visibility in one place",
+              "Activity log records calls, skips, bookings, opt-outs, and failures",
+            ]}
+            mockup={<AgentControlMockup />}
+            tone={{ bg: "#E8F3EC", fg: "#2E7D4F" }}
+            imageRight
+          />
+
+          <Chapter
+            number="04"
+            eyebrow="AI caller"
+            title="A voice rep that follows up like a human operator."
+            body="Prospkt opens with the right disclosure, follows your service script, asks qualifying questions, handles voicemail, accepts opt-outs gracefully, and books an appointment when the lead is ready."
+            bullets={[
+              "Works for missed-call recovery, estimates, reactivation, and B2B outreach",
               "Live transcripts streamed back via Vapi webhooks",
-              "Mid-call Cal.com booking with verbal confirmation",
+              "Mid-call booking with verbal confirmation and CRM write-back",
             ]}
             mockup={<TranscriptMockup />}
             tone={{ bg: "#E8F0DC", fg: "#5C7A2E" }}
           />
 
           <Chapter
-            number="03"
-            eyebrow="Auto-dialer"
-            title="Run a batch. Watch it work."
-            body="Filter your queue down by high-priority, no-website, or a specific city and let the dialer pace through it. It respects TCPA hours, throttles concurrency, and surfaces every outcome live so you can intervene the moment something's off."
+            number="05"
+            eyebrow="Campaign dialer"
+            title="Run a campaign. Watch the revenue motion."
+            body="Filter by playbook, source, contact type, service area, value, status, or city and let the dialer pace through eligible records. It respects local hours, DNC, duplicate prevention, daily caps, and owner pause."
             bullets={[
-              "TCPA hour gating from 8 AM to 9 PM local",
-              "Pause, resume, or skip mid-batch",
-              "Live status: dialing, ringing, in call, voicemail, booked",
+              "Warm campaigns can prioritize highest-value estimates and missed calls",
+              "Cold B2B respects source labels, call caps, DNC, and local hours",
+              "Consumer campaigns stay blocked unless all compliance fields are present",
             ]}
             mockup={<DialerMockup />}
             tone={{ bg: "#FCEFD1", fg: "#B47A1F" }}
@@ -480,14 +578,14 @@ function Chapters() {
           />
 
           <Chapter
-            number="04"
-            eyebrow="Calendar & CRM"
-            title="Booked calls show up where you already work."
-            body="The moment a lead says yes, Prospkt confirms a Cal.com slot, fires a Twilio confirmation SMS, logs the call to the built-in CRM, and emails you a summary with the recording. Nothing falls through the cracks."
+            number="06"
+            eyebrow="Booking & follow-up"
+            title="Booked jobs, confirmations, and follow-ups stay tied to the record."
+            body="The moment a lead says yes, Prospkt confirms a slot, sends allowed SMS only after interest or booking, updates the CRM lifecycle, and emails the owner a summary. Future touchpoints stay attached to the same memory."
             bullets={[
-              "Cal.com v2 bookings with timezone-correct confirmations",
-              "Built-in CRM activity log with transcript per call",
-              "Email digest the moment a meeting is booked",
+              "Cal.com bookings with timezone-correct confirmations",
+              "SMS only after interest, booking, or opt-out",
+              "Owner digest and CRM activity the moment a job opportunity is booked",
             ]}
             mockup={<AppointmentsMockup />}
             tone={{ bg: "#E2E7F5", fg: "#4B5FAE" }}
@@ -518,30 +616,30 @@ function Chapter({
   imageRight?: boolean;
 }) {
   const text = (
-    <div className="md:p-4">
+    <div className="lg:p-3">
       <div className="flex items-center gap-3">
         <span
-          className="rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] tabular-nums"
+          className="rounded-md px-2.5 py-1 text-[11px] font-medium tabular-nums"
           style={{ backgroundColor: tone.bg, color: tone.fg }}
         >
           {number}
         </span>
         <p className="label-caps">{eyebrow}</p>
       </div>
-      <h3 className="mt-5 text-balance text-[26px] font-semibold tracking-tight leading-[1.05] text-foreground md:text-[34px]">
+      <h3 className="mt-5 text-balance text-[25px] font-medium leading-[1.08] text-foreground md:text-[31px]">
         {title}
       </h3>
-      <p className="mt-4 max-w-[460px] text-pretty text-[14.5px] leading-relaxed text-muted-foreground">
+      <p className="mt-4 max-w-[500px] text-pretty text-[14px] leading-relaxed text-muted-foreground">
         {body}
       </p>
       <ul className="mt-6 space-y-2.5">
         {bullets.map((b) => (
           <li
             key={b}
-            className="flex items-start gap-2.5 text-[13.5px] leading-relaxed text-foreground"
+            className="flex items-start gap-2.5 text-[13px] leading-relaxed text-muted-foreground"
           >
             <CheckIcon
-              size={13}
+              size={12}
               weight="bold"
               color="#2E7D4F"
               className="mt-1 shrink-0"
@@ -555,21 +653,12 @@ function Chapter({
 
   return (
     <article
-      className="overflow-hidden rounded-[28px] border border-hairline"
+      className="lift scroll-reveal overflow-hidden rounded-3xl border border-hairline"
       style={{ backgroundColor: "var(--surface)" }}
     >
-      <div className="grid items-center gap-8 p-6 md:grid-cols-2 md:gap-10 md:p-10">
-        {imageRight ? (
-          <>
-            {text}
-            <div>{mockup}</div>
-          </>
-        ) : (
-          <>
-            <div>{mockup}</div>
-            {text}
-          </>
-        )}
+      <div className="grid items-center gap-8 p-5 lg:grid-cols-2 lg:gap-10 lg:p-9">
+        <div className={imageRight ? undefined : "lg:order-2"}>{text}</div>
+        <div className={imageRight ? undefined : "lg:order-1"}>{mockup}</div>
       </div>
     </article>
   );
@@ -588,11 +677,8 @@ function MockupFrame({
 }) {
   return (
     <div
-      className="overflow-hidden rounded-xl border border-hairline"
+      className="overflow-hidden rounded-xl border border-hairline bg-surface shadow-sm"
       style={{
-        backgroundColor: "var(--surface)",
-        boxShadow:
-          "0 18px 40px -20px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04)",
         fontSize: compact ? "0.92em" : undefined,
       }}
     >
@@ -600,7 +686,7 @@ function MockupFrame({
         <span className="size-2 rounded-full" style={{ backgroundColor: "#E3E3E1" }} />
         <span className="size-2 rounded-full" style={{ backgroundColor: "#E3E3E1" }} />
         <span className="size-2 rounded-full" style={{ backgroundColor: "#E3E3E1" }} />
-        <span className="ml-3 truncate text-[10.5px] text-muted-foreground tabular-nums">
+        <span className="ml-3 truncate text-[10.5px] text-subtle tabular-nums">
           {label}
         </span>
       </div>
@@ -612,43 +698,43 @@ function MockupFrame({
 function LeadsMockup({ compact = false }: { compact?: boolean }) {
   const rows = [
     {
-      name: "Eastbrook Auto Care",
-      city: "Grand Rapids",
+      name: "Missed call: Miller HVAC",
+      city: "Warm recovery",
       score: 9,
       status: "Queued",
-      website: "No site",
-      websiteColor: "#C2352C",
+      website: "$1.8k",
+      websiteColor: "#2E7D4F",
     },
     {
-      name: "Riverside General Contracting",
-      city: "Lansing",
+      name: "Old estimate: A1 Roofing",
+      city: "Estimate follow-up",
       score: 8,
       status: "Called",
-      website: "Outdated",
+      website: "$4.2k",
       websiteColor: "#B47A1F",
     },
     {
-      name: "Northside Salon & Spa",
-      city: "Ann Arbor",
+      name: "Past customer: Westside Plumbing",
+      city: "Reactivation",
       score: 8,
       status: "Voicemail",
-      website: "Outdated",
+      website: "$650",
       websiteColor: "#B47A1F",
     },
     {
-      name: "Capitol City Auto",
-      city: "Lansing",
+      name: "Property manager list",
+      city: "Cold B2B",
       score: 7,
       status: "New",
-      website: "No site",
+      website: "B2B",
       websiteColor: "#C2352C",
     },
     {
-      name: "Detroit Chiropractic Co.",
-      city: "Detroit",
+      name: "Booking confirmation",
+      city: "Warm recovery",
       score: 7,
       status: "Booked",
-      website: "Modern",
+      website: "Job",
       websiteColor: "#2E7D4F",
     },
   ];
@@ -665,10 +751,10 @@ function LeadsMockup({ compact = false }: { compact?: boolean }) {
       <div className="p-3.5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <p className="text-[12px] font-semibold tracking-tight text-foreground">
-              Priority leads
+            <p className="text-[12px] font-medium text-foreground">
+              Campaign queue
             </p>
-            <p className="text-[10.5px] text-muted-foreground">No website + high intent</p>
+            <p className="text-[10.5px] text-muted-foreground">Warm first, B2B next</p>
           </div>
           <span className="rounded-md bg-[color:var(--elevated)] px-2 py-1 text-[10.5px] text-muted-foreground">
             Live
@@ -676,9 +762,9 @@ function LeadsMockup({ compact = false }: { compact?: boolean }) {
         </div>
         <div className="overflow-hidden rounded-lg border border-hairline">
           <div className="grid grid-cols-[1.4fr_0.7fr_0.5fr_0.8fr] border-b border-hairline bg-[color:var(--elevated)] px-3 py-2 text-[10px] font-medium text-muted-foreground">
-            <span>Business</span>
+            <span>Record</span>
             <span>Score</span>
-            <span>Web</span>
+            <span>Value</span>
             <span>Status</span>
           </div>
           {rows.map((row) => (
@@ -687,10 +773,10 @@ function LeadsMockup({ compact = false }: { compact?: boolean }) {
               className="grid grid-cols-[1.4fr_0.7fr_0.5fr_0.8fr] items-center gap-2 border-b border-hairline px-3 py-2.5 last:border-b-0"
             >
               <div className="min-w-0">
-                <p className="truncate text-[12px] font-medium text-foreground">{row.name}</p>
+                <p className="truncate text-[12px] text-foreground">{row.name}</p>
                 <p className="truncate text-[10.5px] text-muted-foreground">{row.city}</p>
               </div>
-              <span className="text-[12px] font-semibold tabular-nums text-foreground">
+              <span className="text-[12px] font-medium tabular-nums text-foreground">
                 {row.score}/10
               </span>
               <span
@@ -699,7 +785,7 @@ function LeadsMockup({ compact = false }: { compact?: boolean }) {
                 aria-label={row.website}
               />
               <span
-                className="w-fit rounded-md px-1.5 py-1 text-[10px] font-medium"
+                className="w-fit rounded-md px-1.5 py-1 text-[10px]"
                 style={{
                   backgroundColor: statusTone[row.status].bg,
                   color: statusTone[row.status].fg,
@@ -715,11 +801,215 @@ function LeadsMockup({ compact = false }: { compact?: boolean }) {
   );
 }
 
+function CrmMockup({ compact = false }: { compact?: boolean }) {
+  const records = [
+    ["Eastbrook Auto Care", "Interested", "9/10", "#E8F3EC", "#2E7D4F"],
+    ["Detroit Chiropractic Co.", "Booked", "8/10", "#E8F3EC", "#2E7D4F"],
+    ["J & H Automotive", "DNC", "6/10", "#FAE3E0", "#A32A22"],
+  ];
+  const fields = [
+    ["Owner", "Jamie Rivera"],
+    ["Phone", "(313) 555-0148"],
+    ["Source", "Yelp / no website"],
+    ["Follow-up", "Tomorrow 10:00 AM"],
+  ];
+  const stages = ["New", "Interested", "Follow up", "Booked"];
+  const activities = [
+    ["Call", "Answered, asked for pricing", "2m ago"],
+    ["Note", "Prefers Tuesday mornings", "4m ago"],
+    ["Task", "Send audit recap", "Tomorrow"],
+  ];
+
+  return (
+    <MockupFrame label="CRM / Eastbrook Auto Care" compact={compact}>
+      <div className="bg-surface">
+        <div className="flex items-center justify-between gap-3 border-b border-hairline p-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[color:var(--elevated)] text-[10px] font-medium text-muted-foreground">
+              EA
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-[12px] font-medium text-foreground">
+                Eastbrook Auto Care
+              </p>
+              <p className="truncate text-[10px] text-muted-foreground">
+                Grand Rapids / Auto repair / No website
+              </p>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-md bg-[#E8F3EC] px-2 py-1 text-[10px] text-[#2E7D4F]">
+            Follow up
+          </span>
+        </div>
+
+        <div className="grid sm:grid-cols-[190px_minmax(0,1fr)]">
+          <aside className="border-b border-hairline p-3 sm:border-b-0 sm:border-r">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <p className="text-[10.5px] font-medium text-muted-foreground">Leads</p>
+              <span className="text-[10px] tabular-nums text-subtle">188</span>
+            </div>
+            <div className="space-y-1.5">
+              {records.map(([name, status, score, bg, fg], index) => (
+                <div
+                  key={name}
+                  className={`rounded-lg border p-2 ${
+                    index === 0
+                      ? "border-[#A8D3B9] bg-[#F4FAF6]"
+                      : "border-hairline bg-white"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-[10.5px] text-foreground">{name}</p>
+                    <span
+                      className="rounded-md px-1.5 py-0.5 text-[9.5px]"
+                      style={{ backgroundColor: bg, color: fg }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[9.5px] tabular-nums text-muted-foreground">
+                    Score {score} / 3 touches
+                  </p>
+                </div>
+              ))}
+            </div>
+          </aside>
+
+          <section className="min-w-0">
+            <div className="border-b border-hairline p-3">
+              <p className="mb-2 text-[10.5px] font-medium text-muted-foreground">Pipeline stage</p>
+              <div className="grid grid-cols-4 gap-1">
+                {stages.map((stage, index) => (
+                  <div key={stage} className="min-w-0">
+                    <div
+                      className="h-1.5 rounded-full"
+                      style={{
+                        backgroundColor: index < 3 ? "#2E7D4F" : "var(--elevated)",
+                      }}
+                    />
+                    <p className="mt-1 truncate text-[9.5px] text-muted-foreground">{stage}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-px bg-[color:var(--hairline)] md:grid-cols-[0.92fr_1.08fr]">
+              <div className="bg-surface p-3">
+                <p className="text-[10.5px] font-medium text-muted-foreground">Contact fields</p>
+                <div className="mt-2 space-y-1.5">
+                  {fields.map(([label, value]) => (
+                    <div key={label} className="rounded-lg bg-[color:var(--elevated)] px-2.5 py-2">
+                      <p className="text-[9.5px] text-subtle">{label}</p>
+                      <p className="mt-0.5 truncate text-[10.5px] text-foreground">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-surface p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10.5px] font-medium text-muted-foreground">Activity timeline</p>
+                  <span className="rounded-md bg-[color:var(--elevated)] px-1.5 py-0.5 text-[9.5px] text-muted-foreground">
+                    Live
+                  </span>
+                </div>
+                <div className="mt-2 space-y-1.5">
+                  {activities.map(([type, text, time]) => (
+                    <div key={`${type}-${text}`} className="flex gap-2 rounded-lg bg-[color:var(--elevated)] p-2">
+                      <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[#2E7D4F]" aria-hidden />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[10.5px] text-foreground">
+                          {type}: {text}
+                        </p>
+                        <p className="mt-0.5 text-[9.5px] text-muted-foreground">{time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 rounded-lg border border-hairline bg-white p-2">
+                  <p className="text-[9.5px] text-subtle">Internal note</p>
+                  <p className="mt-0.5 truncate text-[10.5px] text-muted-foreground">
+                    Owner asked for pricing and a website audit recap.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </MockupFrame>
+  );
+}
+
+function AgentControlMockup({ compact = false }: { compact?: boolean }) {
+  const events = [
+    ["Skipped consumer cold record", "Consent missing"],
+    ["Queued A1 Roofing estimate", "$4.2k"],
+    ["Budget check passed", "$0.42 / $5"],
+  ];
+
+  return (
+    <MockupFrame label="Agent command center" compact={compact}>
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[12px] font-medium text-foreground">Agent control</p>
+            <p className="mt-1 text-[10.5px] text-muted-foreground">
+              Guarded service-sales campaigns, budget, and bookings
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E8F3EC] px-2 py-1 text-[10.5px] text-[#2E7D4F]">
+            <span className="size-1.5 rounded-full bg-[#2E7D4F]" aria-hidden />
+            Ready
+          </span>
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {[
+            ["0/20", "Calls"],
+            ["$0.00/$5", "Spend"],
+            ["0/3", "Failures"],
+          ].map(([value, label]) => (
+            <div key={label} className="rounded-lg border border-hairline bg-white p-2.5">
+              <p className="text-[13px] font-medium tabular-nums text-foreground">{value}</p>
+              <p className="mt-0.5 text-[10px] text-muted-foreground">{label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {["Run agent", "Dry run", "Pause"].map((label, index) => (
+            <span
+              key={label}
+              className={`rounded-md px-2.5 py-1.5 text-[10.5px] ${
+                index === 0
+                  ? "bg-foreground text-white"
+                  : "border border-hairline bg-white text-foreground"
+              }`}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {events.map(([message, detail]) => (
+            <div key={message} className="flex items-center justify-between gap-3 rounded-lg bg-[color:var(--elevated)] px-3 py-2">
+              <span className="truncate text-[11px] text-foreground">{message}</span>
+              <span className="shrink-0 text-[10px] text-muted-foreground">{detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </MockupFrame>
+  );
+}
+
 function TranscriptMockup({ compact = false }: { compact?: boolean }) {
   const lines = [
     {
       who: "Alex",
-      text: "Quick heads up, I'm actually an AI calling on behalf of Prospkt.",
+      text: "Quick heads up, I'm an AI assistant calling on behalf of Miller HVAC.",
     },
     {
       who: "Lead",
@@ -727,7 +1017,7 @@ function TranscriptMockup({ compact = false }: { compact?: boolean }) {
     },
     {
       who: "Alex",
-      text: "I noticed your site is hard to find on mobile. Want me to book a quick audit?",
+      text: "You requested an estimate last month. Want me to find a time for the owner to review it with you?",
     },
   ];
 
@@ -735,7 +1025,7 @@ function TranscriptMockup({ compact = false }: { compact?: boolean }) {
     <MockupFrame label="Live call transcript" compact={compact}>
       <div className="space-y-3 p-4">
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E8F3EC] px-2 py-1 text-[10.5px] font-medium text-[#2E7D4F]">
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E8F3EC] px-2 py-1 text-[10.5px] text-[#2E7D4F]">
             <RecordIcon size={10} weight="fill" />
             Recording
           </span>
@@ -746,8 +1036,8 @@ function TranscriptMockup({ compact = false }: { compact?: boolean }) {
         </div>
         {lines.map((line) => (
           <div key={`${line.who}-${line.text}`} className="rounded-lg bg-[color:var(--elevated)] p-3">
-            <p className="text-[10.5px] font-medium text-muted-foreground">{line.who}</p>
-            <p className="mt-1 text-[12px] leading-relaxed text-foreground">{line.text}</p>
+            <p className="text-[10.5px] text-muted-foreground">{line.who}</p>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-foreground">{line.text}</p>
           </div>
         ))}
       </div>
@@ -758,7 +1048,7 @@ function TranscriptMockup({ compact = false }: { compact?: boolean }) {
 function DialerMockup({ compact = false }: { compact?: boolean }) {
   const steps = [
     { label: "DNC scrub", done: true },
-    { label: "TCPA window", done: true },
+    { label: "Local-hour window", done: true },
     { label: "Dialing batch", done: false },
   ];
 
@@ -767,17 +1057,17 @@ function DialerMockup({ compact = false }: { compact?: boolean }) {
       <div className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[12px] font-semibold text-foreground">Lansing no-website list</p>
-            <p className="mt-1 text-[10.5px] text-muted-foreground">18 leads queued</p>
+            <p className="text-[12px] font-medium text-foreground">Estimate follow-up campaign</p>
+            <p className="mt-1 text-[10.5px] text-muted-foreground">18 service records queued</p>
           </div>
-          <span className="rounded-full bg-[#FCEFD1] px-2.5 py-1 text-[10.5px] font-medium text-[#B47A1F]">
+          <span className="rounded-full bg-[#FCEFD1] px-2.5 py-1 text-[10.5px] text-[#B47A1F]">
             In progress
           </span>
         </div>
         <div className="mt-4 space-y-2.5">
           {steps.map((step) => (
             <div key={step.label} className="flex items-center justify-between rounded-lg border border-hairline p-2.5">
-              <span className="text-[11.5px] text-foreground">{step.label}</span>
+              <span className="text-[11.5px] text-muted-foreground">{step.label}</span>
               {step.done ? (
                 <CheckIcon size={13} weight="bold" color="#2E7D4F" />
               ) : (
@@ -793,7 +1083,7 @@ function DialerMockup({ compact = false }: { compact?: boolean }) {
             ["2", "Booked"],
           ].map(([value, label]) => (
             <div key={label} className="rounded-lg bg-[color:var(--elevated)] p-2.5">
-              <p className="text-[17px] font-semibold tabular-nums text-foreground">{value}</p>
+              <p className="text-[16px] font-medium tabular-nums text-foreground">{value}</p>
               <p className="text-[10px] text-muted-foreground">{label}</p>
             </div>
           ))}
@@ -805,9 +1095,9 @@ function DialerMockup({ compact = false }: { compact?: boolean }) {
 
 function AppointmentsMockup() {
   const appointments = [
-    ["Tue, 10:30 AM", "Detroit Chiropractic Co.", "Discovery call"],
-    ["Wed, 2:00 PM", "Eastbrook Auto Care", "Website audit"],
-    ["Fri, 9:00 AM", "Capitol City Auto", "Lead gen review"],
+    ["Tue, 10:30 AM", "Miller HVAC", "Estimate review"],
+    ["Wed, 2:00 PM", "A1 Roofing", "Roof inspection"],
+    ["Fri, 9:00 AM", "Northline Property", "Commercial walkthrough"],
   ];
 
   return (
@@ -829,7 +1119,7 @@ function AppointmentsMockup() {
           {appointments.map(([time, business, label]) => (
             <div key={`${time}-${business}`} className="rounded-lg border border-hairline p-3">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[11px] font-medium text-foreground">{business}</p>
+                <p className="text-[11px] text-foreground">{business}</p>
                 <CalendarIcon size={13} color="#4B5FAE" />
               </div>
               <p className="mt-1 text-[10.5px] text-muted-foreground">
@@ -855,7 +1145,7 @@ function SectionHeader({
   description: string;
 }) {
   return (
-    <div className="mx-auto max-w-[720px] text-center">
+    <div className="scroll-reveal mx-auto max-w-[720px] text-center">
       <p className="label-caps">{eyebrow}</p>
       <h2 className="mt-4 text-balance text-[34px] font-semibold tracking-tight leading-[1.05] text-foreground md:text-[48px]">
         {title}
@@ -868,12 +1158,12 @@ function SectionHeader({
 }
 
 const industries = [
-  { icon: WrenchIcon, label: "Auto repair" },
-  { icon: HammerIcon, label: "Contractors" },
-  { icon: ScissorsIcon, label: "Salons & spas" },
-  { icon: HeartbeatIcon, label: "Chiropractors" },
-  { icon: ForkKnifeIcon, label: "Restaurants" },
-  { icon: StorefrontIcon, label: "Local retail" },
+  { icon: WrenchIcon, label: "HVAC & plumbing" },
+  { icon: HammerIcon, label: "Roofing & contractors" },
+  { icon: ScissorsIcon, label: "Salons & wellness" },
+  { icon: HeartbeatIcon, label: "Clinics & care" },
+  { icon: StorefrontIcon, label: "Commercial service" },
+  { icon: ForkKnifeIcon, label: "Restaurants & hospitality" },
 ];
 
 function Industries() {
@@ -884,19 +1174,19 @@ function Industries() {
           <div>
             <p className="label-caps">Use cases</p>
             <h2 className="mt-4 text-balance text-[32px] font-semibold tracking-tight leading-[1.05] text-foreground md:text-[46px]">
-              Built for local service businesses that still answer the phone.
+              Built for service businesses where speed-to-lead turns into revenue.
             </h2>
             <p className="mt-5 max-w-[470px] text-pretty text-[15px] leading-relaxed text-muted-foreground">
-              Prospkt is strongest when the buyer is local, the problem is obvious, and the next
-              step is a simple discovery call. That makes it perfect for agencies, website shops,
-              local SEO teams, and appointment setters.
+              Prospkt is strongest when calls, estimates, old customers, and commercial accounts
+              need consistent follow-up. It is the AI revenue layer beside the systems that already
+              handle dispatch, invoices, and field operations.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {industries.map((item) => (
               <div
                 key={item.label}
-                className="flex items-center gap-3 rounded-2xl border border-hairline bg-surface p-4"
+                className="lift scroll-reveal flex items-center gap-3 rounded-2xl border border-hairline bg-surface p-4"
               >
                 <span className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--elevated)]">
                   <item.icon size={18} color="#0A0A0A" />
@@ -945,7 +1235,7 @@ function Trust() {
         />
         <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {trustItems.map((item) => (
-            <article key={item.title} className="rounded-2xl border border-hairline bg-surface p-5">
+            <article key={item.title} className="lift scroll-reveal rounded-2xl border border-hairline bg-surface p-5">
               <span className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--elevated)]">
                 <item.icon size={18} color="#0A0A0A" />
               </span>
@@ -966,7 +1256,7 @@ function Trust() {
 function Testimonial() {
   return (
     <section className="border-y border-hairline bg-surface py-16 md:py-20">
-      <div className="mx-auto grid max-w-[1240px] gap-8 px-6 md:grid-cols-[0.6fr_1.4fr] md:items-center">
+      <div className="scroll-reveal mx-auto grid max-w-[1240px] gap-8 px-6 md:grid-cols-[0.6fr_1.4fr] md:items-center">
         <div className="flex items-center gap-3">
           <span className="flex size-12 items-center justify-center rounded-2xl bg-[color:var(--elevated)]">
             <QuotesIcon size={22} color="#0A0A0A" />
@@ -977,8 +1267,8 @@ function Testimonial() {
           </div>
         </div>
         <blockquote className="text-pretty text-[22px] font-medium tracking-tight leading-snug text-foreground md:text-[32px]">
-          &quot;It feels like hiring a junior SDR who never forgets to log the call, respects the
-          rules, and already knows which leads are worth touching.&quot;
+          &quot;It feels like hiring a follow-up rep who never forgets an estimate, logs every call,
+          respects the rules, and knows when to hand a booked job back to the owner.&quot;
         </blockquote>
       </div>
     </section>
@@ -987,25 +1277,27 @@ function Testimonial() {
 
 function Pricing() {
   const included = [
-    "Lead scraping and enrichment",
-    "AI voice calls with live transcripts",
-    "Calendar booking and SMS confirmation",
-    "DNC management and lifecycle analytics",
+    "Warm recovery, estimate follow-up, reactivation, and B2B playbooks",
+    "Service CRM with source, consent notes, service need, and estimate value",
+    "Agent command center with dry run and pause",
+    "AI voice calls with transcripts and call history",
+    "Calendar booking, SMS confirmation, and owner summaries",
+    "DNC management, budgets, and lifecycle analytics",
   ];
 
   return (
     <section id="pricing" className="py-20 md:py-28">
       <div className="mx-auto max-w-[920px] px-6">
-        <div className="overflow-hidden rounded-[28px] border border-hairline bg-surface">
+        <div className="scroll-reveal overflow-hidden rounded-[28px] border border-hairline bg-surface">
           <div className="grid gap-px bg-[color:var(--hairline)] md:grid-cols-[0.9fr_1.1fr]">
             <div className="bg-surface p-8 md:p-10">
               <p className="label-caps">Pricing</p>
               <h2 className="mt-4 text-[34px] font-semibold tracking-tight leading-none text-foreground md:text-[48px]">
-                Start lean. Scale when the calls work.
+                Start with recovery. Scale into outbound.
               </h2>
               <p className="mt-5 text-pretty text-[14.5px] leading-relaxed text-muted-foreground">
-                Built for early teams that need to prove an outbound motion before hiring more
-                reps or stitching together a stack of tools.
+                Built for service businesses and agencies that want booked jobs from missed calls,
+                old estimates, past customers, and carefully sourced commercial outreach.
               </p>
             </div>
             <div className="bg-surface p-8 md:p-10">
@@ -1021,13 +1313,13 @@ function Pricing() {
                   </li>
                 ))}
               </ul>
-              <Link
+              <AuthRouteButton
                 href="/sign-up"
                 className="press mt-8 inline-flex h-11 items-center gap-1.5 rounded-lg bg-foreground px-5 text-[14px] font-medium text-white transition-colors hover:bg-[#1F1F1F]"
               >
                 Request access
                 <ArrowRightIcon size={13} />
-              </Link>
+              </AuthRouteButton>
             </div>
           </div>
         </div>
@@ -1040,7 +1332,7 @@ function FAQ() {
   const faqs = [
     [
       "Who is Prospkt for?",
-      "Agencies, local SEO shops, website studios, and operators who sell simple services to local businesses.",
+      "Service-based businesses and agencies serving them. The first practical wedge is home services: missed calls, estimates, reactivation, and commercial account outreach.",
     ],
     [
       "Does the AI disclose itself?",
@@ -1048,7 +1340,23 @@ function FAQ() {
     ],
     [
       "Can I use my own leads?",
-      "Yes. The lead table can be fed by scraped results now, and the lifecycle model is ready for imported lead sources.",
+      "Yes. The CRM is designed for warm records like missed calls, form fills, old estimates, past customers, and sourced cold B2B accounts.",
+    ],
+    [
+      "Does Prospkt include a CRM?",
+      "Yes. Contact type, source, consent note, service need, service area, estimate value, status, notes, calls, transcripts, follow-ups, DNC entries, and bookings live on one record.",
+    ],
+    [
+      "How much control do I have over the AI rep?",
+      "The app is built around guarded auto: run, dry-run, pause, daily call caps, spend caps, calling-window checks, DNC checks, and visible skip reasons.",
+    ],
+    [
+      "Does Prospkt replace Jobber or ServiceTitan?",
+      "No. Prospkt is not trying to own dispatch, invoicing, or field operations. It owns the revenue layer: follow-up, calling, booking, CRM memory, and campaign control.",
+    ],
+    [
+      "What happens after signup?",
+      "You go through onboarding for company basics, offer positioning, target markets, daily limits, booking identity, and compliance acknowledgement before the app runs outreach.",
     ],
   ];
 
@@ -1060,7 +1368,7 @@ function FAQ() {
           title="Questions before the first batch."
           description="A few quick answers for teams evaluating whether autonomous outbound fits their sales motion."
         />
-        <div className="mt-12 divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+        <div className="scroll-reveal mt-12 divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
           {faqs.map(([question, answer]) => (
             <details key={question} className="group p-5 open:bg-[color:var(--elevated)]">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-foreground [&::-webkit-details-marker]:hidden">
@@ -1084,7 +1392,7 @@ function FAQ() {
 function CTA() {
   return (
     <section id="cta" className="px-6 py-20 md:py-28">
-      <div className="mx-auto max-w-[1240px] overflow-hidden rounded-[32px] border border-hairline bg-foreground p-8 text-white md:p-12">
+      <div className="scroll-reveal mx-auto max-w-[1240px] overflow-hidden rounded-[32px] border border-hairline bg-foreground p-8 text-white md:p-12">
         <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11.5px] font-medium text-white/70">
@@ -1092,20 +1400,20 @@ function CTA() {
               Private beta access
             </span>
             <h2 className="mt-6 max-w-[760px] text-balance text-[34px] font-semibold tracking-tight leading-[1.04] md:text-[58px]">
-              Run your first autonomous outbound batch this week.
+              Recover missed revenue before it goes cold.
             </h2>
             <p className="mt-5 max-w-[620px] text-pretty text-[15px] leading-relaxed text-white/65">
-              Connect a city, define the offer, and let Prospkt handle the first touch. You stay in
-              control of scripts, queues, opt-outs, and bookings.
+              Start with missed calls, old estimates, and past customers. Then expand into sourced
+              B2B campaigns once the controls, scripts, and booking handoff are dialed in.
             </p>
           </div>
-          <Link
+          <AuthRouteButton
             href="/sign-up"
             className="press inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-white px-5 text-[14px] font-medium text-foreground transition-colors hover:bg-[#F0F0EF]"
           >
             Open the app
             <ArrowRightIcon size={14} />
-          </Link>
+          </AuthRouteButton>
         </div>
       </div>
     </section>
@@ -1135,12 +1443,31 @@ function SiteFooter() {
           <a href="#trust" className="inline-flex items-center gap-1 hover:text-foreground">
             Compliance <ArrowSquareOutIcon size={11} />
           </a>
-          <Link href="/sign-in" className="inline-flex items-center gap-1 hover:text-foreground">
+          <AuthRouteButton
+            href="/sign-in"
+            className="inline-flex items-center gap-1 text-[12.5px] text-muted-foreground hover:text-foreground"
+          >
             App <ArrowSquareOutIcon size={11} />
-          </Link>
+          </AuthRouteButton>
           <span>YALID LLC</span>
         </div>
       </div>
     </footer>
+  );
+}
+
+function AuthRouteButton({
+  href,
+  className,
+  children,
+}: {
+  href: "/sign-in" | "/sign-up";
+  className: string;
+  children: ReactNode;
+}) {
+  return (
+    <a href={href} className={className}>
+      {children}
+    </a>
   );
 }

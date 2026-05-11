@@ -17,7 +17,9 @@ import {
   ArrowClockwiseIcon,
   CircleNotchIcon,
   PhoneOutgoingIcon,
+  MagnifyingGlassIcon,
 } from "@phosphor-icons/react";
+import { useWorkspaceContext } from "@/components/app/workspace-provider";
 import type { AgentEvent, AgentRun, AgentStatusPayload, Analytics, Lead, NavKey, VapiCallRecord } from "@/lib/types";
 import { CAMPAIGN_LANE_LABELS } from "@/lib/types";
 import { getGreeting, formatRelativeTime, isInsideTcpaHours } from "@/lib/format";
@@ -236,6 +238,38 @@ export function HomeView({
   const [agentError, setAgentError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [testCallOpen, setTestCallOpen] = useState(false);
+  const [scrapeBusy, setScrapeBusy] = useState(false);
+  const [scrapeError, setScrapeError] = useState<string | null>(null);
+  const workspaceContext = useWorkspaceContext();
+  const firstTargetCity = workspaceContext.onboarding?.targetCities?.[0] ?? null;
+
+  async function runFirstScrape() {
+    if (!firstTargetCity) {
+      setScrapeError("Add a target city in settings before scraping.");
+      return;
+    }
+    setScrapeBusy(true);
+    setScrapeError(null);
+    try {
+      const res = await fetch(`/api/scrape?city=${encodeURIComponent(firstTargetCity)}`);
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? `Scrape failed (${res.status})`);
+      }
+      const leadsRes = await fetch("/api/leads").then((r) => r.json()).catch(() => ({ leads: [] }));
+      setTopLeads(
+        (leadsRes.leads ?? [])
+          .filter((lead: Lead) => !["booked", "not_interested", "dnc"].includes(lead.status ?? "new"))
+          .slice()
+          .sort((x: Lead, y: Lead) => y.priorityScore - x.priorityScore)
+          .slice(0, 6)
+      );
+    } catch (err) {
+      setScrapeError(err instanceof Error ? err.message : "Scrape failed");
+    } finally {
+      setScrapeBusy(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -631,7 +665,30 @@ export function HomeView({
             <EmptyState
               icon={UsersIcon}
               title="No service leads yet"
-              description="Add CRM records or run a campaign source to populate your queue."
+              description={
+                firstTargetCity
+                  ? `Scrape your first batch of businesses in ${firstTargetCity} to populate the queue.`
+                  : "Add a target city in settings, then scrape your first batch to populate the queue."
+              }
+              action={
+                <div className="flex flex-col items-center gap-2">
+                  <PrimaryButton
+                    onClick={runFirstScrape}
+                    loading={scrapeBusy}
+                    disabled={scrapeBusy || !firstTargetCity}
+                    iconLeft={<MagnifyingGlassIcon size={12} aria-hidden />}
+                  >
+                    {scrapeBusy
+                      ? "Scraping…"
+                      : firstTargetCity
+                      ? `Scrape ${firstTargetCity}`
+                      : "Add a city in settings"}
+                  </PrimaryButton>
+                  {scrapeError && (
+                    <p className="text-[11.5px] text-[#A32A22]">{scrapeError}</p>
+                  )}
+                </div>
+              }
             />
           ) : (
             <ul className="divide-y divide-hairline">

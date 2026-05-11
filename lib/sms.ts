@@ -16,12 +16,12 @@ export interface SmsResult {
 
 // ─── Message templates ────────────────────────────────────────────────────────
 
-function voicemailFollowUp(businessName: string, bookingUrl: string): string {
-  return `Hi! This is Prospkt — we just tried calling ${businessName} about getting more customers online. Sorry we missed you! Book a free 30-min call here: ${bookingUrl} — no pressure, just ideas.`;
-}
-
 function bookedConfirmation(businessName: string, bookingUrl: string): string {
   return `Hi ${businessName}! Your discovery call is confirmed. Here's your booking link in case you need to reschedule: ${bookingUrl}. Talk soon!`;
+}
+
+function postInterestFollowUp(businessName: string, bookingUrl: string): string {
+  return `Hi ${businessName} — thanks for chatting with Prospkt. Here's the booking link we discussed: ${bookingUrl}. Reply STOP to opt out.`;
 }
 
 function notInterestedOptOut(businessName: string): string {
@@ -44,18 +44,18 @@ export async function sendSms(to: string, body: string): Promise<SmsResult> {
 
 const BOOKING_URL = "https://cal.com/abe-yadessa-zdeerb/30min";
 
-export async function sendVoicemailFollowUp(
-  to: string,
-  businessName: string
-): Promise<SmsResult> {
-  return sendSms(to, voicemailFollowUp(businessName, BOOKING_URL));
-}
-
 export async function sendBookingConfirmation(
   to: string,
   businessName: string
 ): Promise<SmsResult> {
   return sendSms(to, bookedConfirmation(businessName, BOOKING_URL));
+}
+
+export async function sendPostInterestFollowUp(
+  to: string,
+  businessName: string
+): Promise<SmsResult> {
+  return sendSms(to, postInterestFollowUp(businessName, BOOKING_URL));
 }
 
 export async function sendOptOutConfirmation(

@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Prospkt
 
-## Getting Started
+**Autonomous AI sales rep that books discovery calls for local service businesses.**
 
-First, run the development server:
+Prospkt finds local businesses with weak or missing websites, calls them with a natural-sounding AI voice, qualifies interest, and books discovery calls directly onto Cal.com — all without manual input.
+
+Built and maintained by [YALID LLC](https://yalid.co).
+
+---
+
+## Stack
+
+- **Framework:** Next.js 16 (App Router, Turbopack)
+- **Language:** TypeScript (strict, no `any`)
+- **Styling:** Tailwind CSS
+- **Auth & multi-tenancy:** Clerk Organizations
+- **Voice:** Vapi.ai + ElevenLabs
+- **Calendar:** Cal.com v2 API
+- **SMS / Email:** Twilio + Resend
+- **Lead sourcing:** Yelp + Google Places
+- **Storage:** SQLite (built-in CRM)
+
+## Local development
 
 ```bash
+npm install
+cp .env.example .env.local   # populate keys
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Compliance
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Prospkt is TCPA-compliant by default:
 
-## Learn More
+- AI identifies itself as automated at the start of every call
+- Honors STOP / opt-out and adds to internal DNC immediately
+- Calling hours: 9 AM – 7 PM local time only
+- Daily call caps and weekend pauses enforced server-side
+- DNC scrubbed before every dial
 
-To learn more about Next.js, take a look at the following resources:
+## License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Copyright © 2026 YALID LLC. All rights reserved.
+This is proprietary software. No license is granted for redistribution or commercial use without written permission.

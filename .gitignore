@@ -23,6 +23,9 @@
 # misc
 .DS_Store
 *.pem
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
 
 # debug
 npm-debug.log*
@@ -39,3 +42,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+# internal product spec — not for public repo
+CLAUDE.md
+.claude/

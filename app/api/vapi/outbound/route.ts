@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const call = await callLead(lead, guardrail.timezone, workspaceId);
+    const call = await callLead(lead, workspaceId, guardrail.timezone);
     return NextResponse.json({ callId: call.id, status: call.status });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

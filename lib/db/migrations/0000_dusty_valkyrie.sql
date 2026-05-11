@@ -144,6 +144,8 @@ CREATE TABLE "script_settings" (
 	"workspace_id" text PRIMARY KEY NOT NULL,
 	"system_prompt_suffix" text DEFAULT '' NOT NULL,
 	"first_message_template" text DEFAULT '' NOT NULL,
+	"realtime_model" text DEFAULT 'gpt-realtime-2025-08-28' NOT NULL,
+	"realtime_voice_id" text DEFAULT 'marin' NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint

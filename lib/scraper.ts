@@ -112,11 +112,11 @@ interface YelpSearchResponse {
   total: number;
 }
 
-async function readLeads(workspaceId?: string): Promise<Lead[]> {
+async function readLeads(workspaceId: string): Promise<Lead[]> {
   return listLeads(workspaceId);
 }
 
-async function persistLeads(leads: Lead[], workspaceId?: string): Promise<void> {
+async function persistLeads(leads: Lead[], workspaceId: string): Promise<void> {
   upsertLeads(leads, workspaceId);
 }
 
@@ -249,7 +249,7 @@ export interface ScrapeOptions {
 
 export async function scrapeCity(
   city: string,
-  workspaceId?: string,
+  workspaceId: string,
   options: ScrapeOptions = {}
 ): Promise<Lead[]> {
   // Resolve category list: explicit → workspace settings → default
@@ -373,7 +373,7 @@ export async function scrapeCity(
 
 export async function scrapeAndSave(
   city: string,
-  workspaceId?: string,
+  workspaceId: string,
   options: ScrapeOptions = {}
 ): Promise<ScrapeResult> {
   const newLeads = await scrapeCity(city, workspaceId, options);

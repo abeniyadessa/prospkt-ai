@@ -89,6 +89,8 @@ export const scriptSettings = pgTable("script_settings", {
     .references(() => workspaces.id, { onDelete: "cascade" }),
   systemPromptSuffix: text("system_prompt_suffix").notNull().default(""),
   firstMessageTemplate: text("first_message_template").notNull().default(""),
+  realtimeModel: text("realtime_model").notNull().default("gpt-realtime-2025-08-28"),
+  realtimeVoiceId: text("realtime_voice_id").notNull().default("marin"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

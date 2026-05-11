@@ -316,7 +316,7 @@ export async function POST(request: NextRequest) {
       try {
         await updateLeadFromCallOutcome(meta.leadId, outcome, workspaceId);
         if (existingLead) {
-          rememberLeadContact(existingLead, outcome, meta.timezone, workspaceId);
+          rememberLeadContact(existingLead, outcome, workspaceId, meta.timezone);
         }
       } catch (err) {
         console.error("[vapi/webhook] lifecycle update failed:", err);

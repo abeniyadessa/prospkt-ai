@@ -24,6 +24,12 @@ import type {
 } from "@/lib/types";
 import { DEFAULT_WORKSPACE_ID, GLOBAL_DNC_WORKSPACE_ID, resolveWorkspaceId } from "@/lib/workspace-context";
 import { getPlaybookById, inferDefaultPlaybook } from "@/lib/campaigns";
+import {
+  DEFAULT_OPENAI_REALTIME_VOICE_ID,
+  OPENAI_REALTIME_MODEL,
+  resolveOpenAIRealtimeModel,
+  resolveOpenAIRealtimeVoiceId,
+} from "@/lib/voice";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_FILE = process.env.PROSPKT_DB_PATH ?? path.join(DATA_DIR, "prospkt.sqlite");
@@ -218,6 +224,8 @@ function initialize() {
       workspaceId TEXT PRIMARY KEY,
       systemPromptSuffix TEXT NOT NULL DEFAULT '',
       firstMessageTemplate TEXT NOT NULL DEFAULT '',
+      realtimeModel TEXT NOT NULL DEFAULT '${OPENAI_REALTIME_MODEL}',
+      realtimeVoiceId TEXT NOT NULL DEFAULT '${DEFAULT_OPENAI_REALTIME_VOICE_ID}',
       updatedAt TEXT NOT NULL
     );
 
@@ -360,6 +368,12 @@ function initialize() {
   ensureColumn("agent_runs", "workspaceId", `TEXT NOT NULL DEFAULT '${DEFAULT_WORKSPACE_ID}'`);
   ensureColumn("agent_events", "workspaceId", `TEXT NOT NULL DEFAULT '${DEFAULT_WORKSPACE_ID}'`);
   ensureColumn("lead_memory", "workspaceId", `TEXT NOT NULL DEFAULT '${DEFAULT_WORKSPACE_ID}'`);
+  ensureColumn("script_settings", "realtimeModel", `TEXT NOT NULL DEFAULT '${OPENAI_REALTIME_MODEL}'`);
+  ensureColumn(
+    "script_settings",
+    "realtimeVoiceId",
+    `TEXT NOT NULL DEFAULT '${DEFAULT_OPENAI_REALTIME_VOICE_ID}'`
+  );
 
   globalThis.__prospktDb?.exec(`
     CREATE INDEX IF NOT EXISTS idx_leads_workspace_status ON leads(workspaceId, status);
@@ -590,7 +604,7 @@ export function listRunnableWorkspaces(): Workspace[] {
   return rows.map((row) => rowToWorkspace(row));
 }
 
-export function getWorkspaceSettings(workspaceId = DEFAULT_WORKSPACE_ID): WorkspaceSettings | null {
+export function getWorkspaceSettings(workspaceId: string): WorkspaceSettings | null {
   const id = resolveWorkspaceId(workspaceId);
   const row = getDb()
     .prepare("SELECT * FROM workspace_settings WHERE workspaceId = ?")
@@ -669,7 +683,7 @@ export function updateWorkspaceSettings(
   return getWorkspaceSettings(id) as WorkspaceSettings;
 }
 
-export function getOnboardingProfile(workspaceId = DEFAULT_WORKSPACE_ID): OnboardingProfile | null {
+export function getOnboardingProfile(workspaceId: string): OnboardingProfile | null {
   const id = resolveWorkspaceId(workspaceId);
   const row = getDb()
     .prepare("SELECT * FROM onboarding WHERE workspaceId = ?")
@@ -804,39 +818,64 @@ export function completeOnboarding(
   return getOnboardingProfile(workspaceId) as OnboardingProfile;
 }
 
-export function getScriptSettings(workspaceId = DEFAULT_WORKSPACE_ID): ScriptSettings {
+function normalizeScriptSettings(row?: Partial<ScriptSettings> | null): ScriptSettings {
+  return {
+    systemPromptSuffix: row?.systemPromptSuffix ?? "",
+    firstMessageTemplate: row?.firstMessageTemplate ?? "",
+    realtimeModel: resolveOpenAIRealtimeModel(row?.realtimeModel),
+    realtimeVoiceId: resolveOpenAIRealtimeVoiceId(row?.realtimeVoiceId),
+    updatedAt: row?.updatedAt ?? "",
+  };
+}
+
+export function getScriptSettings(workspaceId: string): ScriptSettings {
   const id = resolveWorkspaceId(workspaceId);
   ensureWorkspaceDefaults(id);
   const row = getDb()
     .prepare("SELECT * FROM script_settings WHERE workspaceId = ?")
     .get(id) as ScriptSettings | undefined;
-  return (
-    row ?? {
-      systemPromptSuffix: "",
-      firstMessageTemplate: "",
-      updatedAt: "",
-    }
-  );
+  return normalizeScriptSettings(row);
 }
 
 export function updateScriptSettings(
-  patch: Pick<ScriptSettings, "systemPromptSuffix" | "firstMessageTemplate">,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  patch: Partial<
+    Pick<
+      ScriptSettings,
+      "systemPromptSuffix" | "firstMessageTemplate" | "realtimeModel" | "realtimeVoiceId"
+    >
+  >,
+  workspaceId: string
 ): ScriptSettings {
   const id = resolveWorkspaceId(workspaceId);
   const now = new Date().toISOString();
+  const current = getScriptSettings(id);
+  const next = normalizeScriptSettings({
+    ...current,
+    ...patch,
+    updatedAt: now,
+  });
   getDb()
     .prepare(`
       INSERT INTO script_settings (
-        workspaceId, systemPromptSuffix, firstMessageTemplate, updatedAt
+        workspaceId, systemPromptSuffix, firstMessageTemplate,
+        realtimeModel, realtimeVoiceId, updatedAt
       )
-      VALUES (?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?)
       ON CONFLICT(workspaceId) DO UPDATE SET
         systemPromptSuffix = excluded.systemPromptSuffix,
         firstMessageTemplate = excluded.firstMessageTemplate,
+        realtimeModel = excluded.realtimeModel,
+        realtimeVoiceId = excluded.realtimeVoiceId,
         updatedAt = excluded.updatedAt
     `)
-    .run(id, patch.systemPromptSuffix, patch.firstMessageTemplate, now);
+    .run(
+      id,
+      next.systemPromptSuffix,
+      next.firstMessageTemplate,
+      next.realtimeModel,
+      next.realtimeVoiceId,
+      now
+    );
   return getScriptSettings(id);
 }
 
@@ -881,7 +920,7 @@ async function ensureSeeded() {
     try {
       const raw = await fs.readFile(LEGACY_LEADS_FILE, "utf-8");
       const leads = JSON.parse(raw) as Lead[];
-      upsertLeads(leads);
+      upsertLeads(leads, DEFAULT_WORKSPACE_ID);
     } catch {
       /* legacy file is optional */
     }
@@ -893,7 +932,7 @@ async function ensureSeeded() {
       const raw = await fs.readFile(LEGACY_DNC_FILE, "utf-8");
       const numbers = JSON.parse(raw) as string[];
       for (const phone of numbers) {
-        addDncEntry(phone, "legacy");
+        addDncEntry(phone, "legacy", DEFAULT_WORKSPACE_ID);
       }
     } catch {
       /* legacy file is optional */
@@ -956,7 +995,7 @@ function endOfLocalDay(date = new Date()) {
   return end.toISOString();
 }
 
-export async function listLeads(workspaceId = DEFAULT_WORKSPACE_ID): Promise<Lead[]> {
+export async function listLeads(workspaceId: string): Promise<Lead[]> {
   await ensureSeeded();
   const id = resolveWorkspaceId(workspaceId);
   const rows = getDb()
@@ -965,7 +1004,7 @@ export async function listLeads(workspaceId = DEFAULT_WORKSPACE_ID): Promise<Lea
   return rows.map(rowToLead);
 }
 
-export async function getLead(id: string, workspaceId = DEFAULT_WORKSPACE_ID): Promise<Lead | null> {
+export async function getLead(id: string, workspaceId: string): Promise<Lead | null> {
   await ensureSeeded();
   const scopeId = resolveWorkspaceId(workspaceId);
   const row = getDb()
@@ -974,7 +1013,7 @@ export async function getLead(id: string, workspaceId = DEFAULT_WORKSPACE_ID): P
   return row ? rowToLead(row) : null;
 }
 
-export function upsertLeads(leads: Lead[], workspaceId = DEFAULT_WORKSPACE_ID) {
+export function upsertLeads(leads: Lead[], workspaceId: string) {
   const database = getDb();
   const scopeId = resolveWorkspaceId(workspaceId);
   const now = new Date().toISOString();
@@ -1050,7 +1089,7 @@ export function upsertLeads(leads: Lead[], workspaceId = DEFAULT_WORKSPACE_ID) {
         now,
         now
       );
-      rememberLeadSeen(lead, undefined, scopeId);
+      rememberLeadSeen(lead, scopeId);
     }
     database.exec("COMMIT");
   } catch (err) {
@@ -1079,7 +1118,7 @@ export async function updateLeadLifecycle(
       | "playbook"
     >
   >,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): Promise<Lead | null> {
   await ensureSeeded();
   const scopeId = resolveWorkspaceId(workspaceId);
@@ -1206,7 +1245,7 @@ export async function updateLeadLifecycle(
 
 export async function markLeadCallStarted(
   id: string,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): Promise<Lead | null> {
   const lead = await getLead(id, workspaceId);
   if (!lead) return null;
@@ -1220,7 +1259,7 @@ export async function markLeadCallStarted(
 export async function updateLeadFromCallOutcome(
   id: string,
   outcome: string,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): Promise<Lead | null> {
   const current = await getLead(id, workspaceId);
   if (current?.status === "booked" || current?.status === "dnc") {
@@ -1243,7 +1282,7 @@ export async function updateLeadFromCallOutcome(
   return updateLeadLifecycle(id, { status }, workspaceId);
 }
 
-export async function listDncEntries(workspaceId = DEFAULT_WORKSPACE_ID): Promise<string[]> {
+export async function listDncEntries(workspaceId: string): Promise<string[]> {
   await ensureSeeded();
   const scopeId = resolveWorkspaceId(workspaceId);
   const rows = getDb()
@@ -1257,7 +1296,7 @@ export async function listDncEntries(workspaceId = DEFAULT_WORKSPACE_ID): Promis
 export function addDncEntry(
   phone: string,
   source = "manual",
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ) {
   const normalized = normalisePhone(phone);
   const scopeId = resolveWorkspaceId(workspaceId);
@@ -1270,7 +1309,7 @@ export function addDncEntry(
   return normalized;
 }
 
-export async function removeDncEntry(phone: string, workspaceId = DEFAULT_WORKSPACE_ID) {
+export async function removeDncEntry(phone: string, workspaceId: string) {
   await ensureSeeded();
   const normalized = normalisePhone(phone);
   getDb()
@@ -1281,7 +1320,7 @@ export async function removeDncEntry(phone: string, workspaceId = DEFAULT_WORKSP
 
 export async function isDncEntry(
   phone: string,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): Promise<boolean> {
   await ensureSeeded();
   const normalized = normalisePhone(phone);
@@ -1339,7 +1378,7 @@ export function addActivity(input: {
   body?: string | null;
   metadata?: Record<string, unknown> | null;
   createdBy?: string;
-}, workspaceId = DEFAULT_WORKSPACE_ID): LeadActivity {
+}, workspaceId: string): LeadActivity {
   const scopeId = resolveWorkspaceId(workspaceId);
   const id = `act_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();
@@ -1372,7 +1411,7 @@ export function addActivity(input: {
 export async function listLeadActivities(
   leadId: string,
   limit = 100,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): Promise<LeadActivity[]> {
   await ensureSeeded();
   const rows = getDb()
@@ -1423,7 +1462,7 @@ export function recordCall(input: {
   recordingUrl?: string | null;
   startedAt?: string | null;
   endedAt?: string | null;
-}, workspaceId = DEFAULT_WORKSPACE_ID): LeadCall {
+}, workspaceId: string): LeadCall {
   const scopeId = resolveWorkspaceId(workspaceId);
   const id = `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();
@@ -1467,7 +1506,7 @@ export function recordCall(input: {
 export async function listLeadCalls(
   leadId: string,
   limit = 50,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): Promise<LeadCall[]> {
   await ensureSeeded();
   const rows = getDb()
@@ -1480,7 +1519,7 @@ export async function listLeadCalls(
 
 // ─── Agent control ───────────────────────────────────────────────────────────
 
-function ensureAgentSettings(workspaceId = DEFAULT_WORKSPACE_ID) {
+function ensureAgentSettings(workspaceId: string) {
   const scopeId = resolveWorkspaceId(workspaceId);
   const now = new Date().toISOString();
   getDb()
@@ -1494,7 +1533,7 @@ function ensureAgentSettings(workspaceId = DEFAULT_WORKSPACE_ID) {
     .run(`${scopeId}:${AGENT_SETTINGS_ID}`, scopeId, now);
 }
 
-export function getAgentSettings(workspaceId = DEFAULT_WORKSPACE_ID): AgentSettings {
+export function getAgentSettings(workspaceId: string): AgentSettings {
   const scopeId = resolveWorkspaceId(workspaceId);
   ensureAgentSettings(scopeId);
   const row = getDb()
@@ -1510,7 +1549,7 @@ export function updateAgentSettings(
       "paused" | "maxCallsPerDay" | "maxCostPerDayCents" | "weekendPause" | "failureCount"
     >
   >,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): AgentSettings {
   const scopeId = resolveWorkspaceId(workspaceId);
   const current = getAgentSettings(scopeId);
@@ -1547,7 +1586,7 @@ export function updateAgentSettings(
   return getAgentSettings(scopeId);
 }
 
-export function createAgentRun(mode: AgentRunMode, workspaceId = DEFAULT_WORKSPACE_ID): AgentRun {
+export function createAgentRun(mode: AgentRunMode, workspaceId: string): AgentRun {
   const scopeId = resolveWorkspaceId(workspaceId);
   const id = `run_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const startedAt = new Date().toISOString();
@@ -1584,7 +1623,7 @@ export function updateAgentRun(
       "status" | "callsAttempted" | "callsSkipped" | "costCents" | "bookedCount" | "summary" | "error"
     >
   > & { completedAt?: string | null },
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): AgentRun | null {
   const scopeId = resolveWorkspaceId(workspaceId);
   const current = getAgentRun(id, scopeId);
@@ -1635,14 +1674,14 @@ export function updateAgentRun(
   return getAgentRun(id, scopeId);
 }
 
-export function getAgentRun(id: string, workspaceId = DEFAULT_WORKSPACE_ID): AgentRun | null {
+export function getAgentRun(id: string, workspaceId: string): AgentRun | null {
   const row = getDb()
     .prepare("SELECT * FROM agent_runs WHERE id = ? AND workspaceId = ?")
     .get(id, resolveWorkspaceId(workspaceId)) as AgentRunRow | undefined;
   return row ? rowToAgentRun(row) : null;
 }
 
-export function getLatestAgentRun(workspaceId = DEFAULT_WORKSPACE_ID): AgentRun | null {
+export function getLatestAgentRun(workspaceId: string): AgentRun | null {
   const row = getDb()
     .prepare("SELECT * FROM agent_runs WHERE workspaceId = ? ORDER BY startedAt DESC LIMIT 1")
     .get(resolveWorkspaceId(workspaceId)) as AgentRunRow | undefined;
@@ -1656,7 +1695,7 @@ export function addAgentEvent(input: {
   message: string;
   leadId?: string | null;
   metadata?: Record<string, unknown> | null;
-}, workspaceId = DEFAULT_WORKSPACE_ID): AgentEvent {
+}, workspaceId: string): AgentEvent {
   const scopeId = resolveWorkspaceId(workspaceId);
   const id = `evt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const createdAt = new Date().toISOString();
@@ -1692,9 +1731,9 @@ export function addAgentEvent(input: {
 }
 
 export function listAgentEvents(
+  workspaceId: string,
   limit = 25,
   runId?: string,
-  workspaceId = DEFAULT_WORKSPACE_ID
 ): AgentEvent[] {
   const scopeId = resolveWorkspaceId(workspaceId);
   const rows = runId
@@ -1710,8 +1749,8 @@ export function listAgentEvents(
 }
 
 export function getDailyAgentBudget(
+  workspaceId: string,
   date = new Date(),
-  workspaceId = DEFAULT_WORKSPACE_ID
 ): AgentBudget {
   const scopeId = resolveWorkspaceId(workspaceId);
   const settings = getAgentSettings(scopeId);
@@ -1741,8 +1780,8 @@ export function getDailyAgentBudget(
 
 export function rememberLeadSeen(
   lead: Lead,
+  workspaceId: string,
   timezone?: string,
-  workspaceId = DEFAULT_WORKSPACE_ID
 ) {
   const phone = normalisePhone(lead.phone);
   if (!phone) return;
@@ -1781,8 +1820,8 @@ export function rememberLeadSeen(
 export function rememberLeadContact(
   lead: Lead,
   outcome: string,
+  workspaceId: string,
   timezone?: string,
-  workspaceId = DEFAULT_WORKSPACE_ID
 ) {
   const phone = normalisePhone(lead.phone);
   if (!phone) return;
@@ -1824,7 +1863,7 @@ export function rememberLeadContact(
 
 export async function hasContactedPhone(
   phone: string,
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): Promise<boolean> {
   await ensureSeeded();
   const normalized = normalisePhone(phone);
@@ -1858,7 +1897,7 @@ export async function hasContactedPhone(
   return Boolean(lifecycle);
 }
 
-export function getAgentMemoryStats(workspaceId = DEFAULT_WORKSPACE_ID): AgentMemoryStats {
+export function getAgentMemoryStats(workspaceId: string): AgentMemoryStats {
   const scopeId = resolveWorkspaceId(workspaceId);
   const totals = getDb()
     .prepare(`
@@ -2047,7 +2086,7 @@ export function buildDailyDigest(
 }
 
 export async function getAgentStatusPayload(
-  workspaceId = DEFAULT_WORKSPACE_ID
+  workspaceId: string
 ): Promise<AgentStatusPayload> {
   await ensureSeeded();
   const scopeId = resolveWorkspaceId(workspaceId);
@@ -2068,9 +2107,9 @@ export async function getAgentStatusPayload(
     status,
     settings,
     latestRun,
-    budget: getDailyAgentBudget(new Date(), scopeId),
+    budget: getDailyAgentBudget(scopeId, new Date()),
     memory: getAgentMemoryStats(scopeId),
-    recentEvents: listAgentEvents(25, undefined, scopeId),
+    recentEvents: listAgentEvents(scopeId, 25),
   };
 }
 

@@ -180,7 +180,7 @@ export async function evaluateLeadGuardrails(
   settings: AgentSettings,
   mode: AgentRunMode,
   now = new Date(),
-  workspaceId?: string
+  workspaceId: string
 ): Promise<GuardrailResult> {
   const timezone = inferLeadTimezone(lead);
   const lane = lead.campaignLane ?? "cold_b2b";

@@ -1,3 +1,5 @@
+import type { OpenAIRealtimeModel, OpenAIRealtimeVoiceId } from "@/lib/voice";
+
 export const LEAD_STATUSES = [
   "new",
   "queued",
@@ -248,6 +250,8 @@ export interface AppWorkspaceContext {
 export interface ScriptSettings {
   systemPromptSuffix: string;
   firstMessageTemplate: string;
+  realtimeModel: OpenAIRealtimeModel;
+  realtimeVoiceId: OpenAIRealtimeVoiceId;
   updatedAt: string;
 }
 

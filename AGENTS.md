@@ -8,71 +8,75 @@ This version has breaking changes — APIs, conventions, and file structure may 
 <claude-mem-context>
 # Memory Context
 
-# [prospkt.ai] recent context, 2026-05-11 1:29pm EDT
+# [prospkt.ai] recent context, 2026-05-11 2:09pm EDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (22,432t read) | 124,083t work | 82% savings
+Stats: 50 obs (17,641t read) | 324,888t work | 95% savings
 
-### May 4, 2026
-S2 Audit Prospkt.ai codebase for launch readiness: identify blockers, technical debt, and next steps for successful AI sales rep agent launch (May 4 at 10:23 PM)
-S1 Implement animations inspired by ReadyLaunch Framer Motion template into prospkt.ai marketing website (May 4 at 10:23 PM)
-S3 Product strategy lock for Prospkt: decide core positioning, ICP, outbound scope, and vertical focus through guided questionnaire. (May 4 at 10:26 PM)
-### May 5, 2026
-83 1:32p ✅ SQLite Migration: Service-Sales Columns Added with Backward Compatibility
-84 " ✅ Lead Upsert Logic: Service-Sales Fields with Smart Defaults
-85 1:33p ✅ Lead Lifecycle Updates: Service-Sales Profile Mutations with Audit Trail
-86 " ✅ Type Guard Functions: Runtime Validation for ContactType and CampaignLane
-87 1:34p ✅ PATCH /api/leads: Input Validation for Service-Sales Fields
-88 " ✅ Source Field Default: Manual vs Lead Scraper
-89 " 🔵 Lead Scraper: Yelp Integration with Website Quality Detection and Priority Scoring
-90 1:35p ✅ Lead Scraper: Yelp Leads Enriched with Campaign and Service Metadata
-91 " 🟣 Campaigns View: Multi-Lane Campaign Dashboard with Playbook Details
-92 1:36p 🔵 App Layout: Navigation Structure and View Routing
-93 1:47p ✅ Updated help view navigation shortcuts and onboarding content
-94 1:48p 🟣 Added service preset templates to onboarding form
-95 " 🔵 Home view uses campaign-lane-aware lead display with guardrail enforcement
-96 " 🔵 Sidebar navigation structure reflects new campaign-first navigation model
-97 " 🔵 Sidebar invite banner and user menu reflect campaign-first positioning
-98 " ✅ Home view imports and uses campaign lane labels constant
-99 " ✅ Landing page repositioned from lead-scraping tool to service-sales revenue layer
-100 1:50p ✅ Landing page LeadsMockup updated to show campaign-lane-focused queue
-101 " ✅ Landing page target industry labels refined for service-business positioning
-102 " ✅ Landing page testimonial, features, FAQ, and CTA reframed for warm-recovery-first positioning
-103 1:51p ✅ Landing page workflow steps and activity log reframed for warm-recovery-first flow
-104 " ✅ Landing page campaign example updated from Lansing no-website list to estimate follow-up campaign
-105 1:52p 🔵 Landing page patch verification failed - expected TCPA window guardrail not found in page.tsx
-106 " 🔵 Landing page.tsx guardrails checklist missing TCPA/Local-hour window label; Lansing example not yet updated
-107 " 🔵 Landing page DialerMockup section confirmed with TCPA window and Lansing example; patch context located
-108 " ✅ Landing page DialerMockup steps and campaign example successfully updated
-109 " ✅ Landing page AI voice mockup script updated to show estimate follow-up scenario
-110 1:53p ✅ Landing page activity log updated to show warm-recovery and compliance filtering examples
-111 " ✅ Landing page bookings mockup updated to show service job appointments instead of discovery calls
-112 " 🔵 Database schema includes service-business fields and campaign-lane support
-113 1:54p 🔵 Agent guardrails and orchestration enforce compliance checks before every call
-114 " 🔵 Agent orchestrator implements guarded automation with dry-run, budget checks, guardrail evaluation, and failure lockout
-115 " 🔵 Lead ranker uses website status multiplier to adjust priority scores
-116 " 🔵 Caller module generates dynamic scripts and integrates Vapi for mid-call booking with fallback test mode
-117 1:55p 🔵 Guardrails module enforces local-hour calling windows and state-based timezone inference
-118 " ✅ Added campaign-lane and compliance field validation to evaluateLeadGuardrails
-119 " ✅ Lead ranker enhanced to prioritize warm-recovery lanes and estimate values
-120 " 🔵 Claude script generation engine produces warm, AI-disclosed openers with comprehensive objection handling
-121 1:56p ✅ Claude script generation updated to use service-business context and campaign-lane-aware prompts
-122 " ✅ Caller's leadToContext function expanded to include all service-business fields
-123 " ✅ Vapi call invocation updated to pass campaign-lane context as variableValues and metadata
-124 1:57p 🔵 Types module defines navigation keys, label mappings for status/contact type/campaign lanes
-125 " ✅ Appointments view retitled to Bookings with service-sales terminology
-126 1:58p 🔵 Codebase fully integrated with campaign-lane and service-business terminology
-127 2:00p 🔵 API leads route.ts updated from file-based mock to database-backed service-business lead management
-128 2:01p 🔵 Session changes: 60+ files modified, 7 deleted, 20+ new files for campaign-lane and service-business refactor
 ### May 11, 2026
-129 1:28p 🔵 Active refactoring of prospkt.ai codebase with marketing homepage restructuring
-130 " 🔵 prospkt.ai architecture expansion: 70 uncommitted changes with auth, database, and multi-tenant workspace support
-131 " 🔵 TypeScript type checking passes without errors on prospkt.ai refactored codebase
-S4 Status check on prospkt.ai refactoring: 70 uncommitted changes introducing auth, database, workspace, and agent systems. User presented three strategic forks for next action. (May 11 at 1:28 PM)
-132 1:29p 🔵 New directory structure detailed: auth routes, API endpoints, and component organization confirmed
+S8 Research ways to use open-source models or alternatives to make receptionist and sales rep voices sound as humanly as possible (May 11 at 1:44 PM)
+S9 Implement scrape-first onboarding CTA on home view empty state; commit feature to main branch (May 11 at 1:54 PM)
+S10 Complete 6-task milestone: implement scrape-first onboarding CTA and verify end-to-end flow; decision point on next work (May 11 at 1:54 PM)
+S11 Select optimal voice model and configuration for Prospkt receptionist and sales rep voices; decide between production-ready and open-source options (May 11 at 1:56 PM)
+S12 Fix silent-empty scrape UX issue (#4 from watch list); surface failures and zero-result feedback across API, scraper, and home view (May 11 at 1:57 PM)
+S13 Harden database layer against silent data-routing to default workspace; address DEFAULT_WORKSPACE_ID parameter defaults that allow implicit fallback behavior (May 11 at 1:58 PM)
+197 1:59p 🔵 Next.js Route Handlers Documentation Path Not Found
+198 " 🔵 Vapi Integration Uses OpenAI Realtime with Marin Voice as Default
+199 " 🔵 Settings UI Includes Caller Configuration Tab with Voice Options
+200 " 🔵 Voice Configuration Infrastructure in Place: voiceId Parameter and Database Settings
+202 " 🔵 Database layer uses DEFAULT_WORKSPACE_ID extensively as fallback
+203 " 🔵 Every data access function in database.ts defaults to DEFAULT_WORKSPACE_ID
+204 " 🔵 Route Handlers Documentation: Caching, HTTP Methods, and GET-Only Static Prerendering
+206 " 🔵 Route Handler API Reference: NextRequest, Context Params, and Type Safety with RouteContext
+205 " ✅ Database functions converted from optional to required workspaceId parameters
+207 2:00p 🔵 Script Settings Database Operations: getScriptSettings and updateScriptSettings
+209 " 🔵 Breaking change: 42 required workspaceId params cause 30+ TypeScript errors across codebase
+208 " 🔵 Ad Hoc Call Flow: Voice Assistant Created Without voiceId Parameter
+210 " 🔵 Settings Script API Endpoint: GET/POST for Script Configuration
+212 " 🔵 Database init functions call upsertLeads and addDncEntry without workspaceId
+211 " 🔵 ScriptSettings Type Definition: Current Fields
+213 " ✅ Legacy data migration now explicitly passes DEFAULT_WORKSPACE_ID to upsertLeads
+214 " ✅ Legacy DNC migration now explicitly passes DEFAULT_WORKSPACE_ID to addDncEntry
+S14 Continue implementation of database layer hardening for prospkt.ai — fix TypeScript compilation errors from converting 33+ database functions to require explicit workspaceId parameter positioning (May 11 at 2:00 PM)
+215 2:02p 🔵 Production Call Flow: callLead() Creates Assistant Without voiceId
+216 " 🔵 Complete Vapi Integration: AssistantConfig voiceId Parameter Fully Supported
+217 " 🔵 Database Schema: scriptSettings Table Structure with No Voice Field
+218 2:03p 🔵 Settings Script Tab: Current UI Limited to systemPromptSuffix and firstMessageTemplate
+219 " 🔵 ScriptSettings Usage Map: getScriptSettings Called in generateCallScript Flow
+220 " 🔵 Database Initialization: script_settings Table Definition with SQL
+221 " 🔵 Workspace Initialization: ensureWorkspaceDefaults() Initializes script_settings with Defaults
+222 " 🔵 Database Schema Evolution Pattern: ensureColumn() Used for Backward Compatibility
+223 " 🔵 Drizzle ORM Migrations: script_settings Table in Migration Files
+224 " 🔵 Documentation and Marketing Claim: README Lists ElevenLabs as Voice Provider, Not Implemented
+225 2:04p 🔵 Voice Demo Entry Point: /api/agent/test-call Calls placeAdHocCall()
+226 " 🔵 Voice Demo Card UI: Three Demo Scenarios Without Voice Selection
+227 " 🔵 Drizzle Migration Snapshot: script_settings Columns Confirmed
+228 " 🔵 Test Call Endpoint: POST /api/agent/test-call with Zod Schema, No voiceId Parameter
+229 " 🔵 Voice Demo Card Wiring: VoiceDemoCard Opens TestCallDialog on "Demo the voice" Click
+230 " 🔵 Home View Layout: Voice Demo Card Positioned in Right Sidebar with Agent Controls
+231 " 🔵 TestCallDialog: Three Demo Scenarios, Phone Input, No Voice Selection UI
+232 " 🔵 Call Script Generation: getScriptSettings() Used to Override AI-Generated Script
+233 " 🔵 Settings Status Endpoint: /api/settings/status Returns Integration Readiness and Caller Config
+234 2:05p 🔵 README Stack Claims ElevenLabs Voice Support; Implementation Uses Only OpenAI Realtime
+235 " ✅ Created lib/voice.ts: OpenAI Realtime Voice Constants and Utilities
+236 " ✅ Updated ScriptSettings Type: Added realtimeModel and realtimeVoiceId Fields
+237 " ✅ Updated lib/vapi.ts: Use Typed Voice Resolvers and Support model Parameter
+238 " ✅ Updated lib/database.ts: Added realtimeModel and realtimeVoiceId Columns to script_settings
+239 2:06p ✅ Updated getScriptSettings() and updateScriptSettings(): Handle realtimeModel and realtimeVoiceId
+240 " ✅ Updated POST /api/settings/script: Handle realtimeModel and realtimeVoiceId in Request Body
+241 " ✅ Refined POST /api/settings/script: Preserve Voice Settings on Partial Updates
+242 " ✅ Updated lib/agents/caller.ts: Thread Voice Settings Through Call Creation
+245 2:07p ✅ Updated Settings View: Add Voice Selection State and saveVoice() Handler
+243 " 🔵 Database functions already have workspaceId as required string parameter in signatures
+244 " ✅ listAgentEvents parameter reordered: workspaceId moved to first position
+S15 Continue database layer hardening — resolve remaining 30 TS errors from function signature parameter reordering across orchestrator, caller, guardrails, dnc, scraper, and database internal call sites (May 11 at 2:07 PM)
+S17 Create a LinkedIn-ready infographic for YALID Prospkt that showcases app features and highlights key areas, with accompanying post copy (May 11 at 2:08 PM)
+246 2:08p ✅ Added Voice Selection UI to Caller Tab in Settings View
+S16 Continue fixing database layer hardening: resolve remaining ~35 TypeScript errors from converting 33+ database functions to require explicit workspaceId parameters (May 11 at 2:08 PM)
+247 2:09p ✅ LinkedIn infographic messaging refined for feature-focused presentation
 
-Access 124k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 325k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>

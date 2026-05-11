@@ -14,7 +14,7 @@ Built and maintained by [YALID LLC](https://yalid.co).
 - **Language:** TypeScript (strict, no `any`)
 - **Styling:** Tailwind CSS
 - **Auth & multi-tenancy:** Clerk Organizations
-- **Voice:** Vapi.ai + ElevenLabs
+- **Voice:** Vapi.ai + OpenAI Realtime (`gpt-realtime-2025-08-28`, Marin by default)
 - **Calendar:** Cal.com v2 API
 - **SMS / Email:** Twilio + Resend
 - **Lead sourcing:** Yelp + Google Places

@@ -153,7 +153,7 @@ A good call lasts 30 seconds to 4 minutes. A great call ends with a booked slot,
 
 export async function generateCallScript(
   lead: LeadContext,
-  workspaceId?: string
+  workspaceId: string
 ): Promise<CallScript> {
   const override = getScriptSettings(workspaceId);
 

@@ -36,7 +36,7 @@ const envVars: EnvRow[] = [
   { key: "TWILIO_ACCOUNT_SID", purpose: "SMS follow-ups" },
   { key: "TWILIO_AUTH_TOKEN", purpose: "SMS auth" },
   { key: "TWILIO_PHONE_NUMBER", purpose: "SMS sender" },
-  { key: "ELEVENLABS_API_KEY", purpose: "Premium voice (optional)" },
+  { key: "OPENAI_REALTIME_VOICE", purpose: "Optional voice override" },
 ];
 
 const steps: { n: number; title: string; body: string }[] = [

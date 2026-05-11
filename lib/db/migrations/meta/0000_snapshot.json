@@ -1165,6 +1165,20 @@
           "notNull": true,
           "default": "''"
         },
+        "realtime_model": {
+          "name": "realtime_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'gpt-realtime-2025-08-28'"
+        },
+        "realtime_voice_id": {
+          "name": "realtime_voice_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'marin'"
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp with time zone",

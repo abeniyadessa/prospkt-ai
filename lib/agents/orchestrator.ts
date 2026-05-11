@@ -23,7 +23,7 @@ export interface AgentRunResult {
 }
 
 export async function runAgent(
-  options: { dryRun?: boolean; workspaceId?: string } = {}
+  options: { dryRun?: boolean; workspaceId: string }
 ): Promise<AgentRunResult> {
   const workspaceId = options.workspaceId;
   const mode: AgentRunMode = options.dryRun ? "dry_run" : "live";
@@ -57,10 +57,10 @@ export async function runAgent(
           },
           workspaceId
         ) ?? run;
-      return { run: pausedRun, events: listAgentEvents(100, run.id, workspaceId) };
+      return { run: pausedRun, events: listAgentEvents(workspaceId, 100, run.id) };
     }
 
-    const budget = getDailyAgentBudget(new Date(), workspaceId);
+    const budget = getDailyAgentBudget(workspaceId, new Date());
     log({
       type: "budget_check",
       severity: budget.callsRemaining > 0 && budget.costRemainingCents > 0 ? "success" : "warning",
@@ -85,7 +85,7 @@ export async function runAgent(
         severity: "warning",
         message: "Run completed without dialing because the daily cap was reached",
       });
-      return { run: completed, events: listAgentEvents(100, run.id, workspaceId) };
+      return { run: completed, events: listAgentEvents(workspaceId, 100, run.id) };
     }
 
     const leads = rankLeadsForAgent(await listLeads(workspaceId));
@@ -117,7 +117,7 @@ export async function runAgent(
         new Date(),
         workspaceId
       );
-      rememberLeadSeen(lead, guardrail.timezone, workspaceId);
+      rememberLeadSeen(lead, workspaceId, guardrail.timezone);
 
       if (!guardrail.eligible) {
         callsSkipped += 1;
@@ -151,7 +151,7 @@ export async function runAgent(
           leadId: lead.id,
           metadata: { phone: lead.phone, timezone: guardrail.timezone },
         });
-        const call = await callLead(lead, guardrail.timezone, workspaceId);
+        const call = await callLead(lead, workspaceId, guardrail.timezone);
         callsAttempted += 1;
         costCents += ESTIMATED_CALL_COST_CENTS;
         log({
@@ -195,7 +195,7 @@ export async function runAgent(
     updateAgentSettings({ failureCount: 0 }, workspaceId);
     log({ type: "run_completed", severity: "success", message: summary });
 
-    return { run: completed, events: listAgentEvents(100, run.id, workspaceId) };
+    return { run: completed, events: listAgentEvents(workspaceId, 100, run.id) };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     const failed =
@@ -226,6 +226,6 @@ export async function runAgent(
           : `Run failed: ${message}`,
       metadata: { failureCount: nextFailureCount },
     });
-    return { run: failed, events: listAgentEvents(100, run.id, workspaceId) };
+    return { run: failed, events: listAgentEvents(workspaceId, 100, run.id) };
   }
 }

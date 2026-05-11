@@ -10,18 +10,18 @@ import {
 // Numbers are normalized to E.164 where possible: +15551234567.
 
 /** Returns true if the number is on the DNC list. */
-export async function isOnDNC(phone: string, workspaceId?: string): Promise<boolean> {
+export async function isOnDNC(phone: string, workspaceId: string): Promise<boolean> {
   return isDncEntry(phone, workspaceId);
 }
 
 /** Adds a phone number to the DNC list (idempotent). */
-export async function addToDNC(phone: string, workspaceId?: string): Promise<void> {
+export async function addToDNC(phone: string, workspaceId: string): Promise<void> {
   const normalised = addDncEntry(phone, "call", workspaceId);
   console.log("[dnc] Added to DNC list:", normalised);
 }
 
 /** Returns the current DNC list. */
-export async function getDNCList(workspaceId?: string): Promise<string[]> {
+export async function getDNCList(workspaceId: string): Promise<string[]> {
   return listDncEntries(workspaceId);
 }
 

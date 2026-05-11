@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1500" viewBox="0 0 1200 1500" role="img" aria-labelledby="title desc">
+  <title id="title">YALID Prospkt LinkedIn Product Update Infographic</title>
+  <desc id="desc">A LinkedIn-ready infographic announcing work on Prospkt, an AI sales rep for local service businesses.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#111111" flood-opacity="0.13"/>
+    </filter>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#111111" flood-opacity="0.10"/>
+    </filter>
+    <linearGradient id="heroWash" x1="120" x2="1080" y1="0" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FAFAFA"/>
+      <stop offset="0.48" stop-color="#F4F7F5"/>
+      <stop offset="1" stop-color="#F8F3ED"/>
+    </linearGradient>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M 44 0 L 0 0 0 44" fill="none" stroke="#E9E9E6" stroke-width="1"/>
+    </pattern>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .fg { fill: #0A0A0A; }
+      .muted { fill: #666663; }
+      .subtle { fill: #8B8B87; }
+      .hair { stroke: #E6E6E2; }
+      .surface { fill: #FFFFFF; }
+      .elevated { fill: #F5F5F2; }
+      .success { fill: #2E7D4F; }
+      .warn { fill: #B47A1F; }
+      .danger { fill: #C2352C; }
+      .blue { fill: #315F77; }
+      .small { font-size: 22px; }
+      .tiny { font-size: 18px; }
+      .label { font-size: 19px; font-weight: 650; }
+      .body { font-size: 25px; line-height: 1.35; }
+      .h1 { font-size: 72px; font-weight: 760; letter-spacing: -1.2px; }
+      .h2 { font-size: 34px; font-weight: 720; letter-spacing: -0.2px; }
+      .h3 { font-size: 25px; font-weight: 720; }
+      .cap { font-size: 18px; font-weight: 680; letter-spacing: 1.2px; text-transform: uppercase; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="1500" fill="#FAFAFA"/>
+  <rect width="1200" height="440" fill="url(#heroWash)"/>
+  <rect width="1200" height="1500" fill="url(#grid)" opacity="0.42"/>
+
+  <g transform="translate(72 64)">
+    <rect x="0" y="0" width="124" height="40" rx="20" fill="#0A0A0A"/>
+    <text x="62" y="27" text-anchor="middle" class="sans" font-size="18" font-weight="760" fill="#FFFFFF">YALID</text>
+    <rect x="140" y="0" width="162" height="40" rx="20" fill="#FFFFFF" stroke="#E0E0DC"/>
+    <circle cx="164" cy="20" r="8" fill="#2E7D4F"/>
+    <text x="188" y="27" class="sans muted" font-size="18" font-weight="650">build update</text>
+  </g>
+
+  <g transform="translate(72 132)">
+    <text class="sans h1 fg">
+      <tspan x="0" y="0">What I have been</tspan>
+      <tspan x="0" y="80">building at YALID</tspan>
+    </text>
+    <text x="0" y="142" class="sans body muted">
+      <tspan x="0" dy="0">Meet Prospkt: an autonomous AI sales rep designed to help</tspan>
+      <tspan x="0" dy="35">local service businesses find leads, follow up, book jobs, and</tspan>
+      <tspan x="0" dy="35">keep every outreach step inside owner-controlled guardrails.</tspan>
+    </text>
+  </g>
+
+  <g transform="translate(820 94)" filter="url(#softShadow)">
+    <rect width="308" height="220" rx="28" fill="#0A0A0A"/>
+    <text x="28" y="50" class="sans cap" fill="#BFBFBA">project</text>
+    <text x="28" y="105" class="sans" font-size="48" font-weight="780" fill="#FFFFFF">Prospkt.ai</text>
+    <text x="28" y="146" class="sans" font-size="22" fill="#DADAD6">AI outbound + CRM</text>
+    <g transform="translate(28 171)">
+      <rect width="112" height="30" rx="15" fill="#E8F3EC"/>
+      <text x="56" y="21" text-anchor="middle" class="sans" font-size="15" font-weight="720" fill="#2E7D4F">private beta</text>
+      <rect x="124" width="104" height="30" rx="15" fill="#F7ECD8"/>
+      <text x="176" y="21" text-anchor="middle" class="sans" font-size="15" font-weight="720" fill="#9A6619">MVP</text>
+    </g>
+  </g>
+
+  <g transform="translate(72 420)" filter="url(#shadow)">
+    <rect width="1056" height="520" rx="28" fill="#FFFFFF" stroke="#DFDFDA"/>
+    <rect width="1056" height="62" rx="28" fill="#F5F5F2"/>
+    <rect y="34" width="1056" height="28" fill="#F5F5F2"/>
+    <circle cx="34" cy="31" r="8" fill="#E06055"/>
+    <circle cx="60" cy="31" r="8" fill="#E7B84F"/>
+    <circle cx="86" cy="31" r="8" fill="#59B472"/>
+    <text x="132" y="39" class="mono subtle" font-size="17">app.prospkt.ai / dashboard</text>
+
+    <rect x="0" y="62" width="214" height="458" fill="#F5F5F2"/>
+    <g transform="translate(28 98)">
+      <rect width="30" height="30" rx="8" fill="#0A0A0A"/>
+      <path d="M15 7 L21 18 H16 L19 25 L8 13 H14 Z" fill="#FFFFFF"/>
+      <text x="42" y="22" class="sans" font-size="24" font-weight="750" fill="#0A0A0A">Prospkt</text>
+    </g>
+    <g class="sans" font-size="18" font-weight="650">
+      <rect x="22" y="156" width="170" height="38" rx="10" fill="#FFFFFF"/>
+      <text x="52" y="181" fill="#0A0A0A">Home</text>
+      <text x="52" y="229" fill="#6B6B67">Campaigns</text>
+      <text x="52" y="275" fill="#6B6B67">CRM</text>
+      <text x="52" y="321" fill="#6B6B67">Pipeline</text>
+      <text x="52" y="367" fill="#6B6B67">Calls</text>
+      <text x="52" y="413" fill="#6B6B67">Bookings</text>
+    </g>
+
+    <g transform="translate(250 104)">
+      <text class="sans h2 fg" x="0" y="0">Good afternoon, Abeni</text>
+      <text class="sans small muted" x="0" y="34">The agent is ready to qualify, call, follow up, and book.</text>
+
+      <g transform="translate(0 70)">
+        <rect width="170" height="104" rx="16" fill="#FFFFFF" stroke="#E6E6E2"/>
+        <text x="22" y="33" class="sans tiny muted">Total leads</text>
+        <text x="22" y="78" class="sans" font-size="42" font-weight="760" fill="#0A0A0A">128</text>
+        <rect x="188" width="170" height="104" rx="16" fill="#FFFFFF" stroke="#E6E6E2"/>
+        <text x="210" y="33" class="sans tiny muted">Calls today</text>
+        <text x="210" y="78" class="sans" font-size="42" font-weight="760" fill="#0A0A0A">24</text>
+        <rect x="376" width="170" height="104" rx="16" fill="#FFFFFF" stroke="#E6E6E2"/>
+        <text x="398" y="33" class="sans tiny muted">Booked this week</text>
+        <text x="398" y="78" class="sans" font-size="42" font-weight="760" fill="#0A0A0A">7</text>
+        <rect x="564" width="170" height="104" rx="16" fill="#FFFFFF" stroke="#E6E6E2"/>
+        <text x="586" y="33" class="sans tiny muted">Conversion</text>
+        <text x="586" y="78" class="sans" font-size="42" font-weight="760" fill="#0A0A0A">18%</text>
+      </g>
+
+      <g transform="translate(0 204)">
+        <rect width="472" height="174" rx="18" fill="#FFFFFF" stroke="#E6E6E2"/>
+        <text x="24" y="36" class="sans h3 fg">Agent activity</text>
+        <g transform="translate(24 62)">
+          <circle cx="9" cy="10" r="9" fill="#E8F3EC"/>
+          <text x="34" y="16" class="sans tiny fg">Queued 18 high-fit service leads</text>
+          <text x="392" y="16" class="sans tiny success">live</text>
+        </g>
+        <g transform="translate(24 102)">
+          <circle cx="9" cy="10" r="9" fill="#F7ECD8"/>
+          <text x="34" y="16" class="sans tiny fg">Skipped consumer records without consent</text>
+        </g>
+        <g transform="translate(24 142)">
+          <circle cx="9" cy="10" r="9" fill="#E8ECFA"/>
+          <text x="34" y="16" class="sans tiny fg">Booked HVAC estimate for Tuesday</text>
+        </g>
+      </g>
+
+      <g transform="translate(502 204)">
+        <rect width="232" height="174" rx="18" fill="#0A0A0A"/>
+        <text x="24" y="36" class="sans h3" fill="#FFFFFF">Voice demo</text>
+        <text x="24" y="70" class="sans tiny" fill="#D8D8D4">Sales receptionist opener</text>
+        <text x="24" y="101" class="sans tiny" fill="#D8D8D4">Human-paced turn taking</text>
+        <text x="24" y="132" class="sans tiny" fill="#D8D8D4">Qualifies, then books</text>
+        <rect x="24" y="145" width="128" height="1" fill="#676763"/>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(72 990)">
+    <text class="sans cap subtle" x="0" y="0">product highlights</text>
+  </g>
+
+  <g transform="translate(72 1022)">
+    <g filter="url(#softShadow)">
+      <rect width="330" height="238" rx="22" fill="#FFFFFF" stroke="#DFDFDA"/>
+      <text x="28" y="42" class="sans h3 fg">Lead engine</text>
+      <text x="28" y="76" class="sans tiny muted">Scrape-first onboarding finds</text>
+      <text x="28" y="102" class="sans tiny muted">local businesses by category, city,</text>
+      <text x="28" y="128" class="sans tiny muted">website status, and fit score.</text>
+      <g transform="translate(28 158)">
+        <rect width="66" height="42" rx="10" fill="#E8F3EC"/>
+        <text x="33" y="28" text-anchor="middle" class="sans" font-size="22" font-weight="760" fill="#2E7D4F">9.2</text>
+        <rect x="78" width="180" height="42" rx="10" fill="#F5F5F2"/>
+        <text x="96" y="27" class="sans tiny fg">outdated site + high need</text>
+      </g>
+    </g>
+
+    <g transform="translate(363 0)" filter="url(#softShadow)">
+      <rect width="330" height="238" rx="22" fill="#FFFFFF" stroke="#DFDFDA"/>
+      <text x="28" y="42" class="sans h3 fg">Campaign lanes</text>
+      <text x="28" y="76" class="sans tiny muted">Warm recovery, cold B2B, and</text>
+      <text x="28" y="102" class="sans tiny muted">guarded consumer outreach use</text>
+      <text x="28" y="128" class="sans tiny muted">different playbooks and rules.</text>
+      <g transform="translate(28 158)">
+        <rect width="86" height="34" rx="8" fill="#E8F3EC"/>
+        <text x="43" y="23" text-anchor="middle" class="sans" font-size="16" font-weight="720" fill="#2E7D4F">Ready</text>
+        <rect x="98" width="98" height="34" rx="8" fill="#F7ECD8"/>
+        <text x="147" y="23" text-anchor="middle" class="sans" font-size="16" font-weight="720" fill="#9A6619">Guarded</text>
+      </g>
+    </g>
+
+    <g transform="translate(726 0)" filter="url(#softShadow)">
+      <rect width="330" height="238" rx="22" fill="#FFFFFF" stroke="#DFDFDA"/>
+      <text x="28" y="42" class="sans h3 fg">AI calling + booking</text>
+      <text x="28" y="76" class="sans tiny muted">The agent can place calls, record</text>
+      <text x="28" y="102" class="sans tiny muted">outcomes, send compliant follow-up,</text>
+      <text x="28" y="128" class="sans tiny muted">and hand off booked appointments.</text>
+      <g transform="translate(28 158)">
+        <rect width="232" height="42" rx="10" fill="#0A0A0A"/>
+        <circle cx="24" cy="21" r="7" fill="#2E7D4F"/>
+        <text x="44" y="28" class="sans tiny" fill="#FFFFFF">guardrails before every call</text>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(72 1312)">
+    <rect width="1056" height="116" rx="24" fill="#0A0A0A"/>
+    <text x="34" y="46" class="sans" font-size="28" font-weight="760" fill="#FFFFFF">Built for service businesses that need follow-up to actually happen.</text>
+    <text x="34" y="82" class="sans small" fill="#D8D8D4">CRM memory · daily budget caps · DNC and opt-out handling · voice tests · owner controls</text>
+    <text x="1018" y="78" text-anchor="end" class="sans" font-size="26" font-weight="760" fill="#FFFFFF">YALID →</text>
+  </g>
+</svg>

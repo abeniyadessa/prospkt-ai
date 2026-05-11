@@ -22,6 +22,12 @@ import {
 import { cn } from "@/lib/utils";
 import { TCPA_HOURS } from "@/lib/constants";
 import {
+  DEFAULT_OPENAI_REALTIME_VOICE_ID,
+  OPENAI_REALTIME_MODEL,
+  OPENAI_REALTIME_VOICE_OPTIONS,
+  type OpenAIRealtimeVoiceId,
+} from "@/lib/voice";
+import {
   Card,
   CardHeader,
   EmptyState,
@@ -98,12 +104,18 @@ export function SettingsView() {
   const [dnc, setDnc] = useState<string[]>([]);
   const [scriptSuffix, setScriptSuffix] = useState("");
   const [firstMessage, setFirstMessage] = useState("");
+  const [realtimeModel, setRealtimeModel] = useState(OPENAI_REALTIME_MODEL);
+  const [realtimeVoiceId, setRealtimeVoiceId] = useState<OpenAIRealtimeVoiceId>(
+    DEFAULT_OPENAI_REALTIME_VOICE_ID
+  );
   const [loading, setLoading] = useState(true);
 
   const [newDncPhone, setNewDncPhone] = useState("");
   const [dncAdding, setDncAdding] = useState(false);
   const [scriptSaving, setScriptSaving] = useState(false);
   const [scriptSaved, setScriptSaved] = useState(false);
+  const [voiceSaving, setVoiceSaving] = useState(false);
+  const [voiceSaved, setVoiceSaved] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -122,12 +134,16 @@ export function SettingsView() {
       const scriptData = (await scriptRes.json()) as {
         systemPromptSuffix: string;
         firstMessageTemplate: string;
+        realtimeModel?: typeof OPENAI_REALTIME_MODEL;
+        realtimeVoiceId?: OpenAIRealtimeVoiceId;
       };
       setIntegrationsStatus(statusData.integrations ?? {});
       setCaller(statusData.caller ?? {});
       setDnc(dncData.numbers ?? []);
       setScriptSuffix(scriptData.systemPromptSuffix ?? "");
       setFirstMessage(scriptData.firstMessageTemplate ?? "");
+      setRealtimeModel(scriptData.realtimeModel ?? OPENAI_REALTIME_MODEL);
+      setRealtimeVoiceId(scriptData.realtimeVoiceId ?? DEFAULT_OPENAI_REALTIME_VOICE_ID);
     } finally {
       setLoading(false);
     }
@@ -167,12 +183,34 @@ export function SettingsView() {
         body: JSON.stringify({
           systemPromptSuffix: scriptSuffix,
           firstMessageTemplate: firstMessage,
+          realtimeModel,
+          realtimeVoiceId,
         }),
       });
       setScriptSaved(true);
       setTimeout(() => setScriptSaved(false), 2400);
     } finally {
       setScriptSaving(false);
+    }
+  }
+
+  async function saveVoice() {
+    setVoiceSaving(true);
+    try {
+      await fetch("/api/settings/script", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemPromptSuffix: scriptSuffix,
+          firstMessageTemplate: firstMessage,
+          realtimeModel,
+          realtimeVoiceId,
+        }),
+      });
+      setVoiceSaved(true);
+      setTimeout(() => setVoiceSaved(false), 2400);
+    } finally {
+      setVoiceSaving(false);
     }
   }
 
@@ -382,57 +420,147 @@ export function SettingsView() {
           )}
 
           {tab === "caller" && (
-            <Card>
-              <ul className="divide-y divide-hairline">
-                {(
-                  [
-                    {
-                      label: "Outbound phone number",
-                      value: caller.phoneNumber,
-                      icon: PhoneIcon,
-                      envVar: "TWILIO_PHONE_NUMBER",
-                    },
-                    {
-                      label: "Vapi phone number ID",
-                      value: caller.vapiPhoneNumberId,
-                      icon: LinkIcon,
-                      envVar: "VAPI_PHONE_NUMBER_ID",
-                    },
-                    {
-                      label: "Cal.com event type ID",
-                      value: caller.calcomEventTypeId,
-                      icon: CalendarIcon,
-                      envVar: "CALCOM_EVENT_TYPE_ID",
-                    },
-                  ]
-                ).map(({ label, value, icon: Icon, envVar }) => (
-                  <li
-                    key={label}
-                    className="flex items-center gap-4 px-5 py-4"
-                  >
-                    <div className="size-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "var(--muted)" }}>
-                      <Icon size={14} color="#6B6B6B" aria-hidden />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-medium text-foreground">
-                        {label}
-                      </p>
-                      <code className="text-[10.5px] font-mono text-muted-foreground">
-                        {envVar}
-                      </code>
-                    </div>
-                    <span
-                      className={cn(
-                        "text-[12.5px] font-mono tabular-nums truncate max-w-[20rem]",
-                        value ? "text-foreground" : "text-[color:var(--subtle)]"
-                      )}
-                    >
-                      {value ?? "Set via env"}
+            <>
+              <Card>
+                <CardHeader
+                  title="Realtime voice"
+                  description="Production calls and voice demos use this model and voice."
+                  action={
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--muted)] px-2 py-1 text-[11px] font-medium text-muted-foreground">
+                      OpenAI Realtime
                     </span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
+                  }
+                />
+                <div className="space-y-4 px-4 pb-5 sm:px-5">
+                  <div className="rounded-xl border border-hairline bg-[color:var(--elevated)] p-3">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                      Model
+                    </p>
+                    <p className="mt-1 font-mono text-[12.5px] text-foreground">
+                      {realtimeModel}
+                    </p>
+                    <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">
+                      Speech-to-speech model for lower latency, interruptions, and more natural turn taking.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {OPENAI_REALTIME_VOICE_OPTIONS.map((voice) => {
+                      const active = realtimeVoiceId === voice.id;
+                      return (
+                        <button
+                          key={voice.id}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() => {
+                            setRealtimeVoiceId(voice.id);
+                            setVoiceSaved(false);
+                          }}
+                          className={cn(
+                            "rounded-xl border p-3 text-left transition-colors",
+                            active
+                              ? "border-foreground bg-[color:var(--elevated)]"
+                              : "border-border bg-surface hover:bg-[color:var(--elevated)]"
+                          )}
+                        >
+                          <span className="flex items-center justify-between gap-3">
+                            <span className="text-[13px] font-semibold text-foreground">
+                              {voice.label}
+                            </span>
+                            {active && (
+                              <CheckCircleIcon
+                                size={14}
+                                weight="fill"
+                                color="#2E7D4F"
+                                aria-hidden
+                              />
+                            )}
+                          </span>
+                          <span className="mt-1.5 block text-[11.5px] leading-relaxed text-muted-foreground">
+                            {voice.description}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <PrimaryButton
+                      onClick={saveVoice}
+                      loading={voiceSaving}
+                      iconLeft={!voiceSaving ? <FloppyDiskIcon size={12} /> : undefined}
+                    >
+                      {voiceSaving ? "Saving…" : "Save voice"}
+                    </PrimaryButton>
+                    {voiceSaved && (
+                      <span
+                        className="inline-flex items-center gap-1 text-[12px] font-medium"
+                        style={{ color: "#2E7D4F" }}
+                      >
+                        <CheckCircleIcon size={13} weight="fill" aria-hidden />
+                        Saved
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Card>
+
+              <Card>
+                <CardHeader
+                  title="Caller infrastructure"
+                  description="Environment-backed calling and booking IDs."
+                />
+                <ul className="divide-y divide-hairline">
+                  {(
+                    [
+                      {
+                        label: "Outbound phone number",
+                        value: caller.phoneNumber,
+                        icon: PhoneIcon,
+                        envVar: "TWILIO_PHONE_NUMBER",
+                      },
+                      {
+                        label: "Vapi phone number ID",
+                        value: caller.vapiPhoneNumberId,
+                        icon: LinkIcon,
+                        envVar: "VAPI_PHONE_NUMBER_ID",
+                      },
+                      {
+                        label: "Cal.com event type ID",
+                        value: caller.calcomEventTypeId,
+                        icon: CalendarIcon,
+                        envVar: "CALCOM_EVENT_TYPE_ID",
+                      },
+                    ]
+                  ).map(({ label, value, icon: Icon, envVar }) => (
+                    <li
+                      key={label}
+                      className="flex items-center gap-4 px-5 py-4"
+                    >
+                      <div className="size-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "var(--muted)" }}>
+                        <Icon size={14} color="#6B6B6B" aria-hidden />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-foreground">
+                          {label}
+                        </p>
+                        <code className="text-[10.5px] font-mono text-muted-foreground">
+                          {envVar}
+                        </code>
+                      </div>
+                      <span
+                        className={cn(
+                          "text-[12.5px] font-mono tabular-nums truncate max-w-[20rem]",
+                          value ? "text-foreground" : "text-[color:var(--subtle)]"
+                        )}
+                      >
+                        {value ?? "Set via env"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            </>
           )}
 
           {tab === "compliance" && (

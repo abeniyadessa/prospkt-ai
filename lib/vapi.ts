@@ -1,6 +1,13 @@
 // Vapi.ai REST API helpers
 // Docs: https://docs.vapi.ai
 
+import {
+  resolveOpenAIRealtimeModel,
+  resolveOpenAIRealtimeVoiceId,
+  type OpenAIRealtimeModel,
+  type OpenAIRealtimeVoiceId,
+} from "@/lib/voice";
+
 const VAPI_API = "https://api.vapi.ai";
 
 function vapiHeaders() {
@@ -107,9 +114,8 @@ export interface AssistantConfig {
   name: string;
   systemPrompt: string;
   firstMessage: string;
-  /** Override the default OpenAI Realtime voice. Compatible voices only:
-   *  alloy, echo, shimmer, marin, cedar. Default: marin. */
-  voiceId?: "alloy" | "echo" | "shimmer" | "marin" | "cedar";
+  model?: OpenAIRealtimeModel;
+  voiceId?: OpenAIRealtimeVoiceId;
   tools?: VapiTool[];
 }
 
@@ -131,15 +137,14 @@ export async function createAssistant(config: AssistantConfig): Promise<{ id: st
   // OpenAI Realtime: speech-to-speech (no STT→LLM→TTS hop). Gives the
   // sales receptionist natural turn-taking and interruptions. Voice is bundled
   // with the model — only certain voices are compatible.
-  const voiceId = config.voiceId
-    ?? (process.env.OPENAI_REALTIME_VOICE as AssistantConfig["voiceId"])
-    ?? "marin"; // newest, most natural-sounding for front-desk sales calls
+  const model = resolveOpenAIRealtimeModel(config.model ?? process.env.OPENAI_REALTIME_MODEL);
+  const voiceId = resolveOpenAIRealtimeVoiceId(config.voiceId ?? process.env.OPENAI_REALTIME_VOICE);
 
   const body = {
     name: config.name,
     model: {
       provider: "openai",
-      model: "gpt-realtime-2025-08-28",
+      model,
       messages: [{ role: "system", content: config.systemPrompt }],
       temperature: 0.7,
       ...(config.tools && config.tools.length > 0 ? { tools: config.tools } : {}),

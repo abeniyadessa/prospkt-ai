@@ -1,11 +1,16 @@
 import { generateCallScript } from "@/lib/claude";
 import type { LeadContext } from "@/lib/claude";
 import { createAssistant, initiateCall, type VapiCall, type VapiTool } from "@/lib/vapi";
-import { getWorkspaceSettings, markLeadCallStarted, rememberLeadContact } from "@/lib/database";
+import {
+  getScriptSettings,
+  getWorkspaceSettings,
+  markLeadCallStarted,
+  rememberLeadContact,
+} from "@/lib/database";
 import type { Lead } from "@/lib/types";
 import { getNormalizedLeadPhone } from "@/lib/agents/guardrails";
 
-function leadToContext(lead: Lead, workspaceId?: string): LeadContext {
+function leadToContext(lead: Lead, workspaceId: string): LeadContext {
   const settings = workspaceId ? getWorkspaceSettings(workspaceId) : null;
   return {
     name: lead.name,
@@ -85,16 +90,19 @@ function buildBookingTools(webhookBase: string): VapiTool[] {
 
 export async function callLead(
   lead: Lead,
+  workspaceId: string,
   timezone?: string,
-  workspaceId?: string
 ): Promise<VapiCall> {
   const phone = getNormalizedLeadPhone(lead);
   const leadContext = leadToContext(lead, workspaceId);
   const script = await generateCallScript(leadContext, workspaceId);
+  const voiceSettings = getScriptSettings(workspaceId);
   const webhookBase =
     process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? "http://localhost:3000";
   const assistant = await createAssistant({
     name: `Prospkt-${lead.id.slice(-8)}`,
+    model: voiceSettings.realtimeModel,
+    voiceId: voiceSettings.realtimeVoiceId,
     systemPrompt: script.systemPrompt,
     firstMessage: script.firstMessage,
     tools: buildBookingTools(webhookBase),
@@ -133,7 +141,7 @@ export async function callLead(
   });
 
   await markLeadCallStarted(lead.id, workspaceId);
-  rememberLeadContact(lead, "called", timezone, workspaceId);
+  rememberLeadContact(lead, "called", workspaceId, timezone);
   return call;
 }
 
@@ -150,7 +158,7 @@ export interface AdHocCallInput {
   serviceArea?: string;
   campaignLane?: "warm_recovery" | "cold_b2b" | "cold_consumer";
   playbook?: string;
-  workspaceId?: string;
+  workspaceId: string;
 }
 
 // One-off call to an arbitrary number (e.g. testing with your own phone).
@@ -174,11 +182,14 @@ export async function placeAdHocCall(input: AdHocCallInput): Promise<VapiCall> {
     playbook: input.playbook,
   };
   const script = await generateCallScript(leadContext, input.workspaceId);
+  const voiceSettings = getScriptSettings(input.workspaceId);
   const webhookBase =
     process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? "http://localhost:3000";
   const adHocId = `adhoc_${Date.now().toString(36)}`;
   const assistant = await createAssistant({
     name: `Prospkt-test-${adHocId.slice(-6)}`,
+    model: voiceSettings.realtimeModel,
+    voiceId: voiceSettings.realtimeVoiceId,
     systemPrompt: script.systemPrompt,
     firstMessage: script.firstMessage,
     tools: buildBookingTools(webhookBase),

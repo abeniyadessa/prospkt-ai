@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import twilio from "twilio";
 import { addAgentEvent, addDncEntry } from "@/lib/database";
 import { GLOBAL_DNC_WORKSPACE_ID } from "@/lib/workspace-context";
 
 export const runtime = "nodejs";
 
 const STOP_WORDS = new Set(["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"]);
+
+function verifyTwilioSignature(
+  request: NextRequest,
+  params: Record<string, string>
+): boolean {
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!authToken) {
+    return process.env.NODE_ENV !== "production";
+  }
+  const signature = request.headers.get("x-twilio-signature");
+  if (!signature) return false;
+  const url = `${request.nextUrl.origin}${request.nextUrl.pathname}`;
+  return twilio.validateRequest(authToken, signature, url, params);
+}
 
 function twiml(message?: string) {
   const body = message
@@ -26,8 +41,17 @@ function twiml(message?: string) {
 
 export async function POST(request: NextRequest) {
   const form = await request.formData();
-  const from = String(form.get("From") ?? "");
-  const body = String(form.get("Body") ?? "").trim().toUpperCase();
+  const params: Record<string, string> = {};
+  for (const [key, value] of form.entries()) {
+    params[key] = String(value);
+  }
+
+  if (!verifyTwilioSignature(request, params)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const from = params["From"] ?? "";
+  const body = (params["Body"] ?? "").trim().toUpperCase();
   const firstWord = body.split(/\s+/)[0];
 
   if (from && STOP_WORDS.has(firstWord)) {

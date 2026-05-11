@@ -6,12 +6,12 @@ import { sendBookingNotification } from "@/lib/email";
 import {
   addActivity,
   getLead,
+  getWorkspace,
   rememberLeadContact,
   recordCall,
   updateLeadFromCallOutcome,
   updateLeadLifecycle,
 } from "@/lib/database";
-import { DEFAULT_WORKSPACE_ID } from "@/lib/workspace-context";
 
 type CallOutcome =
   | "booked"
@@ -64,6 +64,12 @@ type VapiEvent = VapiToolCallEvent | VapiStatusEvent;
 
 export async function POST(request: NextRequest) {
   const expectedSecret = process.env.VAPI_WEBHOOK_SECRET;
+  if (!expectedSecret && process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "VAPI_WEBHOOK_SECRET not configured" },
+      { status: 503 }
+    );
+  }
   if (expectedSecret) {
     const provided =
       request.headers.get("x-vapi-secret") ??
@@ -131,7 +137,15 @@ export async function POST(request: NextRequest) {
       } else if (name === "book_appointment") {
         try {
           const meta = event.message.call?.metadata ?? {};
-          const workspaceId = meta.workspaceId ?? DEFAULT_WORKSPACE_ID;
+          const workspaceId = meta.workspaceId;
+          if (!workspaceId || !getWorkspace(workspaceId)) {
+            results.push({
+              toolCallId: toolCall.id,
+              result:
+                "I can't book this right now because the workspace context is missing. Please have a human follow up.",
+            });
+            continue;
+          }
           const leadId = args.leadId ?? meta.leadId;
           const businessName =
             args.businessName ?? meta.businessName ?? args.attendeeName ?? "Business";
@@ -242,7 +256,11 @@ export async function POST(request: NextRequest) {
     const endedReason = event.message.call?.endedReason ?? "";
     const callId = event.message.call?.id ?? "unknown";
     const meta = event.message.call?.metadata ?? {};
-    const workspaceId = meta.workspaceId ?? DEFAULT_WORKSPACE_ID;
+    const workspaceId = meta.workspaceId;
+    if (!workspaceId || !getWorkspace(workspaceId)) {
+      console.warn("[vapi/webhook] end-of-call-report missing or unknown workspaceId:", workspaceId);
+      return NextResponse.json({ received: true, ignored: "unknown-workspace" });
+    }
     const existingLead = meta.leadId ? await getLead(meta.leadId, workspaceId) : null;
 
     // Map Vapi end reason → our outcome type

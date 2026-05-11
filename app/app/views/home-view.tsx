@@ -252,18 +252,28 @@ export function HomeView({
     setScrapeError(null);
     try {
       const res = await fetch(`/api/scrape?city=${encodeURIComponent(firstTargetCity)}`);
+      const payload = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        leads?: Lead[];
+      };
       if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(data.error ?? `Scrape failed (${res.status})`);
+        throw new Error(payload.error ?? `Scrape failed (${res.status})`);
       }
       const leadsRes = await fetch("/api/leads").then((r) => r.json()).catch(() => ({ leads: [] }));
-      setTopLeads(
-        (leadsRes.leads ?? [])
-          .filter((lead: Lead) => !["booked", "not_interested", "dnc"].includes(lead.status ?? "new"))
-          .slice()
-          .sort((x: Lead, y: Lead) => y.priorityScore - x.priorityScore)
-          .slice(0, 6)
-      );
+      const next = (leadsRes.leads ?? [])
+        .filter((lead: Lead) => !["booked", "not_interested", "dnc"].includes(lead.status ?? "new"))
+        .slice()
+        .sort((x: Lead, y: Lead) => y.priorityScore - x.priorityScore)
+        .slice(0, 6);
+      setTopLeads(next);
+      if (next.length === 0) {
+        const fresh = payload.leads?.length ?? 0;
+        setScrapeError(
+          fresh === 0
+            ? `Yelp returned no new businesses in ${firstTargetCity}. Try a different city or broaden target categories.`
+            : null
+        );
+      }
     } catch (err) {
       setScrapeError(err instanceof Error ? err.message : "Scrape failed");
     } finally {

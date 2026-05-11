@@ -26,7 +26,14 @@ export async function GET(request: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
       { error: "ANTHROPIC_API_KEY is not configured" },
-      { status: 500 }
+      { status: 503 }
+    );
+  }
+
+  if (!process.env.YELP_API_KEY) {
+    return NextResponse.json(
+      { error: "YELP_API_KEY is not configured" },
+      { status: 503 }
     );
   }
 

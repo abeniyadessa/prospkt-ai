@@ -272,6 +272,7 @@ export async function scrapeCity(
   const perCategoryLimit = options.perCategoryLimit ?? 8;
 
   const allBusinesses: { business: YelpBusiness; category: string }[] = [];
+  const categoryErrors: string[] = [];
 
   // Fetch each category (run sequentially to respect rate limits)
   for (const category of yelpCategories) {
@@ -281,8 +282,17 @@ export async function scrapeCity(
         allBusinesses.push({ business: b, category });
       }
     } catch (err) {
-      console.error(`[scraper] Yelp error for ${category} in ${location}:`, err);
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[scraper] Yelp error for ${category} in ${location}:`, message);
+      categoryErrors.push(`${category}: ${message}`);
     }
+  }
+
+  // If every category failed, surface the failure instead of returning silently.
+  if (allBusinesses.length === 0 && categoryErrors.length === yelpCategories.length) {
+    throw new Error(
+      `Yelp returned no usable results for ${location}. ${categoryErrors[0] ?? ""}`.trim()
+    );
   }
 
   const now = new Date().toISOString();

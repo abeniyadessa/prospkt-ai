@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -52,7 +53,9 @@ export default function RootLayout({
             href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap"
           />
         </head>
-        <body className="min-h-full antialiased">{children}</body>
+        <body className="min-h-full antialiased">
+          <TooltipProvider>{children}</TooltipProvider>
+        </body>
       </html>
     </ClerkProvider>
   );

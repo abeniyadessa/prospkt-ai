@@ -1,0 +1,226 @@
+{
+  "project": {
+    "brand_name": "Prospkt.ai",
+    "asset_name": "LinkedIn launch announcement graphic",
+    "purpose": "A simple, premium LinkedIn post image announcing that Prospkt.ai is launching soon.",
+    "primary_audience": "service business owners, startup operators, AI/voice AI audience, local business automation buyers",
+    "tone": [
+      "premium",
+      "minimal",
+      "AI startup",
+      "clean",
+      "confident",
+      "not gimmicky"
+    ]
+  },
+  "platform": {
+    "channel": "LinkedIn feed post",
+    "format": "square",
+    "recommended_size": {
+      "width_px": 1200,
+      "height_px": 1200,
+      "aspect_ratio": "1:1"
+    },
+    "export_format": "PNG",
+    "safe_area": {
+      "description": "Keep all text and logo content comfortably inside the center 70% of the canvas.",
+      "top_px": 180,
+      "right_px": 140,
+      "bottom_px": 180,
+      "left_px": 140
+    }
+  },
+  "brand_system": {
+    "logo": {
+      "source_asset": "/Users/abeni/Developer/prospkt.ai/assets/brand/prospkt-mark-transparent.png",
+      "description": "Black rounded-square Prospkt mark with white lightning bolt.",
+      "usage": "Use the logo mark centered above the wordmark. Do not recreate the lightning bolt in a different style.",
+      "style": {
+        "shape": "rounded square",
+        "background": "#0A0A0A",
+        "bolt": "#FFFFFF",
+        "corner_radius": "soft rounded, similar to app icon"
+      }
+    },
+    "typography": {
+      "project_font": "Switzer",
+      "fallback_stack": "'Switzer', ui-sans-serif, system-ui, Arial, Helvetica, sans-serif",
+      "wordmark_weight": 740,
+      "subtitle_weight": 520,
+      "letter_spacing": {
+        "wordmark": "-0.02em",
+        "subtitle": "0.55em"
+      },
+      "requirements": [
+        "Use the same clean sans-serif feel as the Prospkt product UI.",
+        "Avoid futuristic, sci-fi, stretched, condensed, handwritten, serif, or overly rounded fonts.",
+        "Text must be crisp and easy to read at LinkedIn feed size."
+      ]
+    },
+    "colors": {
+      "background_black": "#050607",
+      "brand_black": "#0A0A0A",
+      "primary_text": "#FFFFFF",
+      "secondary_text": "#C9D1DA",
+      "cool_blue_glow": "#49B7FF",
+      "warm_cream_glow": "#FFF4D7",
+      "muted_dot": "#FFFFFF"
+    }
+  },
+  "content": {
+    "required_text": [
+      {
+        "text": "Prospkt.ai",
+        "role": "primary wordmark",
+        "case": "exact",
+        "placement": "center"
+      },
+      {
+        "text": "LAUNCHING SOON",
+        "role": "secondary launch line",
+        "case": "uppercase",
+        "placement": "center below wordmark"
+      }
+    ],
+    "forbidden_text": [
+      "Prospkt AI",
+      "Proeskt",
+      "Prospekt",
+      "YALID",
+      "Built by YALID",
+      "AI sales rep for service businesses",
+      "coming soon",
+      "before",
+      "after"
+    ],
+    "note": "Keep the image itself extremely simple. Longer product context belongs in the LinkedIn caption, not on the graphic."
+  },
+  "visual_direction": {
+    "inspiration": {
+      "reference_file": "/Users/abeni/Downloads/ChatGPT Image May 13, 2026 at 05_16_30 PM.png",
+      "what_to_borrow": [
+        "dark premium AI launch poster mood",
+        "dense LED halftone dot matrix background",
+        "cool blue and warm cream light glow",
+        "centered logo and wordmark composition",
+        "minimal launch announcement hierarchy"
+      ],
+      "what_not_to_copy": [
+        "do not copy the Miracle logo",
+        "do not use the exact sparkle placement",
+        "do not use a different brand font",
+        "do not make the text look generated or warped"
+      ]
+    },
+    "background": {
+      "base": "deep black canvas",
+      "texture": "dense tiny circular LED/halftone dot matrix across the entire canvas",
+      "lighting": [
+        "soft cool blue glow from upper-right or upper-center",
+        "soft warm cream glow from right side and/or lower-left",
+        "center should remain dark enough for white text to read clearly"
+      ],
+      "depth": [
+        "subtle blurred abstract light forms behind the dot grid",
+        "no hard geometric shapes",
+        "no busy UI mockups",
+        "no heavy gradients that overpower the text"
+      ]
+    },
+    "composition": {
+      "layout": "centered vertical lockup",
+      "elements_order": [
+        "logo mark",
+        "Prospkt.ai",
+        "LAUNCHING SOON"
+      ],
+      "alignment": "all elements centered on the canvas",
+      "logo_position": {
+        "x": "center",
+        "y": "roughly 33% from top"
+      },
+      "wordmark_position": {
+        "x": "center",
+        "y": "roughly 56% from top"
+      },
+      "launch_text_position": {
+        "x": "center",
+        "y": "roughly 64% from top"
+      },
+      "spacing": {
+        "logo_to_wordmark": "generous but connected",
+        "wordmark_to_launch_text": "tight enough to read as one lockup",
+        "outer_padding": "large negative space around the lockup"
+      }
+    },
+    "decorative_elements": {
+      "allowed": [
+        "one or two very small white sparkle accents",
+        "subtle logo glow",
+        "soft text glow",
+        "halftone dot glow variation"
+      ],
+      "not_allowed": [
+        "people",
+        "robots",
+        "phones",
+        "dashboards",
+        "browser windows",
+        "charts",
+        "planets",
+        "classrooms",
+        "random icons",
+        "multiple logos",
+        "YALID logo",
+        "cards or boxes around the main text"
+      ]
+    }
+  },
+  "style_constraints": {
+    "must_feel_like": [
+      "premium AI startup announcement",
+      "simple launch teaser",
+      "clean brand-forward graphic",
+      "dark-mode product company aesthetic"
+    ],
+    "must_not_feel_like": [
+      "generic Canva flyer",
+      "cyberpunk poster",
+      "crypto/NFT launch",
+      "busy SaaS dashboard ad",
+      "recruiting graphic",
+      "corporate brochure"
+    ],
+    "quality_bar": [
+      "The word Prospkt.ai must be spelled correctly.",
+      "Typography should match the Prospkt app feel as closely as possible.",
+      "The logo should be centered and not distorted.",
+      "The image should still look good as a small LinkedIn feed thumbnail.",
+      "The background should add energy without competing with the text."
+    ]
+  },
+  "image_generation_prompt": {
+    "prompt": "Create a square 1200x1200 LinkedIn launch announcement graphic for Prospkt.ai. Premium dark AI startup launch poster. Deep black background with dense tiny circular LED halftone dot matrix texture across the whole image. Soft abstract cool blue and warm cream light glows behind the dots, with the center kept dark for readability. Centered vertical lockup: black rounded-square Prospkt mark with a white lightning bolt, then crisp white text exactly 'Prospkt.ai', then smaller widely spaced text exactly 'LAUNCHING SOON'. Use a modern clean sans-serif similar to Switzer/Inter, not a futuristic font. Minimal, polished, high contrast, brand-forward. No other text.",
+    "negative_prompt": "No people, no robots, no dashboards, no UI mockups, no phones, no browser windows, no planets, no classroom, no charts, no random symbols, no YALID text, no extra labels, no before/after layout, no misspellings, no distorted typography, no sci-fi font, no generic flyer style."
+  },
+  "post_caption": {
+    "recommended_copy": "Prospkt.ai launching soon.\n\nFor the past several months, we have been building Prospkt at YALID.\n\nIt is an AI sales rep and receptionist for service-based businesses, built to help follow up with leads, recover missed opportunities, book jobs, and keep every call, note, and next step organized.\n\nMore soon from the team at YALID.",
+    "hashtags": [
+      "#ProspktAI",
+      "#YALID",
+      "#VoiceAI",
+      "#SaaS",
+      "#ServiceBusinesses",
+      "#StartupBuilding"
+    ]
+  },
+  "export_checklist": [
+    "Export as PNG.",
+    "Confirm dimensions are 1200x1200.",
+    "Confirm text says exactly 'Prospkt.ai' and 'LAUNCHING SOON'.",
+    "Confirm no extra text appears in the image.",
+    "Confirm the logo is centered and not warped.",
+    "Confirm the dot texture is visible but not distracting.",
+    "Confirm the image is legible at small LinkedIn feed size."
+  ]
+}

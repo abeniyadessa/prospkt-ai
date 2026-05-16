@@ -672,12 +672,13 @@ export function SettingsView() {
                       setFirstMessage(e.target.value);
                       setScriptSaved(false);
                     }}
-                    placeholder='e.g. "Hi, this is an automated AI calling {businessName}…"'
+                    placeholder='e.g. "Hey, this is Alex with {companyName}. Quick heads up, I’m the AI front desk helping with follow-up…"'
                     className="w-full h-10 rounded-lg border border-border bg-surface px-3 text-[13.5px] outline-none focus:border-foreground focus:ring-2 focus:ring-foreground/10"
                   />
                   <p className="text-[11.5px] text-muted-foreground">
                     Variables:{" "}
                     <code className="font-mono">{"{businessName}"}</code>,{" "}
+                    <code className="font-mono">{"{companyName}"}</code>,{" "}
                     <code className="font-mono">{"{city}"}</code>,{" "}
                     <code className="font-mono">{"{category}"}</code>. Leave blank to use AI-generated copy.
                   </p>

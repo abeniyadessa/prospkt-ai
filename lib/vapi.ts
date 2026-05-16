@@ -155,22 +155,24 @@ export async function createAssistant(config: AssistantConfig): Promise<{ id: st
     },
     firstMessage: config.firstMessage,
     firstMessageMode: "assistant-speaks-first",
+    firstMessageInterruptionsEnabled: true,
 
     // ── Receptionist-like conversational feel ─────────────────────────────
     backchannelingEnabled: true,         // light "mhm", "sure", "got it" while listening
+    backgroundSound: "off",
     backgroundDenoisingEnabled: true,
-    responseDelaySeconds: 0.65,          // calm front-desk beat before responding
-    llmRequestDelaySeconds: 0.1,
-    silenceTimeoutSeconds: 35,           // give them room to think
+    responseDelaySeconds: 0.35,          // quick enough to avoid awkward dead air
+    llmRequestDelaySeconds: 0.05,
+    silenceTimeoutSeconds: 18,
     maxDurationSeconds: 360,             // 6 min — real conversations need time
 
     // Smart turn-taking: wait until they're actually done before replying.
     startSpeakingPlan: {
-      waitSeconds: 0.65,
+      waitSeconds: 0.35,
       smartEndpointingEnabled: true,
       transcriptionEndpointingPlan: {
         onPunctuationSeconds: 0.2,
-        onNoPunctuationSeconds: 1.6,
+        onNoPunctuationSeconds: 1.0,
         onNumberSeconds: 0.5,
       },
     },
@@ -178,10 +180,47 @@ export async function createAssistant(config: AssistantConfig): Promise<{ id: st
     stopSpeakingPlan: {
       numWords: 2,
       voiceSeconds: 0.2,
-      backoffSeconds: 1.0,
+      backoffSeconds: 0.45,
     },
     // Easy interruption = natural conversation.
-    numWordsToInterruptAssistant: 2,
+    numWordsToInterruptAssistant: 1,
+
+    hooks: [
+      {
+        on: "customer.speech.timeout",
+        options: {
+          timeoutSeconds: 7,
+          triggerMaxCount: 1,
+          triggerResetMode: "onUserSpeech",
+        },
+        do: [
+          {
+            type: "say",
+            exact: "Can you hear me okay?",
+          },
+        ],
+        name: "silence_check",
+      },
+      {
+        on: "customer.speech.timeout",
+        options: {
+          timeoutSeconds: 16,
+          triggerMaxCount: 1,
+          triggerResetMode: "onUserSpeech",
+        },
+        do: [
+          {
+            type: "say",
+            exact: "Looks like now may not be a good time, so I'll end the call here.",
+          },
+          {
+            type: "tool",
+            tool: { type: "endCall" },
+          },
+        ],
+        name: "silence_end",
+      },
+    ],
 
     // CRITICAL: Vapi's default voicemail detection misclassifies real humans
     // and ends the call. Disable it — the prompt handles voicemail instead.
@@ -192,9 +231,8 @@ export async function createAssistant(config: AssistantConfig): Promise<{ id: st
     voicemailMessage:
       "Hey — this is Alex, the AI sales receptionist calling on behalf of the service team. Please give us a call back when you get a chance. Thanks.",
 
-    // Don't let the model unilaterally end calls — too eager to hang up
-    // on mild hesitation. Calls end on customer hangup or max duration.
-    endCallFunctionEnabled: false,
+    // Let the model end cleanly after opt-outs, voicemail, or a completed demo.
+    endCallFunctionEnabled: true,
     recordingEnabled: true,
   };
 

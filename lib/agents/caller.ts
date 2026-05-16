@@ -1,6 +1,7 @@
 import { generateCallScript } from "@/lib/claude";
 import type { LeadContext } from "@/lib/claude";
 import { createAssistant, initiateCall, type VapiCall, type VapiTool } from "@/lib/vapi";
+import { DEMO_OPENAI_REALTIME_VOICE_ID } from "@/lib/voice";
 import {
   getScriptSettings,
   getWorkspaceSettings,
@@ -180,19 +181,18 @@ export async function placeAdHocCall(input: AdHocCallInput): Promise<VapiCall> {
     serviceArea: input.serviceArea ?? input.city,
     campaignLane: input.campaignLane,
     playbook: input.playbook,
+    demoMode: true,
   };
   const script = await generateCallScript(leadContext, input.workspaceId);
   const voiceSettings = getScriptSettings(input.workspaceId);
-  const webhookBase =
-    process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? "http://localhost:3000";
   const adHocId = `adhoc_${Date.now().toString(36)}`;
   const assistant = await createAssistant({
     name: `Prospkt-test-${adHocId.slice(-6)}`,
     model: voiceSettings.realtimeModel,
-    voiceId: voiceSettings.realtimeVoiceId,
+    voiceId: DEMO_OPENAI_REALTIME_VOICE_ID,
     systemPrompt: script.systemPrompt,
     firstMessage: script.firstMessage,
-    tools: buildBookingTools(webhookBase),
+    tools: [],
   });
   return initiateCall({
     phoneNumber: phone,

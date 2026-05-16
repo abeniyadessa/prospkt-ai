@@ -1,19 +1,35 @@
 export const OPENAI_REALTIME_MODEL = "gpt-realtime-2025-08-28" as const;
 export const DEFAULT_OPENAI_REALTIME_VOICE_ID = "marin" as const;
+export const DEMO_OPENAI_REALTIME_VOICE_ID = "coral" as const;
 
 export const OPENAI_REALTIME_COMPATIBLE_VOICES = [
   "alloy",
+  "ash",
+  "ballad",
+  "coral",
   "echo",
+  "sage",
   "shimmer",
+  "verse",
   "marin",
   "cedar",
 ] as const;
 
 export const OPENAI_REALTIME_VOICE_OPTIONS = [
   {
+    id: "coral",
+    label: "Coral",
+    description: "Brighter and friendlier for receptionist-style demos and owner callbacks.",
+  },
+  {
     id: "marin",
     label: "Marin",
     description: "Recommended for Prospkt: calm, human-paced, and polished for front-desk sales calls.",
+  },
+  {
+    id: "shimmer",
+    label: "Shimmer",
+    description: "Light and approachable for teams that want a softer phone presence.",
   },
   {
     id: "cedar",

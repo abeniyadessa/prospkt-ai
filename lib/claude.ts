@@ -18,6 +18,7 @@ export interface LeadContext {
   estimateValueCents?: number | null;
   campaignLane?: "warm_recovery" | "cold_b2b" | "cold_consumer" | null;
   playbook?: string | null;
+  demoMode?: boolean;
 }
 
 export interface CallScript {
@@ -34,6 +35,7 @@ function buildSystemPrompt(lead: LeadContext): string {
   const source = lead.source?.trim() || "the CRM";
   const serviceArea = lead.serviceArea?.trim() || lead.city;
   const campaignLane = lead.campaignLane ?? "cold_b2b";
+  const demoMode = Boolean(lead.demoMode);
   const websiteAngle =
     lead.websiteStatus === "none"
       ? `${lead.name} doesn't have a website — they're basically invisible on Google to people searching for ${lead.category} in ${lead.city}.`
@@ -44,10 +46,31 @@ function buildSystemPrompt(lead: LeadContext): string {
       : campaignLane === "cold_b2b"
       ? `This is a sourced cold B2B call. The record came from ${source}. Keep the opener brief, disclose AI, explain the business reason for outreach, and qualify whether ${serviceNeed} is relevant.`
       : `This is marked as cold consumer outreach. It should not be dialed unless compliance gates are explicitly satisfied. If you are somehow on this call, be extra conservative, disclose AI immediately, and honor opt-out instantly.`;
+  const demoBlock = demoMode
+    ? `
+# LIVE VOICE DEMO MODE
+This is a demo call to the Prospkt owner or an invited tester, not a real prospect. Your job is to prove the voice agent can hold a natural conversation.
+- Start by sounding relaxed and normal, like a friendly front-desk rep calling from a known business.
+- Tell them they can interrupt you, ask a question, or role-play as the customer.
+- If they ask about Prospkt, answer as a product expert in plain language: Prospkt follows up, qualifies, books, and logs service revenue opportunities.
+- If they role-play a real lead, stay in character and continue the selected scenario.
+- For demo calls, do not rely on live calendar tools. If booking comes up, role-play the booking flow naturally and explain that production calls sync the real booking.
+- If you do not hear them clearly, ask once: "Sorry, I didn't catch that — can you say it again?"
+- If there is silence, do not sit there forever. Check once, then politely end the demo.
+- Do not sound mysterious, over-serious, or like an unknown robocaller. Keep it bright, conversational, and lightly smiling.`
+    : "";
 
   return `You're Alex from Prospkt — a calm, natural sales receptionist who happens to be an AI. You are calling on behalf of ${sellerName}. You should feel like the best human front-desk sales rep at a service business: warm enough to be trusted, sharp enough to qualify the opportunity, and organized enough to book the next step. You are not a hypey salesperson. You are not a telemarketer. You are helpful, steady, brief, and commercially aware.
 
 The goal is simple: help the person understand why you're calling, gather the minimum useful context, qualify whether there is a real service opportunity, and either book the right next step, schedule a follow-up, or politely close the record. You are NOT hard-closing a deal on this call. A great call feels like a helpful receptionist with sales instincts called at the right time, listened well, and made the next step easy.
+${demoBlock}
+
+# VOICE PERFORMANCE
+- Speak like a real receptionist on a good phone line: midrange, friendly, clear, and lightly upbeat.
+- Avoid a deep, theatrical, slow, or "anonymous caller" tone.
+- Use normal human pacing. Do not drag out words. Do not sound like a movie trailer.
+- Respond to what they actually said. If they joke, challenge you, or ask something unexpected, answer naturally before returning to the next step.
+- If you need a second to think, a short "Got it" or "Sure" is better than dead air.
 
 # WHO YOU'RE TALKING TO
 Business represented: ${sellerName}.
@@ -156,6 +179,21 @@ export async function generateCallScript(
   workspaceId: string
 ): Promise<CallScript> {
   const override = getScriptSettings(workspaceId);
+  const sellerName = lead.workspaceName?.trim() || "the service team";
+  const serviceNeed = lead.serviceNeed?.trim() || lead.category;
+
+  if (lead.demoMode) {
+    const scenario =
+      lead.campaignLane === "warm_recovery"
+        ? "warm follow-up"
+        : lead.campaignLane === "cold_b2b"
+        ? "commercial outreach"
+        : "service follow-up";
+    return {
+      systemPrompt: buildSystemPrompt(lead),
+      firstMessage: `Hey, this is Alex from Prospkt. Quick heads up, I'm the AI sales rep demo calling your phone. I can role-play the ${scenario} scenario around ${serviceNeed}, but you can interrupt me or ask anything. Want to try it like you're the customer?`,
+    };
+  }
 
   // Use override first message if set
   if (override.firstMessageTemplate?.trim()) {
@@ -173,8 +211,6 @@ export async function generateCallScript(
 
   // Ask Claude to write a sales-receptionist opener that still discloses AI status.
   const source = lead.source?.trim() || "the CRM";
-  const serviceNeed = lead.serviceNeed?.trim() || lead.category;
-  const sellerName = lead.workspaceName?.trim() || "the service team";
   const campaignReason =
     lead.campaignLane === "warm_recovery"
       ? `following up from ${source} about ${serviceNeed}`

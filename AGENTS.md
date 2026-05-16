@@ -8,75 +8,84 @@ This version has breaking changes — APIs, conventions, and file structure may 
 <claude-mem-context>
 # Memory Context
 
-# [prospkt.ai] recent context, 2026-05-11 2:09pm EDT
+# [prospkt.ai] recent context, 2026-05-15 4:20pm EDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (17,641t read) | 324,888t work | 95% savings
+Stats: 50 obs (18,911t read) | 428,120t work | 96% savings
 
-### May 11, 2026
-S8 Research ways to use open-source models or alternatives to make receptionist and sales rep voices sound as humanly as possible (May 11 at 1:44 PM)
-S9 Implement scrape-first onboarding CTA on home view empty state; commit feature to main branch (May 11 at 1:54 PM)
-S10 Complete 6-task milestone: implement scrape-first onboarding CTA and verify end-to-end flow; decision point on next work (May 11 at 1:54 PM)
-S11 Select optimal voice model and configuration for Prospkt receptionist and sales rep voices; decide between production-ready and open-source options (May 11 at 1:56 PM)
-S12 Fix silent-empty scrape UX issue (#4 from watch list); surface failures and zero-result feedback across API, scraper, and home view (May 11 at 1:57 PM)
-S13 Harden database layer against silent data-routing to default workspace; address DEFAULT_WORKSPACE_ID parameter defaults that allow implicit fallback behavior (May 11 at 1:58 PM)
-197 1:59p 🔵 Next.js Route Handlers Documentation Path Not Found
-198 " 🔵 Vapi Integration Uses OpenAI Realtime with Marin Voice as Default
-199 " 🔵 Settings UI Includes Caller Configuration Tab with Voice Options
-200 " 🔵 Voice Configuration Infrastructure in Place: voiceId Parameter and Database Settings
-202 " 🔵 Database layer uses DEFAULT_WORKSPACE_ID extensively as fallback
-203 " 🔵 Every data access function in database.ts defaults to DEFAULT_WORKSPACE_ID
-204 " 🔵 Route Handlers Documentation: Caching, HTTP Methods, and GET-Only Static Prerendering
-206 " 🔵 Route Handler API Reference: NextRequest, Context Params, and Type Safety with RouteContext
-205 " ✅ Database functions converted from optional to required workspaceId parameters
-207 2:00p 🔵 Script Settings Database Operations: getScriptSettings and updateScriptSettings
-209 " 🔵 Breaking change: 42 required workspaceId params cause 30+ TypeScript errors across codebase
-208 " 🔵 Ad Hoc Call Flow: Voice Assistant Created Without voiceId Parameter
-210 " 🔵 Settings Script API Endpoint: GET/POST for Script Configuration
-212 " 🔵 Database init functions call upsertLeads and addDncEntry without workspaceId
-211 " 🔵 ScriptSettings Type Definition: Current Fields
-213 " ✅ Legacy data migration now explicitly passes DEFAULT_WORKSPACE_ID to upsertLeads
-214 " ✅ Legacy DNC migration now explicitly passes DEFAULT_WORKSPACE_ID to addDncEntry
-S14 Continue implementation of database layer hardening for prospkt.ai — fix TypeScript compilation errors from converting 33+ database functions to require explicit workspaceId parameter positioning (May 11 at 2:00 PM)
-215 2:02p 🔵 Production Call Flow: callLead() Creates Assistant Without voiceId
-216 " 🔵 Complete Vapi Integration: AssistantConfig voiceId Parameter Fully Supported
-217 " 🔵 Database Schema: scriptSettings Table Structure with No Voice Field
-218 2:03p 🔵 Settings Script Tab: Current UI Limited to systemPromptSuffix and firstMessageTemplate
-219 " 🔵 ScriptSettings Usage Map: getScriptSettings Called in generateCallScript Flow
-220 " 🔵 Database Initialization: script_settings Table Definition with SQL
-221 " 🔵 Workspace Initialization: ensureWorkspaceDefaults() Initializes script_settings with Defaults
-222 " 🔵 Database Schema Evolution Pattern: ensureColumn() Used for Backward Compatibility
-223 " 🔵 Drizzle ORM Migrations: script_settings Table in Migration Files
-224 " 🔵 Documentation and Marketing Claim: README Lists ElevenLabs as Voice Provider, Not Implemented
-225 2:04p 🔵 Voice Demo Entry Point: /api/agent/test-call Calls placeAdHocCall()
-226 " 🔵 Voice Demo Card UI: Three Demo Scenarios Without Voice Selection
-227 " 🔵 Drizzle Migration Snapshot: script_settings Columns Confirmed
-228 " 🔵 Test Call Endpoint: POST /api/agent/test-call with Zod Schema, No voiceId Parameter
-229 " 🔵 Voice Demo Card Wiring: VoiceDemoCard Opens TestCallDialog on "Demo the voice" Click
-230 " 🔵 Home View Layout: Voice Demo Card Positioned in Right Sidebar with Agent Controls
-231 " 🔵 TestCallDialog: Three Demo Scenarios, Phone Input, No Voice Selection UI
-232 " 🔵 Call Script Generation: getScriptSettings() Used to Override AI-Generated Script
-233 " 🔵 Settings Status Endpoint: /api/settings/status Returns Integration Readiness and Caller Config
-234 2:05p 🔵 README Stack Claims ElevenLabs Voice Support; Implementation Uses Only OpenAI Realtime
-235 " ✅ Created lib/voice.ts: OpenAI Realtime Voice Constants and Utilities
-236 " ✅ Updated ScriptSettings Type: Added realtimeModel and realtimeVoiceId Fields
-237 " ✅ Updated lib/vapi.ts: Use Typed Voice Resolvers and Support model Parameter
-238 " ✅ Updated lib/database.ts: Added realtimeModel and realtimeVoiceId Columns to script_settings
-239 2:06p ✅ Updated getScriptSettings() and updateScriptSettings(): Handle realtimeModel and realtimeVoiceId
-240 " ✅ Updated POST /api/settings/script: Handle realtimeModel and realtimeVoiceId in Request Body
-241 " ✅ Refined POST /api/settings/script: Preserve Voice Settings on Partial Updates
-242 " ✅ Updated lib/agents/caller.ts: Thread Voice Settings Through Call Creation
-245 2:07p ✅ Updated Settings View: Add Voice Selection State and saveVoice() Handler
-243 " 🔵 Database functions already have workspaceId as required string parameter in signatures
-244 " ✅ listAgentEvents parameter reordered: workspaceId moved to first position
-S15 Continue database layer hardening — resolve remaining 30 TS errors from function signature parameter reordering across orchestrator, caller, guardrails, dnc, scraper, and database internal call sites (May 11 at 2:07 PM)
-S17 Create a LinkedIn-ready infographic for YALID Prospkt that showcases app features and highlights key areas, with accompanying post copy (May 11 at 2:08 PM)
-246 2:08p ✅ Added Voice Selection UI to Caller Tab in Settings View
-S16 Continue fixing database layer hardening: resolve remaining ~35 TypeScript errors from converting 33+ database functions to require explicit workspaceId parameters (May 11 at 2:08 PM)
-247 2:09p ✅ LinkedIn infographic messaging refined for feature-focused presentation
+### May 12, 2026
+S24 Audit shadcn/ui integration in Prospkt.ai project and assess design system uniformity across application UI (May 12 at 11:39 AM)
+S25 Add missing shadcn/ui components to foundation and integrate TooltipProvider into root layout (May 12 at 11:49 AM)
+S26 Fix voice demo dialog cutoff on small viewports when pressing the demo button (May 12 at 12:41 PM)
+304 4:08p 🔴 Fix dialog overflow by adding max-height and overflow constraints
+305 4:10p 🔴 Fix voice demo dialog overflow and improve mobile layout
+306 4:11p ✅ Add TooltipProvider to app layout
+307 4:12p ✅ Verify dialog overflow fix changes
+S27 Improve voice demo calls to sound natural, interactive, and receptionist-like with faster response times, early interruption, silence handling, and a distinct demo voice (May 12 at 4:14 PM)
+308 4:18p 🔵 Vapi voice calling architecture integrated with realtime OpenAI models
+309 " 🔵 Script generation pipeline: Claude API generates system prompt and first message per lead
+310 " 🔵 Database schema for calls and script settings
+311 " 🔵 OpenAI realtime voice model and voice ID configuration
+312 " 🔵 Test call API endpoint with DNC enforcement and lead context capture
+313 4:19p 🔵 Vapi call orchestration with conversational UX tuning and voicemail safeguards
+314 " 🔵 Vapi call status and webhook contract
+315 " 🔵 Vapi webhook handler maps call outcomes and stores transcripts
+316 " 🔵 Test call scenarios pre-configure demo context for voice testing
+317 " 🔵 Call transcript display with speaker attribution
+318 " 🔵 Claude-generated system prompt with hardcoded receptionist persona and customizable overrides
+319 " 🔵 Call orchestration with lead context transformation and booking tool injection
+320 " 🔵 Settings UI with four tabs: Integrations, Caller, Compliance, Script
+321 4:20p 🔵 SQLite database with DatabaseSync (Node.js native) and workspace-scoped tables
+323 " 🔵 Lead calls table schema: id, leadId, vapiCallId, outcome, transcript, summary, recording, timestamps
+324 4:23p ✅ Voice options expanded from 2 to 5 user-selectable voices
+325 " 🟣 Demo mode added to script generation with special system prompt and first message
+326 4:24p ✅ Ad-hoc test calls now use demo mode with Coral voice
+327 " ✅ Vapi assistant tuned for faster response, interruption on first word, silence handling hooks
+328 4:25p ✅ Demo mode instruction added to handle booking role-play without live calendar
+329 " ✅ Demo calls disabled from invoking booking tools
+330 " ✅ First message placeholder updated to show natural AI disclosure example
+331 " ✅ First message template variables documentation updated to include {companyName}
+333 4:26p ✅ Removed unused webhookBase variable from placeAdHocCall
+336 4:27p 🔴 Voice agent tuning for natural demo calls: voices, timing, interruption, silence handling
+S28 Fix horrible illustration for Prospkt.ai launch post by removing decorative elements and simplifying the design (May 12 at 4:27 PM)
+### May 13, 2026
+337 5:02p ✅ Brand Asset Illustration Refined with Typography and Visual Hierarchy Adjustments
+338 5:03p ✅ Brand Asset SVG Rendering Executed Successfully
+339 " ✅ Launch Post SVG Brand Asset Rendered and Visually Verified
+S29 Redesign launch card for Prospkt.ai with darker halftone/AI poster aesthetic while maintaining simplicity and brand focus (May 13 at 5:03 PM)
+340 5:10p ✅ Launch Post SVG Completely Redesigned with Dark Theme and Radial Glow Effects
+341 " 🔴 SVG XML Parse Error Discovered in Brand Asset Rendering
+342 5:11p 🔵 Root Cause of XML Parse Error Identified in SVG Template
+343 " 🔴 XML Tag Mismatch Corrected in SVG Gradient Definition
+344 " 🔵 Additional XML Tag Mismatch Found in SVG Gradient Definitions
+345 5:12p 🔵 Multiple Structural Problems Found in SVG Template File
+346 " 🔵 Root Cause Confirmed: Mismatched Closing Tag in launchPostSvg() defs Section
+347 5:13p 🔴 Multiple SVG Gradient Tag Mismatches Corrected
+348 " ✅ Brand Asset Rendering Script Executed Successfully
+S30 Verify file format of redesigned launch card asset for Prospkt.ai (May 13 at 5:14 PM)
+349 5:16p ✅ Launch card asset finalized as PNG image
+S31 Rebuild Prospkt.ai "launching soon" LinkedIn social image with reference design improvements (May 13 at 5:17 PM)
+350 5:19p 🔵 Root layout authentication and branding configuration examined
+351 " 🔵 Design system and color palette configuration established
+352 " 🔵 Font usage discrepancy between app and brand assets
+353 " 🔵 Switzer and Inter fonts not installed locally on system
+354 " 🔵 Launch post SVG uses complex gradient and halftone effects
+355 5:20p ✅ Launch card SVG redesigned with Switzer font and enhanced visual effects
+356 5:21p ✅ Launch post SVG design finalized and committed
+357 " ✅ Brand assets rendered successfully with updated design
+S32 Create a detailed JSON file describing the LinkedIn launch graphic design for Prospkt.ai (May 13 at 5:22 PM)
+S33 Copy refinement for Prospkt.ai launch announcement — integrate lead scraper into core messaging (May 13 at 6:32 PM)
+**Investigated**: User's existing launch copy mentioning: AI sales rep/receptionist, follow-up automation, CRM, revenue loss problem due to missed follow-up
 
-Access 325k tokens of past work via get_observations([IDs]) or mem-search skill.
+**Learned**: Two refined versions provided: tighter version (natural lead scraper integration) and more polished founder version (expanded CRM context, emphasizes consistency challenge)
+
+**Completed**: Two launch copy variants delivered — tighter and polished — both incorporating lead generation + follow-up + CRM + job booking into cohesive narrative
+
+**Next Steps**: User to select preferred copy variant for public launch announcement or request further refinement
+
+
+Access 428k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>

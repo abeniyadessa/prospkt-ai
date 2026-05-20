@@ -219,6 +219,27 @@ export interface WorkspaceSettings {
   updatedAt: string;
 }
 
+export interface WaitlistSignup {
+  id: string;
+  email: string;
+  companyName: string | null;
+  city: string | null;
+  source: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PrelaunchEvent {
+  id: string;
+  name: string;
+  source: string | null;
+  path: string | null;
+  referrer: string | null;
+  email: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+}
+
 export interface OnboardingProfile {
   workspaceId: string;
   companyName: string;

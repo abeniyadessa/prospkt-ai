@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://prospkt.ai"),
   title: "Prospkt — AI Sales Rep",
   description:
     "AI sales rep for service businesses that follows up, books jobs, and logs every revenue opportunity.",

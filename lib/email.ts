@@ -81,6 +81,86 @@ export async function sendBookingNotification(data: BookingEmailData): Promise<v
   }
 }
 
+export interface WaitlistSignupEmailData {
+  email: string;
+  companyName?: string | null;
+  city?: string | null;
+  source?: string | null;
+  storageMode: "database" | "resend_contacts" | "local" | "email_only";
+}
+
+export async function sendWaitlistSignupNotification(
+  data: WaitlistSignupEmailData
+): Promise<{ sent: boolean; reason?: string }> {
+  const apiKey = isResendConfigured();
+  if (!apiKey) {
+    return { sent: false, reason: "Resend not configured" };
+  }
+
+  const rows = [
+    ["Email", data.email],
+    ["Company", data.companyName || "Not provided"],
+    ["City", data.city || "Not provided"],
+    ["Source", data.source || "prelaunch"],
+    [
+      "Storage",
+      {
+        database: "Saved to database",
+        resend_contacts: "Saved to Resend Contacts",
+        local: "Saved to local development database",
+        email_only: "Database unavailable; email fallback captured it",
+      }[data.storageMode],
+    ],
+  ];
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: RESEND_FROM,
+      to: [FALLBACK_NOTIFICATION_TO],
+      subject: `New Prospkt waitlist signup — ${data.email}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 32px;">
+          <h1 style="font-size: 22px; font-weight: 700; color: #0A0A0A; margin: 0 0 8px;">
+            New waitlist signup
+          </h1>
+          <p style="color: #737373; margin: 0 0 24px; font-size: 13px;">
+            Someone joined the Prospkt private beta list.
+          </p>
+
+          <div style="background: #F9F9F9; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+            <table style="width: 100%; border-collapse: collapse;">
+              ${rows
+                .map(
+                  ([label, value]) => `
+                    <tr>
+                      <td style="padding: 7px 0; color: #737373; font-size: 13px;">${escape(label)}</td>
+                      <td style="padding: 7px 0; font-weight: 600; color: #0A0A0A; font-size: 13px; text-align: right;">${escape(value)}</td>
+                    </tr>`
+                )
+                .join("")}
+            </table>
+          </div>
+
+          <p style="color: #737373; font-size: 12px; margin: 0;">
+            Sent by Prospkt.ai
+          </p>
+        </div>
+      `,
+    }),
+  });
+
+  if (!res.ok) {
+    return { sent: false, reason: await res.text() };
+  }
+
+  return { sent: true };
+}
+
 // ─── Daily digest ─────────────────────────────────────────────────────────────
 
 function escape(value: string): string {

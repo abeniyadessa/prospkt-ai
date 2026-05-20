@@ -17,7 +17,9 @@ import type {
   Lead,
   LeadStatus,
   OnboardingProfile,
+  PrelaunchEvent,
   ScriptSettings,
+  WaitlistSignup,
   Workspace,
   WorkspaceSettings,
   WorkspaceUser,
@@ -125,6 +127,27 @@ interface AgentEventRow {
   createdAt: string;
 }
 
+interface WaitlistSignupRow {
+  id: string;
+  email: string;
+  companyName: string | null;
+  city: string | null;
+  source: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PrelaunchEventRow {
+  id: string;
+  name: string;
+  source: string | null;
+  path: string | null;
+  referrer: string | null;
+  email: string | null;
+  metadata: string | null;
+  createdAt: string;
+}
+
 const AGENT_SETTINGS_ID = "default";
 
 declare global {
@@ -227,6 +250,27 @@ function initialize() {
       realtimeModel TEXT NOT NULL DEFAULT '${OPENAI_REALTIME_MODEL}',
       realtimeVoiceId TEXT NOT NULL DEFAULT '${DEFAULT_OPENAI_REALTIME_VOICE_ID}',
       updatedAt TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS waitlist_signups (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      companyName TEXT,
+      city TEXT,
+      source TEXT NOT NULL DEFAULT 'prelaunch',
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS prelaunch_events (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      source TEXT,
+      path TEXT,
+      referrer TEXT,
+      email TEXT,
+      metadata TEXT,
+      createdAt TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS leads (
@@ -908,6 +952,135 @@ export function getAppWorkspaceContext(input: {
     settings: getWorkspaceSettings(workspace.id),
     onboarding: getOnboardingProfile(workspace.id),
   };
+}
+
+function rowToWaitlistSignup(row: WaitlistSignupRow): WaitlistSignup {
+  return {
+    id: row.id,
+    email: row.email,
+    companyName: row.companyName,
+    city: row.city,
+    source: row.source,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+function rowToPrelaunchEvent(row: PrelaunchEventRow): PrelaunchEvent {
+  return {
+    id: row.id,
+    name: row.name,
+    source: row.source,
+    path: row.path,
+    referrer: row.referrer,
+    email: row.email,
+    metadata: row.metadata ? (JSON.parse(row.metadata) as Record<string, unknown>) : null,
+    createdAt: row.createdAt,
+  };
+}
+
+export function createWaitlistSignup(input: {
+  email: string;
+  companyName?: string | null;
+  city?: string | null;
+  source?: string | null;
+}): WaitlistSignup {
+  const database = getDb();
+  const now = new Date().toISOString();
+  const email = input.email.trim().toLowerCase();
+  const companyName = input.companyName?.trim() || null;
+  const city = input.city?.trim() || null;
+  const source = input.source?.trim() || "prelaunch";
+  const existing = database
+    .prepare("SELECT * FROM waitlist_signups WHERE email = ?")
+    .get(email) as WaitlistSignupRow | undefined;
+
+  if (existing) {
+    database
+      .prepare(
+        `UPDATE waitlist_signups
+         SET companyName = COALESCE(?, companyName),
+             city = COALESCE(?, city),
+             source = ?,
+             updatedAt = ?
+         WHERE email = ?`
+      )
+      .run(companyName, city, source, now, email);
+
+    return rowToWaitlistSignup(
+      database
+        .prepare("SELECT * FROM waitlist_signups WHERE email = ?")
+        .get(email) as WaitlistSignupRow
+    );
+  }
+
+  const signup: WaitlistSignupRow = {
+    id: crypto.randomUUID(),
+    email,
+    companyName,
+    city,
+    source,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  database
+    .prepare(
+      `INSERT INTO waitlist_signups (
+        id, email, companyName, city, source, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+    )
+    .run(
+      signup.id,
+      signup.email,
+      signup.companyName,
+      signup.city,
+      signup.source,
+      signup.createdAt,
+      signup.updatedAt
+    );
+
+  return rowToWaitlistSignup(signup);
+}
+
+export function createPrelaunchEvent(input: {
+  name: string;
+  source?: string | null;
+  path?: string | null;
+  referrer?: string | null;
+  email?: string | null;
+  metadata?: Record<string, unknown> | null;
+}): PrelaunchEvent {
+  const database = getDb();
+  const event: PrelaunchEventRow = {
+    id: crypto.randomUUID(),
+    name: input.name.trim(),
+    source: input.source?.trim() || null,
+    path: input.path?.trim() || null,
+    referrer: input.referrer?.trim() || null,
+    email: input.email?.trim().toLowerCase() || null,
+    metadata: input.metadata ? JSON.stringify(input.metadata) : null,
+    createdAt: new Date().toISOString(),
+  };
+
+  database
+    .prepare(
+      `INSERT INTO prelaunch_events (
+        id, name, source, path, referrer, email, metadata, createdAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+    .run(
+      event.id,
+      event.name,
+      event.source,
+      event.path,
+      event.referrer,
+      event.email,
+      event.metadata,
+      event.createdAt
+    );
+
+  return rowToPrelaunchEvent(event);
 }
 
 async function ensureSeeded() {

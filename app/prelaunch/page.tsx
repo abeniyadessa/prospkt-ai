@@ -120,9 +120,7 @@ export default function PrelaunchPage() {
               Private beta for local service teams
             </span>
 
-            <h1 className="mx-auto mt-5 max-w-[760px] text-balance text-[34px] font-semibold leading-[1.04] text-foreground min-[420px]:text-[40px] sm:mt-6 sm:text-[60px] lg:text-[72px]">
-              An AI sales rep that calls back and books jobs.
-            </h1>
+            <AnimatedHeadline />
 
             <p className="mx-auto mt-4 max-w-[580px] text-pretty text-[14.5px] leading-6 text-muted-foreground sm:mt-6 sm:text-[16.5px] sm:leading-relaxed">
               Prospkt calls back missed leads, follows up on old estimates, and
@@ -160,6 +158,88 @@ function Brand() {
       <LogoMark className="size-9 rounded-xl" />
       <span className="text-[17px] font-semibold leading-none">Prospkt</span>
     </div>
+  );
+}
+
+function AnimatedHeadline() {
+  const phrases = [
+    "calls back leads.",
+    "follows up fast.",
+    "books jobs.",
+  ];
+
+  return (
+    <>
+      <h1 className="mx-auto mt-5 max-w-[760px] text-balance text-[34px] font-semibold leading-[1.04] text-foreground min-[420px]:text-[40px] sm:mt-6 sm:text-[60px] lg:text-[72px]">
+        <span className="sr-only">
+          An AI sales rep that calls back leads, follows up fast, and books jobs.
+        </span>
+        <span aria-hidden="true" className="block">
+          An AI sales rep that
+        </span>
+        <span
+          aria-hidden="true"
+          className="prelaunch-headline-rotator mx-auto mt-1 block h-[1.08em] max-w-full overflow-hidden text-center"
+        >
+          {phrases.map((phrase, index) => (
+            <span
+              key={phrase}
+              className="prelaunch-headline-phrase"
+              style={{ animationDelay: `${index * 2.8}s` }}
+            >
+              {phrase}
+            </span>
+          ))}
+        </span>
+      </h1>
+      <style>{`
+        .prelaunch-headline-rotator {
+          display: grid;
+        }
+
+        .prelaunch-headline-phrase {
+          grid-area: 1 / 1;
+          opacity: 0;
+          transform: translateY(0.28em);
+          animation: prelaunchHeadlineSwap 8.4s ease-out infinite;
+        }
+
+        @keyframes prelaunchHeadlineSwap {
+          0%,
+          6% {
+            opacity: 0;
+            transform: translateY(0.28em);
+          }
+
+          11%,
+          31% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+
+          37%,
+          100% {
+            opacity: 0;
+            transform: translateY(-0.28em);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .prelaunch-headline-phrase {
+            animation: none;
+            transform: none;
+          }
+
+          .prelaunch-headline-phrase:first-child {
+            opacity: 1;
+          }
+
+          .prelaunch-headline-phrase:not(:first-child) {
+            display: none;
+          }
+        }
+      `}</style>
+    </>
   );
 }
 

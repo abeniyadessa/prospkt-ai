@@ -12,7 +12,7 @@ import {
 import { callLead } from "@/lib/agents/caller";
 import { evaluateLeadGuardrails } from "@/lib/agents/guardrails";
 import { rankLeadsForAgent } from "@/lib/agents/qualifier";
-import type { AgentEvent, AgentRun, AgentRunMode } from "@/lib/types";
+import type { AgentEvent, AgentRun, AgentRunMode, CampaignLane } from "@/lib/types";
 
 const ESTIMATED_CALL_COST_CENTS = 25;
 const FAILURE_PAUSE_THRESHOLD = 3;
@@ -23,7 +23,12 @@ export interface AgentRunResult {
 }
 
 export async function runAgent(
-  options: { dryRun?: boolean; workspaceId: string }
+  options: {
+    dryRun?: boolean;
+    workspaceId: string;
+    campaignLane?: CampaignLane;
+    playbook?: string;
+  }
 ): Promise<AgentRunResult> {
   const workspaceId = options.workspaceId;
   const mode: AgentRunMode = options.dryRun ? "dry_run" : "live";
@@ -38,8 +43,15 @@ export async function runAgent(
     log({
       type: "run_started",
       severity: "info",
-      message: mode === "dry_run" ? "Agent dry run started" : "Guarded agent run started",
-      metadata: { mode },
+      message:
+        mode === "dry_run"
+          ? "Campaign dry run started"
+          : "Campaign run started",
+      metadata: {
+        mode,
+        campaignLane: options.campaignLane ?? null,
+        playbook: options.playbook ?? null,
+      },
     });
 
     if (settings.paused) {
@@ -88,12 +100,25 @@ export async function runAgent(
       return { run: completed, events: listAgentEvents(workspaceId, 100, run.id) };
     }
 
-    const leads = rankLeadsForAgent(await listLeads(workspaceId));
+    const scopedLeads = (await listLeads(workspaceId)).filter((lead) => {
+      if (options.campaignLane && lead.campaignLane !== options.campaignLane) {
+        return false;
+      }
+      if (options.playbook && lead.playbook !== options.playbook) {
+        return false;
+      }
+      return true;
+    });
+    const leads = rankLeadsForAgent(scopedLeads);
     log({
       type: "qualify",
       severity: "info",
       message: `Qualified ${leads.length} active CRM records for guardrail review`,
-      metadata: { activeLeadCount: leads.length },
+      metadata: {
+        activeLeadCount: leads.length,
+        campaignLane: options.campaignLane ?? null,
+        playbook: options.playbook ?? null,
+      },
     });
 
     let callsAttempted = 0;

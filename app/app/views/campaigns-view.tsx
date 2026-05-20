@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
   LockIcon,
   MegaphoneIcon,
   PhoneCallIcon,
+  PlayIcon,
   ShieldCheckIcon,
 } from "@phosphor-icons/react";
 import { campaignLaneSummaries, campaignPlaybooks } from "@/lib/campaigns";
+import type { CampaignFilter, CampaignPlaybook } from "@/lib/campaigns";
 import { CAMPAIGN_LANE_LABELS, type CampaignLane, type NavKey } from "@/lib/types";
 import {
   Card,
@@ -16,6 +19,7 @@ import {
   GhostButton,
   LifecycleBadge,
   PageHeader,
+  PrimaryButton,
 } from "@/components/app/primitives";
 
 const laneOrder: CampaignLane[] = ["warm_recovery", "cold_b2b", "cold_consumer"];
@@ -34,9 +38,56 @@ function statusTone(status: "ready" | "guarded" | "setup") {
 
 export function CampaignsView({
   onNavigate,
+  onOpenCampaign,
 }: {
   onNavigate: (key: NavKey) => void;
+  onOpenCampaign: (
+    filter: CampaignFilter,
+    destination: Extract<NavKey, "CRM" | "Pipeline">
+  ) => void;
 }) {
+  const [busyAction, setBusyAction] = useState<string | null>(null);
+  const [runError, setRunError] = useState<string | null>(null);
+
+  async function runPlaybook(playbook: CampaignPlaybook, dryRun: boolean) {
+    setBusyAction(`${playbook.id}:${dryRun ? "dry" : "live"}`);
+    setRunError(null);
+    try {
+      const response = await fetch("/api/agent/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dryRun,
+          campaignLane: playbook.lane,
+          playbook: playbook.id,
+        }),
+      });
+      const data = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Campaign run could not start.");
+      }
+    } catch (error) {
+      setRunError(error instanceof Error ? error.message : "Campaign run could not start.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  function laneFilter(lane: CampaignLane): CampaignFilter {
+    return {
+      lane,
+      label: CAMPAIGN_LANE_LABELS[lane],
+    };
+  }
+
+  function playbookFilter(playbook: CampaignPlaybook): CampaignFilter {
+    return {
+      lane: playbook.lane,
+      playbook: playbook.id,
+      label: playbook.title,
+    };
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -95,6 +146,21 @@ export function CampaignsView({
                   </p>
                 </div>
               </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <GhostButton
+                  onClick={() => onOpenCampaign(laneFilter(lane), "CRM")}
+                  iconRight={<ArrowRightIcon size={11} aria-hidden />}
+                  disabled={locked}
+                >
+                  CRM queue
+                </GhostButton>
+                <GhostButton
+                  onClick={() => onOpenCampaign(laneFilter(lane), "Pipeline")}
+                  disabled={locked}
+                >
+                  Pipeline
+                </GhostButton>
+              </div>
             </Card>
           );
         })}
@@ -108,24 +174,39 @@ export function CampaignsView({
         <div className="grid gap-px bg-[color:var(--hairline)] sm:grid-cols-2 xl:grid-cols-3">
           {campaignPlaybooks.map((playbook) => (
             <article key={playbook.id} className="bg-surface p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[13.5px] font-semibold text-foreground">
-                    {playbook.title}
-                  </p>
-                  <p className="mt-1 text-pretty text-[12.5px] leading-relaxed text-muted-foreground">
-                    {playbook.description}
-                  </p>
+              <div className="flex min-h-36 flex-col justify-between gap-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[13.5px] font-semibold text-foreground">
+                      {playbook.title}
+                    </p>
+                    <p className="mt-1 text-pretty text-[12.5px] leading-relaxed text-muted-foreground">
+                      {playbook.description}
+                    </p>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-md px-2 py-1 text-[10.5px] font-semibold ${statusTone(
+                      playbook.status
+                    )}`}
+                  >
+                    {statusLabel(playbook.status)}
+                  </span>
                 </div>
-                <span
-                  className={`shrink-0 rounded-md px-2 py-1 text-[10.5px] font-semibold ${statusTone(
-                    playbook.status
-                  )}`}
-                >
-                  {statusLabel(playbook.status)}
-                </span>
+                <div className="flex flex-wrap gap-2">
+                  <GhostButton
+                    onClick={() => onOpenCampaign(playbookFilter(playbook), "CRM")}
+                    iconRight={<ArrowRightIcon size={11} aria-hidden />}
+                  >
+                    Open queue
+                  </GhostButton>
+                  <GhostButton
+                    onClick={() => onOpenCampaign(playbookFilter(playbook), "Pipeline")}
+                  >
+                    Pipeline
+                  </GhostButton>
+                </div>
               </div>
-              <dl className="mt-4 space-y-2 text-[12px]">
+              <dl className="mt-4 space-y-2 border-t border-hairline pt-4 text-[12px]">
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Source</dt>
                   <dd className="text-right font-medium text-foreground">
@@ -145,9 +226,32 @@ export function CampaignsView({
                   </dd>
                 </div>
               </dl>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <GhostButton
+                  onClick={() => runPlaybook(playbook, true)}
+                  loading={busyAction === `${playbook.id}:dry`}
+                  disabled={playbook.status === "setup" || busyAction !== null}
+                  iconLeft={<ShieldCheckIcon size={12} aria-hidden />}
+                >
+                  Dry run
+                </GhostButton>
+                <PrimaryButton
+                  onClick={() => runPlaybook(playbook, false)}
+                  loading={busyAction === `${playbook.id}:live`}
+                  disabled={playbook.status === "setup" || busyAction !== null}
+                  iconLeft={<PlayIcon size={12} aria-hidden />}
+                >
+                  Run
+                </PrimaryButton>
+              </div>
             </article>
           ))}
         </div>
+        {runError && (
+          <div className="border-t border-hairline bg-[#FAE3E0] px-4 py-3 text-[12.5px] font-medium text-[#A32A22] sm:px-5">
+            {runError}
+          </div>
+        )}
       </Card>
 
       <Card>

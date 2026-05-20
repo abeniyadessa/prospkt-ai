@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   UsersIcon,
   PhoneIcon,
@@ -22,6 +22,7 @@ import {
 import { useWorkspaceContext } from "@/components/app/workspace-provider";
 import type { AgentEvent, AgentRun, AgentStatusPayload, Analytics, Lead, NavKey, VapiCallRecord } from "@/lib/types";
 import { CAMPAIGN_LANE_LABELS } from "@/lib/types";
+import { campaignPlaybooks } from "@/lib/campaigns";
 import { getGreeting, formatRelativeTime, isInsideTcpaHours } from "@/lib/format";
 import {
   Card,
@@ -66,6 +67,15 @@ function formatCents(cents: number) {
 function percent(used: number, max: number) {
   if (max <= 0) return 0;
   return Math.min(100, Math.round((used / max) * 100));
+}
+
+const terminalStatuses = new Set(["booked", "not_interested", "dnc"]);
+
+function campaignLabelForLead(lead: Lead) {
+  const playbook = campaignPlaybooks.find((candidate) => candidate.id === lead.playbook);
+  if (playbook) return playbook.title;
+  if (lead.campaignLane) return CAMPAIGN_LANE_LABELS[lead.campaignLane];
+  return "Unassigned";
 }
 
 function ProgressBar({ value }: { value: number }) {
@@ -231,6 +241,7 @@ export function HomeView({
   onCall: (lead: Lead) => void;
 }) {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [allLeads, setAllLeads] = useState<Lead[]>([]);
   const [topLeads, setTopLeads] = useState<Lead[]>([]);
   const [recentCalls, setRecentCalls] = useState<VapiCallRecord[]>([]);
   const [agentStatus, setAgentStatus] = useState<AgentStatusPayload | null>(null);
@@ -260,10 +271,12 @@ export function HomeView({
         throw new Error(payload.error ?? `Scrape failed (${res.status})`);
       }
       const leadsRes = await fetch("/api/leads").then((r) => r.json()).catch(() => ({ leads: [] }));
-      const next = (leadsRes.leads ?? [])
-        .filter((lead: Lead) => !["booked", "not_interested", "dnc"].includes(lead.status ?? "new"))
+      const loadedLeads = (leadsRes.leads ?? []) as Lead[];
+      setAllLeads(loadedLeads);
+      const next = loadedLeads
+        .filter((lead) => !terminalStatuses.has(lead.status ?? "new"))
         .slice()
-        .sort((x: Lead, y: Lead) => y.priorityScore - x.priorityScore)
+        .sort((x, y) => y.priorityScore - x.priorityScore)
         .slice(0, 6);
       setTopLeads(next);
       if (next.length === 0) {
@@ -293,11 +306,13 @@ export function HomeView({
       ]);
       if (cancelled) return;
       setAnalytics(a);
+      const loadedLeads = (l.leads ?? []) as Lead[];
+      setAllLeads(loadedLeads);
       setTopLeads(
-        (l.leads ?? [])
-          .filter((lead: Lead) => !["booked", "not_interested", "dnc"].includes(lead.status ?? "new"))
+        loadedLeads
+          .filter((lead) => !terminalStatuses.has(lead.status ?? "new"))
           .slice()
-          .sort((x: Lead, y: Lead) => y.priorityScore - x.priorityScore)
+          .sort((x, y) => y.priorityScore - x.priorityScore)
           .slice(0, 6)
       );
       setRecentCalls((c.calls ?? []).slice(0, 5));
@@ -315,6 +330,36 @@ export function HomeView({
   const latestRun = agentStatus?.latestRun;
   const memory = agentStatus?.memory;
   const isPaused = agentStatus?.status === "paused";
+  const userFirstName = workspaceContext.user.name.split(" ")[0] || "there";
+  const workspaceName =
+    workspaceContext.workspace?.name ??
+    workspaceContext.settings?.companyName ??
+    "Workspace";
+  const activeCampaignLabels = useMemo(() => {
+    const labels = new Set<string>();
+    for (const lead of allLeads) {
+      if (!terminalStatuses.has(lead.status ?? "new")) {
+        labels.add(campaignLabelForLead(lead));
+      }
+    }
+    return Array.from(labels);
+  }, [allLeads]);
+  const bookedLeads = useMemo(
+    () => allLeads.filter((lead) => (lead.status ?? "new") === "booked"),
+    [allLeads]
+  );
+  const recoveredEstimateCents = useMemo(
+    () =>
+      bookedLeads.reduce(
+        (total, lead) => total + (lead.estimateValueCents ?? 0),
+        0
+      ),
+    [bookedLeads]
+  );
+  const recentSkipEvents = useMemo(
+    () => (agentStatus?.recentEvents ?? []).filter((event) => event.type === "skip").slice(0, 3),
+    [agentStatus?.recentEvents]
+  );
 
   async function refreshAgentStatus() {
     const next = await fetch("/api/agent/status").then((r) => r.json());
@@ -369,10 +414,10 @@ export function HomeView({
     <div className="space-y-6">
       {/* Greeting */}
       <header>
-        <p className="text-[12.5px] text-muted-foreground">Abeni&rsquo;s Workspace</p>
+        <p className="text-[12.5px] text-muted-foreground">{workspaceName}</p>
         <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
           <h1 className="text-balance text-[28px] font-semibold text-foreground">
-            {getGreeting("Abeni")}
+            {getGreeting(userFirstName)}
           </h1>
           <div className="flex items-center gap-2 sm:pb-1.5">
             <StatusDot
@@ -388,7 +433,7 @@ export function HomeView({
         <Card>
           <CardHeader
             title="Sales rep control"
-            description="AI sales rep for service records, campaigns, booking, and follow-up"
+            description="Run service campaigns, watch budget, and see every skipped or booked opportunity"
             divided={false}
             action={
               <StatusDot
@@ -399,40 +444,63 @@ export function HomeView({
             }
           />
           <div className="space-y-4 px-4 pb-4 sm:px-5 sm:pb-5">
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-lg border border-border bg-[color:var(--elevated)] p-3">
                 <p className="text-[11.5px] font-medium text-muted-foreground">
-                  Latest run
+                  Active campaigns
                 </p>
-                <p className="mt-1 truncate text-[13px] font-semibold text-foreground">
-                  {latestRun?.summary ?? "No agent run yet"}
+                <p className="mt-1 text-[18px] font-semibold tabular-nums text-foreground">
+                  {activeCampaignLabels.length}
                 </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {latestRun?.startedAt ? formatRelativeTime(latestRun.startedAt) : "Ready when you are"}
+                <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                  {activeCampaignLabels.slice(0, 2).join(", ") || "No queued campaigns"}
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-[color:var(--elevated)] p-3">
                 <p className="text-[11.5px] font-medium text-muted-foreground">
-                  Guardrails
+                  Calls today
                 </p>
-                <p className="mt-1 text-[13px] font-semibold text-foreground">
-                  8am-9pm, DNC, source
+                <p className="mt-1 text-[18px] font-semibold tabular-nums text-foreground">
+                  {analytics?.callsToday ?? 0}
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  Consumer cold calls require source and consent notes
+                  {budget?.callsRemaining ?? 20} remaining under cap
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-[color:var(--elevated)] p-3">
                 <p className="text-[11.5px] font-medium text-muted-foreground">
-                  Failure lockout
+                  Booked jobs
                 </p>
-                <p className="mt-1 text-[13px] font-semibold text-foreground">
-                  {agentStatus?.settings.failureCount ?? 0}/3 failures
+                <p className="mt-1 text-[18px] font-semibold tabular-nums text-foreground">
+                  {bookedLeads.length}
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  Auto-pauses if repeated runs fail
+                  {formatCents(recoveredEstimateCents)} recovered estimate
                 </p>
               </div>
+              <div className="rounded-lg border border-border bg-[color:var(--elevated)] p-3">
+                <p className="text-[11.5px] font-medium text-muted-foreground">
+                  Spend
+                </p>
+                <p className="mt-1 text-[18px] font-semibold tabular-nums text-foreground">
+                  {formatCents(budget?.costUsedCents ?? 0)}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {formatCents(budget?.maxCostCents ?? 500)} daily cap
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 rounded-lg border border-hairline bg-surface px-3 py-2.5 text-[12px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheckIcon size={13} className="shrink-0 text-[#2E7D4F]" aria-hidden />
+                <span>
+                  Guardrails: 8am-9pm local, DNC, source checks, AI disclosure, and pause-all.
+                </span>
+              </div>
+              <span className="shrink-0 text-[11px] tabular-nums">
+                {agentStatus?.settings.failureCount ?? 0}/3 failure lockout
+              </span>
             </div>
 
             {agentError && (
@@ -505,6 +573,29 @@ export function HomeView({
               latestEvent={agentStatus?.recentEvents?.[0] ?? null}
               latestRun={agentStatus?.latestRun ?? null}
             />
+
+            {recentSkipEvents.length > 0 && (
+              <div className="rounded-lg border border-hairline bg-[color:var(--elevated)] px-3 py-2.5">
+                <p className="text-[11.5px] font-medium text-muted-foreground">
+                  Recent skip reasons
+                </p>
+                <ul className="mt-2 space-y-1.5">
+                  {recentSkipEvents.map((event) => (
+                    <li
+                      key={event.id}
+                      className="flex items-start gap-2 text-[12px] text-foreground"
+                    >
+                      <WarningCircleIcon
+                        size={12}
+                        className="mt-0.5 shrink-0 text-[#B47A1F]"
+                        aria-hidden
+                      />
+                      <span className="line-clamp-1">{event.message}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -574,24 +665,6 @@ export function HomeView({
             </div>
           </Card>
         </div>
-      </section>
-
-      <section className="grid gap-3 sm:grid-cols-3">
-        <StatCard
-          label="Active campaigns"
-          value={3}
-          delta="Warm, B2B, consumer locked"
-        />
-        <StatCard
-          label="Booked jobs"
-          value={analytics?.bookedLeads ?? analytics?.bookedThisWeek ?? 0}
-          delta="Written back to CRM"
-        />
-        <StatCard
-          label="Revenue recovery"
-          value="$0"
-          delta="Estimate values unlock this"
-        />
       </section>
 
       <Card>

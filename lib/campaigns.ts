@@ -19,6 +19,12 @@ export interface CampaignPlaybook {
   status: "ready" | "guarded" | "setup";
 }
 
+export interface CampaignFilter {
+  lane?: CampaignLane;
+  playbook?: CampaignPlaybookId;
+  label: string;
+}
+
 export const campaignPlaybooks: CampaignPlaybook[] = [
   {
     id: "missed-call-recovery",

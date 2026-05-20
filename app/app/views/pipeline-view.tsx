@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react";
 import type { Lead, LeadStatus } from "@/lib/types";
 import { LEAD_STATUS_LABELS } from "@/lib/types";
+import type { CampaignFilter } from "@/lib/campaigns";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/format";
 import {
@@ -48,10 +49,14 @@ export function PipelineView({
   onOpenLead,
   onCall,
   refreshKey = 0,
+  campaignFilter = null,
+  onClearCampaignFilter,
 }: {
   onOpenLead: (lead: Lead) => void;
   onCall: (lead: Lead) => void;
   refreshKey?: number;
+  campaignFilter?: CampaignFilter | null;
+  onClearCampaignFilter?: () => void;
 }) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
@@ -81,6 +86,16 @@ export function PipelineView({
     fetchLeads();
   }, [fetchLeads, refreshKey]);
 
+  const visibleLeads = useMemo(
+    () =>
+      leads.filter((lead) => {
+        if (campaignFilter?.lane && lead.campaignLane !== campaignFilter.lane) return false;
+        if (campaignFilter?.playbook && lead.playbook !== campaignFilter.playbook) return false;
+        return true;
+      }),
+    [leads, campaignFilter]
+  );
+
   const grouped = useMemo(() => {
     const map: Record<LeadStatus, Lead[]> = {
       new: [],
@@ -93,7 +108,7 @@ export function PipelineView({
       not_interested: [],
       dnc: [],
     };
-    for (const lead of leads) {
+    for (const lead of visibleLeads) {
       const status = (lead.status ?? "new") as LeadStatus;
       map[status]?.push(lead);
     }
@@ -102,7 +117,7 @@ export function PipelineView({
       map[key].sort((a, b) => b.priorityScore - a.priorityScore);
     }
     return map;
-  }, [leads]);
+  }, [visibleLeads]);
 
   async function moveLead(leadId: string, nextStatus: LeadStatus) {
     const lead = leads.find((l) => l.id === leadId);
@@ -141,9 +156,14 @@ export function PipelineView({
     <div className="space-y-6">
       <PageHeader
         title="Pipeline"
-        description={`${leads.length} service-sales records across ${visibleColumns.length} stages`}
+        description={`${visibleLeads.length} service-sales records across ${visibleColumns.length} stages${
+          campaignFilter ? ` for ${campaignFilter.label}` : ""
+        }`}
         actions={
           <>
+            {campaignFilter && (
+              <GhostButton onClick={onClearCampaignFilter}>Clear campaign</GhostButton>
+            )}
             <GhostButton
               onClick={() => setShowClosed((s) => !s)}
               iconLeft={

@@ -8,84 +8,83 @@ This version has breaking changes — APIs, conventions, and file structure may 
 <claude-mem-context>
 # Memory Context
 
-# [prospkt.ai] recent context, 2026-05-15 4:20pm EDT
+# [prospkt.ai] recent context, 2026-05-20 4:43pm EDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (18,911t read) | 428,120t work | 96% savings
+Stats: 50 obs (15,454t read) | 111,913t work | 86% savings
 
-### May 12, 2026
-S24 Audit shadcn/ui integration in Prospkt.ai project and assess design system uniformity across application UI (May 12 at 11:39 AM)
-S25 Add missing shadcn/ui components to foundation and integrate TooltipProvider into root layout (May 12 at 11:49 AM)
-S26 Fix voice demo dialog cutoff on small viewports when pressing the demo button (May 12 at 12:41 PM)
-304 4:08p 🔴 Fix dialog overflow by adding max-height and overflow constraints
-305 4:10p 🔴 Fix voice demo dialog overflow and improve mobile layout
-306 4:11p ✅ Add TooltipProvider to app layout
-307 4:12p ✅ Verify dialog overflow fix changes
-S27 Improve voice demo calls to sound natural, interactive, and receptionist-like with faster response times, early interruption, silence handling, and a distinct demo voice (May 12 at 4:14 PM)
-308 4:18p 🔵 Vapi voice calling architecture integrated with realtime OpenAI models
-309 " 🔵 Script generation pipeline: Claude API generates system prompt and first message per lead
-310 " 🔵 Database schema for calls and script settings
-311 " 🔵 OpenAI realtime voice model and voice ID configuration
-312 " 🔵 Test call API endpoint with DNC enforcement and lead context capture
-313 4:19p 🔵 Vapi call orchestration with conversational UX tuning and voicemail safeguards
-314 " 🔵 Vapi call status and webhook contract
-315 " 🔵 Vapi webhook handler maps call outcomes and stores transcripts
-316 " 🔵 Test call scenarios pre-configure demo context for voice testing
-317 " 🔵 Call transcript display with speaker attribution
-318 " 🔵 Claude-generated system prompt with hardcoded receptionist persona and customizable overrides
-319 " 🔵 Call orchestration with lead context transformation and booking tool injection
-320 " 🔵 Settings UI with four tabs: Integrations, Caller, Compliance, Script
-321 4:20p 🔵 SQLite database with DatabaseSync (Node.js native) and workspace-scoped tables
-323 " 🔵 Lead calls table schema: id, leadId, vapiCallId, outcome, transcript, summary, recording, timestamps
-324 4:23p ✅ Voice options expanded from 2 to 5 user-selectable voices
-325 " 🟣 Demo mode added to script generation with special system prompt and first message
-326 4:24p ✅ Ad-hoc test calls now use demo mode with Coral voice
-327 " ✅ Vapi assistant tuned for faster response, interruption on first word, silence handling hooks
-328 4:25p ✅ Demo mode instruction added to handle booking role-play without live calendar
-329 " ✅ Demo calls disabled from invoking booking tools
-330 " ✅ First message placeholder updated to show natural AI disclosure example
-331 " ✅ First message template variables documentation updated to include {companyName}
-333 4:26p ✅ Removed unused webhookBase variable from placeAdHocCall
-336 4:27p 🔴 Voice agent tuning for natural demo calls: voices, timing, interruption, silence handling
-S28 Fix horrible illustration for Prospkt.ai launch post by removing decorative elements and simplifying the design (May 12 at 4:27 PM)
-### May 13, 2026
-337 5:02p ✅ Brand Asset Illustration Refined with Typography and Visual Hierarchy Adjustments
-338 5:03p ✅ Brand Asset SVG Rendering Executed Successfully
-339 " ✅ Launch Post SVG Brand Asset Rendered and Visually Verified
-S29 Redesign launch card for Prospkt.ai with darker halftone/AI poster aesthetic while maintaining simplicity and brand focus (May 13 at 5:03 PM)
-340 5:10p ✅ Launch Post SVG Completely Redesigned with Dark Theme and Radial Glow Effects
-341 " 🔴 SVG XML Parse Error Discovered in Brand Asset Rendering
-342 5:11p 🔵 Root Cause of XML Parse Error Identified in SVG Template
-343 " 🔴 XML Tag Mismatch Corrected in SVG Gradient Definition
-344 " 🔵 Additional XML Tag Mismatch Found in SVG Gradient Definitions
-345 5:12p 🔵 Multiple Structural Problems Found in SVG Template File
-346 " 🔵 Root Cause Confirmed: Mismatched Closing Tag in launchPostSvg() defs Section
-347 5:13p 🔴 Multiple SVG Gradient Tag Mismatches Corrected
-348 " ✅ Brand Asset Rendering Script Executed Successfully
-S30 Verify file format of redesigned launch card asset for Prospkt.ai (May 13 at 5:14 PM)
-349 5:16p ✅ Launch card asset finalized as PNG image
-S31 Rebuild Prospkt.ai "launching soon" LinkedIn social image with reference design improvements (May 13 at 5:17 PM)
-350 5:19p 🔵 Root layout authentication and branding configuration examined
-351 " 🔵 Design system and color palette configuration established
-352 " 🔵 Font usage discrepancy between app and brand assets
-353 " 🔵 Switzer and Inter fonts not installed locally on system
-354 " 🔵 Launch post SVG uses complex gradient and halftone effects
-355 5:20p ✅ Launch card SVG redesigned with Switzer font and enhanced visual effects
-356 5:21p ✅ Launch post SVG design finalized and committed
-357 " ✅ Brand assets rendered successfully with updated design
-S32 Create a detailed JSON file describing the LinkedIn launch graphic design for Prospkt.ai (May 13 at 5:22 PM)
-S33 Copy refinement for Prospkt.ai launch announcement — integrate lead scraper into core messaging (May 13 at 6:32 PM)
-**Investigated**: User's existing launch copy mentioning: AI sales rep/receptionist, follow-up automation, CRM, revenue loss problem due to missed follow-up
+### May 20, 2026
+S56 Clarify validation strategy and market access approach for Stage-A pre-launch Prospkt positioning. Determine whether to pursue aggressive niche validation with direct operator access or cold-outreach model. (May 20 at 3:55 PM)
+S57 Develop Stage-A product strategy for Prospkt under D-path constraints (no customer interviews, market research via public signals only). Evaluate three positioning directions and recommend optimal direction for self-serve, lead-magnet-first GTM. (May 20 at 3:57 PM)
+S58 Strategic direction decision for Prospkt V1: AI receptionist for trades service businesses, with outbound revival as expansion play. (May 20 at 3:59 PM)
+S59 Polish prelaunch page mobile responsiveness and deploy to production (May 20 at 4:06 PM)
+S60 Build animated prelaunch email collection page with rotating headline phrases; maintain brand colors, voice, and UI components from projustc; separate from current marketing page (May 20 at 4:06 PM)
+S61 Market validation research: mine operator pain signals, audit AI receptionist competitors, map trade-specific AI players, quantify missed-call economic impact, synthesize findings into sharpenedV1 positioning for prospkt.ai (May 20 at 4:14 PM)
+730 4:26p 🔵 Solo HVAC/plumbing operators reject enterprise tools; manage via phone/notebook or seek lightweight alternatives
+731 " ✅ Reverted PrelaunchEmailForm to fixed two-column layout with rounded-[1.75rem]
+732 " ✅ Patch applied to PrelaunchEmailForm component
+733 " 🔵 Avoca AI targets $3M+ revenue with 5+ CSRs on ServiceTitan; explicitly excludes solo/small operators
+734 " 🔵 HVAC owner preference: AI subscription ($49–$199/mo) over hiring dispatcher ($47K/yr) or human service ($235–$700/mo)
+735 " 🔵 Baseline UI constraints reviewed for prelaunch design compliance
+736 4:27p 🔵 Git status confirms both prelaunch files modified and staged
+S62 Voice quality vs. cost trade-off for V1 product: assess open-source TTS viability vs. premium providers (Cartesia, ElevenLabs, OpenAI) for real-time phone call scenarios (May 20 at 4:27 PM)
+737 " 🔵 Reverted prelaunch page now has AnimatedHeadline preserved with restored spacing and layout
+738 " 🔵 Reverted PrelaunchEmailForm has fixed two-column layout with rounded-full input/button
+739 " 🔵 Reverted ProductPreview with fixed three-column PreviewRow and responsive Stat sizing
+740 " ✅ Git diff shows complete reversion of prelaunch page and email form to previous design
+741 4:28p 🔵 Git status shows working directory with 13 modified files including prelaunch design changes
+742 " 🔵 Build process initiated with Next.js 16.2.3 Turbopack
+743 " 🔵 Next.js compilation successful in 4.4 seconds
+744 " 🔵 TypeScript type checking passed, now collecting page data for static generation
+745 " 🔵 Next.js build completed successfully with prelaunch page static generation
+746 " 🔵 ESLint linting started with no immediate output
+747 " 🔵 ESLint linting completed with 1 warning (no errors)
+748 " 🔵 Browser skill documentation reviewed for in-app browser automation
+749 " 🔵 Browser skill full API documentation reviewed for automation capabilities
+750 4:29p 🔵 Browser session error: variable redeclaration in Node REPL
+751 " 🔵 Browser session timeout: Page.captureScreenshot CDP command timed out
+752 " 🔵 Prelaunch page DOM inspection: AnimatedHeadline animation active with rotating phrases
+753 " 🔵 Browser screenshot capture consistently times out on CDP Page.captureScreenshot command
+754 " 🔵 Computer Use MCP tool restricted from Codex app access
+755 4:30p 🔵 Project dependencies include @playwright/test version 1.51.1
+756 " 🔵 Git diff whitespace check passed for both prelaunch files
+758 4:31p ✅ Staged two prelaunch files for commit
+759 " 🔵 Git staging complete: two prelaunch files staged, 11 files unstaged
+760 " 🔵 Staged changes summary: 24 insertions, 36 deletions across 2 files
+761 " ✅ Commit created: "Restore prelaunch mobile layout" (e01bc03)
+762 " ✅ Git push initiated to origin main
+763 " ✅ Commit e01bc03 pushed successfully to origin main
+765 " 🔵 Vercel project configuration present in temporary deployment directory
+766 " 🔵 Git checkout failed: permission denied on worktree index lock
+767 " ✅ Temporary deployment directory updated to reversion commit e01bc03
+768 4:32p 🔵 Build failure: next command not found in deployment directory
+769 " ✅ Vercel production deployment initiated for prelaunch reversion
+770 " ✅ Vercel production build underway: Next.js compilation starting
+771 " 🔵 Next.js compilation completed successfully in 22.9 seconds
+S63 Restore prelaunch phone design while keeping animated headline: revert to previous layout, preserve AnimatedHeadline rotating phrase animation (May 20 at 4:32 PM)
+772 " ✅ Vercel build completed successfully in 41 seconds total
+773 4:33p ✅ Vercel deployment phase: uploading built outputs to CDN
+774 " ✅ Vercel production deployment completed successfully
+775 " 🔵 Production prelaunch page responding with HTTP 200, prerendered static content
+777 " 🔵 Production prelaunch page HTML contains AnimatedHeadline with three rotating phrases and reverted layout
+S64 Write and commit V1 design spec for Prospkt; document strategic pivot from outbound AI sales rep to inbound AI receptionist for 1–5 truck operators (May 20 at 4:34 PM)
+781 4:34p ✅ Project documentation structure initialized
+782 " ⚖️ Prospkt V1 product direction finalized: AI receptionist for 1–5 truck operators
+783 4:36p ✅ V1 design spec margin target corrected for internal consistency
+784 " ✅ V1 design spec staged for commit
+785 4:37p ✅ V1 design spec committed to git repository
+S65 Assess whether to create new AGENTS.md or update existing project documentation; clarify agent file standards vs. project context files (May 20 at 4:39 PM)
+**Investigated**: Current AGENTS.md (82 lines, auto-managed by claude-mem plugin with Next.js version warning); CLAUDE.md (112 lines, project-specific rules); agentsfile.org standard for cross-tool AI portability; relationship between claude-mem context management and hand-edited project docs
 
-**Learned**: Two refined versions provided: tighter version (natural lead scraper integration) and more polished founder version (expanded CRM context, emphasizes consistency challenge)
+**Learned**: AGENTS.md is auto-rotated by claude-mem plugin and contains mostly memory dumps + framework warnings; not suitable for hand-editing project conventions. CLAUDE.md is the canonical source for project rules (tech stack, folder conventions, TypeScript interfaces, TCPA compliance, roadmap). Agentsfile.org AGENTS.md format useful only for multi-tool portability (Cursor, Aider, Codex CLI, Gemini CLI); currently low ROI for Claude-only project. Post-pivot, CLAUDE.md contains stale context: describes old outbound positioning, references Vapi-based routes, assumes outbound Call interface, targets wrong ICP (Michigan, no-website shops vs. 1–5 truck national), and outdated TCPA rules
 
-**Completed**: Two launch copy variants delivered — tighter and polished — both incorporating lead generation + follow-up + CRM + job booking into cohesive narrative
+**Completed**: Identified that CLAUDE.md is now misaligned with V1 spec and acts as a centripetal force pulling future context in wrong direction. Documented specific staleness: Project Overview (outbound vs. inbound), Folder Conventions (vapi/* vs. twilio/+voice/*), TypeScript Interfaces (outbound Call vs. inbound receptionist), Phase 1 Target (Michigan web-weak vs. 1–5 truck HVAC/plumbing/electrical/roofing), TCPA rules (outbound vs. inbound recording disclosure)
 
-**Next Steps**: User to select preferred copy variant for public launch announcement or request further refinement
+**Next Steps**: Await user decision on CLAUDE.md refresh. Proposed scope: (1) rewrite Project Overview to inbound receptionist positioning, (2) add V1 Tech Stack section (Twilio, Pipecat, Cartesia, Whisper-Groq, Haiku, Vercel AI Gateway, Cal.com, Stripe), (3) update TypeScript Interfaces for inbound concepts (caller, transcript, captured fields, booking status), (4) rewrite Build Roadmap to reference V1 spec as canonical source, (5) update Phase 1 Target to new ICP, (6) refresh TCPA Compliance for inbound-specific rules + recording disclosure. If approved, update CLAUDE.md (~15 min) before invoking writing-plans skill
 
 
-Access 428k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 112k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>

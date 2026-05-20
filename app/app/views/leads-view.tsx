@@ -19,7 +19,11 @@ import {
   CAMPAIGN_LANE_LABELS,
   CONTACT_TYPE_LABELS,
   LEAD_STATUS_LABELS,
+  type CampaignLane,
+  type LeadContactType,
 } from "@/lib/types";
+import { campaignPlaybooks } from "@/lib/campaigns";
+import type { CampaignFilter, CampaignPlaybookId } from "@/lib/campaigns";
 import { MICHIGAN_CITIES } from "@/lib/constants";
 import {
   Card,
@@ -38,6 +42,9 @@ import {
 type WebsiteFilter = "all" | "none" | "outdated" | "modern";
 type ScoreFilter = "all" | "high" | "mid" | "low";
 type StatusFilter = "active" | "all" | LeadStatus;
+type LaneFilter = "all" | CampaignLane;
+type ContactTypeFilter = "all" | LeadContactType;
+type PlaybookFilter = "all" | CampaignPlaybookId;
 
 const terminalStatuses = new Set<LeadStatus>(["booked", "not_interested", "dnc"]);
 
@@ -45,10 +52,14 @@ export function LeadsView({
   onOpenLead,
   onCall,
   refreshKey = 0,
+  campaignFilter = null,
+  onClearCampaignFilter,
 }: {
   onOpenLead: (lead: Lead) => void;
   onCall: (lead: Lead) => void;
   refreshKey?: number;
+  campaignFilter?: CampaignFilter | null;
+  onClearCampaignFilter?: () => void;
 }) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
@@ -58,6 +69,13 @@ export function LeadsView({
   const [scoreFilter, setScoreFilter] = useState<ScoreFilter>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
+  const [laneFilter, setLaneFilter] = useState<LaneFilter>(campaignFilter?.lane ?? "all");
+  const [playbookFilter, setPlaybookFilter] = useState<PlaybookFilter>(
+    campaignFilter?.playbook ?? "all"
+  );
+  const [contactTypeFilter, setContactTypeFilter] = useState<ContactTypeFilter>("all");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [serviceAreaFilter, setServiceAreaFilter] = useState<string>("all");
 
   const [scrapeCity, setScrapeCity] = useState<string>("Grand Rapids");
   const [scraping, setScraping] = useState(false);
@@ -94,16 +112,62 @@ export function LeadsView({
     fetchLeads();
   }, [fetchLeads, refreshKey]);
 
+  useEffect(() => {
+    setLaneFilter(campaignFilter?.lane ?? "all");
+    setPlaybookFilter(campaignFilter?.playbook ?? "all");
+  }, [campaignFilter]);
+
   const categories = useMemo(() => {
     const set = new Set(leads.map((l) => l.category));
     return ["all", ...Array.from(set).sort()];
   }, [leads]);
+
+  const sources = useMemo(() => {
+    const set = new Set(leads.map((lead) => lead.source?.trim()).filter(Boolean) as string[]);
+    return ["all", ...Array.from(set).sort()];
+  }, [leads]);
+
+  const serviceAreas = useMemo(() => {
+    const set = new Set(
+      leads
+        .map((lead) => (lead.serviceArea || lead.city || "").trim())
+        .filter(Boolean) as string[]
+    );
+    return ["all", ...Array.from(set).sort()];
+  }, [leads]);
+
+  const playbookOptions = useMemo(
+    () =>
+      campaignPlaybooks.filter(
+        (playbook) => laneFilter === "all" || playbook.lane === laneFilter
+      ),
+    [laneFilter]
+  );
+
+  function applyLaneFilter(next: LaneFilter) {
+    setLaneFilter(next);
+    if (
+      playbookFilter !== "all" &&
+      next !== "all" &&
+      campaignPlaybooks.find((playbook) => playbook.id === playbookFilter)?.lane !== next
+    ) {
+      setPlaybookFilter("all");
+    }
+  }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return leads.filter((l) => {
       if (websiteFilter !== "all" && l.websiteStatus !== websiteFilter) return false;
       if (categoryFilter !== "all" && l.category !== categoryFilter) return false;
+      if (laneFilter !== "all" && l.campaignLane !== laneFilter) return false;
+      if (playbookFilter !== "all" && l.playbook !== playbookFilter) return false;
+      if (contactTypeFilter !== "all" && (l.contactType ?? "business") !== contactTypeFilter) {
+        return false;
+      }
+      if (sourceFilter !== "all" && (l.source ?? "") !== sourceFilter) return false;
+      const area = l.serviceArea || l.city || "";
+      if (serviceAreaFilter !== "all" && area !== serviceAreaFilter) return false;
       const status = l.status ?? "new";
       if (statusFilter === "active" && terminalStatuses.has(status)) return false;
       if (statusFilter !== "active" && statusFilter !== "all" && status !== statusFilter) return false;
@@ -120,7 +184,19 @@ export function LeadsView({
       }
       return true;
     });
-  }, [leads, search, websiteFilter, categoryFilter, scoreFilter, statusFilter]);
+  }, [
+    leads,
+    search,
+    websiteFilter,
+    categoryFilter,
+    scoreFilter,
+    statusFilter,
+    laneFilter,
+    playbookFilter,
+    contactTypeFilter,
+    sourceFilter,
+    serviceAreaFilter,
+  ]);
 
   const callableFiltered = useMemo(
     () => filtered.filter((lead) => !terminalStatuses.has(lead.status ?? "new")),
@@ -265,7 +341,12 @@ export function LeadsView({
     (websiteFilter !== "all" ? 1 : 0) +
     (scoreFilter !== "all" ? 1 : 0) +
     (categoryFilter !== "all" ? 1 : 0) +
-    (statusFilter !== "active" ? 1 : 0);
+    (statusFilter !== "active" ? 1 : 0) +
+    (laneFilter !== "all" ? 1 : 0) +
+    (playbookFilter !== "all" ? 1 : 0) +
+    (contactTypeFilter !== "all" ? 1 : 0) +
+    (sourceFilter !== "all" ? 1 : 0) +
+    (serviceAreaFilter !== "all" ? 1 : 0);
 
   return (
     <div className="space-y-6">
@@ -359,6 +440,60 @@ export function LeadsView({
               }))}
               label="Category filter"
             />
+            <Select
+              value={laneFilter}
+              onChange={applyLaneFilter}
+              options={[
+                { value: "all" as const, label: "All lanes" },
+                { value: "warm_recovery" as const, label: CAMPAIGN_LANE_LABELS.warm_recovery },
+                { value: "cold_b2b" as const, label: CAMPAIGN_LANE_LABELS.cold_b2b },
+                { value: "cold_consumer" as const, label: CAMPAIGN_LANE_LABELS.cold_consumer },
+              ]}
+              label="Campaign lane filter"
+            />
+            <Select
+              value={playbookFilter}
+              onChange={(value) => setPlaybookFilter(value)}
+              options={[
+                { value: "all" as const, label: "All playbooks" },
+                ...playbookOptions.map((playbook) => ({
+                  value: playbook.id,
+                  label: playbook.title,
+                })),
+              ]}
+              label="Playbook filter"
+              className="min-w-44"
+            />
+            <Select
+              value={contactTypeFilter}
+              onChange={(value) => setContactTypeFilter(value)}
+              options={[
+                { value: "all" as const, label: "All contacts" },
+                { value: "business" as const, label: CONTACT_TYPE_LABELS.business },
+                { value: "consumer" as const, label: CONTACT_TYPE_LABELS.consumer },
+              ]}
+              label="Contact type filter"
+            />
+            <Select
+              value={sourceFilter}
+              onChange={setSourceFilter}
+              options={sources.map((source) => ({
+                value: source,
+                label: source === "all" ? "All sources" : source,
+              }))}
+              label="Source filter"
+              className="min-w-36"
+            />
+            <Select
+              value={serviceAreaFilter}
+              onChange={setServiceAreaFilter}
+              options={serviceAreas.map((area) => ({
+                value: area,
+                label: area === "all" ? "All areas" : area,
+              }))}
+              label="Service area filter"
+              className="min-w-36"
+            />
           </div>
 
           <div className="ml-auto flex flex-wrap items-center gap-1.5 max-lg:ml-0">
@@ -397,6 +532,7 @@ export function LeadsView({
                 {filtered.length}
               </span>{" "}
               of {leads.length}
+              {campaignFilter ? ` for ${campaignFilter.label}` : ""}
             </span>
             <button
               onClick={() => {
@@ -404,6 +540,12 @@ export function LeadsView({
                 setScoreFilter("all");
                 setCategoryFilter("all");
                 setStatusFilter("active");
+                setLaneFilter("all");
+                setPlaybookFilter("all");
+                setContactTypeFilter("all");
+                setSourceFilter("all");
+                setServiceAreaFilter("all");
+                onClearCampaignFilter?.();
               }}
               className="text-foreground font-medium hover:underline"
             >

@@ -353,6 +353,12 @@ kbd {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Voice waveform — used on prelaunch live call card */
+@keyframes wavePulse {
+  0%, 100% { transform: scaleY(0.55); opacity: 0.55; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
 /* Page crossfade — used with the View Transitions API for smooth nav */
 .view-crossfade {
   view-transition-name: main-view;

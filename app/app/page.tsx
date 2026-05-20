@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Lead, NavKey, VapiCallRecord } from "@/lib/types";
+import type { CampaignFilter } from "@/lib/campaigns";
 import { Sidebar } from "@/components/app/sidebar";
 import { DialDialog } from "@/components/app/dial-dialog";
 import { TranscriptDialog } from "@/components/app/transcript-dialog";
@@ -23,18 +24,21 @@ import {
   SparkleIcon,
   UsersIcon,
   LightningIcon,
+  KanbanIcon,
 } from "@phosphor-icons/react";
 
 const mobileNavItems: { key: NavKey; label: string; icon: React.ElementType }[] = [
   { key: "Home", label: "Home", icon: HouseIcon },
   { key: "Campaigns", label: "Campaigns", icon: LightningIcon },
   { key: "CRM", label: "CRM", icon: UsersIcon },
+  { key: "Pipeline", label: "Pipeline", icon: KanbanIcon },
   { key: "Calls", label: "Calls", icon: PhoneIcon },
   { key: "Bookings", label: "Bookings", icon: CalendarIcon },
 ];
 
 export default function Dashboard() {
   const [active, setActiveState] = useState<NavKey>("Home");
+  const [campaignFilter, setCampaignFilter] = useState<CampaignFilter | null>(null);
 
   const setActive = useCallback((next: NavKey) => {
     setActiveState((prev) => {
@@ -98,6 +102,14 @@ export default function Dashboard() {
   const [dialLead, setDialLead] = useState<Lead | null>(null);
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
   const [transcriptCall, setTranscriptCall] = useState<VapiCallRecord | null>(null);
+
+  const openCampaignView = useCallback(
+    (filter: CampaignFilter, destination: Extract<NavKey, "CRM" | "Pipeline">) => {
+      setCampaignFilter(filter);
+      setActive(destination);
+    },
+    [setActive]
+  );
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -169,12 +181,19 @@ export default function Dashboard() {
             {active === "Home" && (
               <HomeView onNavigate={setActive} onCall={setDialLead} />
             )}
-            {active === "Campaigns" && <CampaignsView onNavigate={setActive} />}
+            {active === "Campaigns" && (
+              <CampaignsView
+                onNavigate={setActive}
+                onOpenCampaign={openCampaignView}
+              />
+            )}
             {active === "CRM" && (
               <LeadsView
                 onOpenLead={setDetailLead}
                 onCall={setDialLead}
                 refreshKey={leadRefreshTick}
+                campaignFilter={campaignFilter}
+                onClearCampaignFilter={() => setCampaignFilter(null)}
               />
             )}
             {active === "Pipeline" && (
@@ -182,6 +201,8 @@ export default function Dashboard() {
                 onOpenLead={setDetailLead}
                 onCall={setDialLead}
                 refreshKey={leadRefreshTick}
+                campaignFilter={campaignFilter}
+                onClearCampaignFilter={() => setCampaignFilter(null)}
               />
             )}
             {active === "Calls" && (
@@ -329,7 +350,7 @@ function MobileNav({
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
       aria-label="Primary"
     >
-      <ul className="grid grid-cols-5 gap-1">
+      <ul className="grid grid-cols-6 gap-1">
         {mobileNavItems.map((item) => {
           const Icon = item.icon;
           const selected = active === item.key;

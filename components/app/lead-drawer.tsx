@@ -22,6 +22,7 @@ import {
   CONTACT_TYPE_LABELS,
   LEAD_STATUS_LABELS,
 } from "@/lib/types";
+import { campaignPlaybooks, type CampaignPlaybookId } from "@/lib/campaigns";
 import { formatDuration, formatRelativeTime } from "@/lib/format";
 import {
   AccentButton,
@@ -69,8 +70,10 @@ type LeadPatch = {
   serviceArea?: string | null;
   estimateValueCents?: number | null;
   campaignLane?: CampaignLane | null;
-  playbook?: string | null;
+  playbook?: CampaignPlaybookId | null;
 };
+
+type PlaybookSelectValue = CampaignPlaybookId | "none";
 
 // ─── Drawer ──────────────────────────────────────────────────────────────────
 
@@ -484,6 +487,19 @@ function OverviewTab({
               {lead.callAttempts ?? 0}
             </span>
           </div>
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <span className="text-[12.5px] text-muted-foreground">DNC state</span>
+            <span
+              className={cn(
+                "text-[12.5px] font-medium",
+                (lead.status ?? "new") === "dnc"
+                  ? "text-[#A32A22]"
+                  : "text-[#2E7D4F]"
+              )}
+            >
+              {(lead.status ?? "new") === "dnc" ? "Blocked from calls" : "Callable with guardrails"}
+            </span>
+          </div>
         </div>
 
         {(lead.status ?? "new") !== "dnc" && (
@@ -508,6 +524,7 @@ function ServiceProfileEditor({
   lead: Lead;
   onPatch: (patch: LeadPatch) => void;
 }) {
+  const currentPlaybook = resolvePlaybookValue(lead.playbook);
   const [contactType, setContactType] = useState<LeadContactType>(
     lead.contactType ?? "business"
   );
@@ -525,7 +542,21 @@ function ServiceProfileEditor({
       : ""
   );
   const [consentNote, setConsentNote] = useState(lead.consentNote ?? "");
-  const [playbook, setPlaybook] = useState(lead.playbook ?? "");
+  const [playbook, setPlaybook] = useState<PlaybookSelectValue>(currentPlaybook);
+
+  const playbooksForLane = campaignPlaybooks.filter(
+    (candidate) => candidate.lane === campaignLane
+  );
+
+  function updateCampaignLane(nextLane: CampaignLane) {
+    setCampaignLane(nextLane);
+    if (
+      playbook !== "none" &&
+      campaignPlaybooks.find((candidate) => candidate.id === playbook)?.lane !== nextLane
+    ) {
+      setPlaybook("none");
+    }
+  }
 
   const dirty =
     contactType !== (lead.contactType ?? "business") ||
@@ -538,7 +569,7 @@ function ServiceProfileEditor({
         ? String(Math.round(lead.estimateValueCents / 100))
         : "") ||
     consentNote !== (lead.consentNote ?? "") ||
-    playbook !== (lead.playbook ?? "");
+    playbook !== currentPlaybook;
 
   function save() {
     const trimmedEstimate = estimateValue.trim();
@@ -555,9 +586,18 @@ function ServiceProfileEditor({
           ? Math.max(0, Math.round(numericEstimate * 100))
           : null,
       consentNote: consentNote.trim() || null,
-      playbook: playbook.trim() || null,
+      playbook: playbook === "none" ? null : playbook,
     });
   }
+
+  const complianceCopy =
+    campaignLane === "cold_consumer"
+      ? "Cold consumer outreach is locked by default. Before a live campaign, this record needs source proof, consent context, DNC checks, local-hour limits, AI disclosure, and opt-out handling."
+      : contactType === "consumer"
+      ? "Consumer records need a clear source and consent note before the rep should call. Keep warm recovery as the default lane unless the contact explicitly opted in."
+      : campaignLane === "cold_b2b"
+      ? "B2B outreach still runs through DNC, local-hour, source, and disclosure guardrails before any call."
+      : "Warm recovery is the safest lane: missed calls, forms, estimates, and past customer follow-up should still keep source notes current.";
 
   return (
     <section className="space-y-3">
@@ -592,7 +632,7 @@ function ServiceProfileEditor({
             </span>
             <Select
               value={campaignLane}
-              onChange={setCampaignLane}
+              onChange={updateCampaignLane}
               options={[
                 { value: "warm_recovery" as const, label: CAMPAIGN_LANE_LABELS.warm_recovery },
                 { value: "cold_b2b" as const, label: CAMPAIGN_LANE_LABELS.cold_b2b },
@@ -627,13 +667,24 @@ function ServiceProfileEditor({
             placeholder="2500"
             inputMode="decimal"
           />
-          <ProfileInput
-            label="Playbook"
-            value={playbook}
-            onChange={setPlaybook}
-            placeholder="estimate-follow-up"
-            className="sm:col-span-2"
-          />
+          <label className="space-y-1.5 sm:col-span-2">
+            <span className="text-[11.5px] font-medium text-muted-foreground">
+              Playbook
+            </span>
+            <Select
+              value={playbook}
+              onChange={setPlaybook}
+              options={[
+                { value: "none" as const, label: "No playbook selected" },
+                ...playbooksForLane.map((candidate) => ({
+                  value: candidate.id,
+                  label: candidate.title,
+                })),
+              ]}
+              label="Campaign playbook"
+              className="h-9 w-full"
+            />
+          </label>
           <label className="space-y-1.5 sm:col-span-2">
             <span className="text-[11.5px] font-medium text-muted-foreground">
               Consent / source note
@@ -647,12 +698,9 @@ function ServiceProfileEditor({
             />
           </label>
         </div>
-        {campaignLane === "cold_consumer" && (
-          <div className="mt-3 rounded-lg border border-[#F0D6A6] bg-[#FFF8EA] px-3 py-2 text-[12px] leading-relaxed text-[#8A5A12]">
-            Consumer cold outreach stays locked unless source, consent context, DNC,
-            local-hour limits, disclosure, and opt-out handling are present.
-          </div>
-        )}
+        <div className="mt-3 rounded-lg border border-[#F0D6A6] bg-[#FFF8EA] px-3 py-2 text-[12px] leading-relaxed text-[#8A5A12]">
+          {complianceCopy}
+        </div>
         <div className="mt-4 flex justify-end">
           <GhostButton
             onClick={save}
@@ -665,6 +713,12 @@ function ServiceProfileEditor({
       </div>
     </section>
   );
+}
+
+function resolvePlaybookValue(value?: string | null): PlaybookSelectValue {
+  return campaignPlaybooks.some((candidate) => candidate.id === value)
+    ? (value as CampaignPlaybookId)
+    : "none";
 }
 
 function ProfileInput({

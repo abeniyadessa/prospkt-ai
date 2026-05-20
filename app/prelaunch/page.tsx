@@ -102,12 +102,12 @@ export default function PrelaunchPage() {
   return (
     <main className="min-h-dvh overflow-x-hidden bg-canvas text-foreground">
       <PrelaunchAnalytics />
-      <div className="relative mx-auto flex min-h-dvh max-w-[1180px] flex-col px-4 sm:px-6 lg:px-8">
-        <header className="relative z-10 flex h-16 shrink-0 items-center justify-center sm:h-20">
+      <div className="relative mx-auto flex min-h-dvh max-w-[1180px] flex-col px-5 sm:px-6 lg:px-8">
+        <header className="relative z-10 flex h-20 shrink-0 items-center justify-center">
           <Brand />
         </header>
 
-        <section className="relative isolate pb-9 pt-3 sm:pb-16 sm:pt-8">
+        <section className="relative isolate pb-12 pt-5 sm:pb-16 sm:pt-8">
           <OrbitField />
 
           {orbitItems.map((item) => (
@@ -115,23 +115,23 @@ export default function PrelaunchPage() {
           ))}
 
           <div className="relative z-10 mx-auto w-full max-w-[860px] text-center">
-            <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[11.5px] font-medium text-muted-foreground shadow-sm sm:text-[12px]">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] font-medium text-muted-foreground shadow-sm">
               <span className="size-1.5 rounded-full bg-success" aria-hidden />
               Private beta for local service teams
             </span>
 
             <AnimatedHeadline />
 
-            <p className="mx-auto mt-4 max-w-[580px] text-pretty text-[14.5px] leading-6 text-muted-foreground sm:mt-6 sm:text-[16.5px] sm:leading-relaxed">
+            <p className="mx-auto mt-6 max-w-[580px] text-pretty text-[15.5px] leading-relaxed text-muted-foreground sm:text-[16.5px]">
               Prospkt calls back missed leads, follows up on old estimates, and
               keeps you in control of every script, approval, and handoff.
             </p>
 
-            <div className="mx-auto mt-6 max-w-[530px] sm:mt-8">
+            <div className="mx-auto mt-8 max-w-[530px]">
               <PrelaunchEmailForm />
             </div>
 
-            <div className="mx-auto mt-4 flex max-w-[680px] flex-wrap justify-center gap-1.5 text-[11.5px] text-muted-foreground sm:mt-5 sm:text-[12px]">
+            <div className="mx-auto mt-5 flex max-w-[680px] flex-wrap justify-center gap-1.5 text-[12px] text-muted-foreground">
               {proofItems.map((item) => (
                 <span
                   key={item}
@@ -170,7 +170,7 @@ function AnimatedHeadline() {
 
   return (
     <>
-      <h1 className="mx-auto mt-5 max-w-[760px] text-balance text-[34px] font-semibold leading-[1.04] text-foreground min-[420px]:text-[40px] sm:mt-6 sm:text-[60px] lg:text-[72px]">
+      <h1 className="mx-auto mt-6 max-w-[760px] text-balance text-[40px] font-semibold leading-[1.05] text-foreground sm:text-[60px] lg:text-[72px]">
         <span className="sr-only">
           An AI sales rep that calls back leads, follows up fast, and books jobs.
         </span>
@@ -302,24 +302,24 @@ function OrbitBadge({
 
 function ProductPreview() {
   return (
-    <section className="relative z-10 mx-auto w-full max-w-[920px] pb-10 sm:pb-14">
-      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-lg sm:rounded-2xl sm:shadow-xl">
-        <div className="flex items-center justify-between gap-3 border-b border-hairline bg-foreground px-3 py-3 text-white sm:px-5">
+    <section className="relative z-10 mx-auto w-full max-w-[920px] pb-14">
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline bg-foreground px-4 py-3 text-white sm:px-5">
           <div className="flex min-w-0 items-center gap-2">
             <LogoMark
-              className="size-7 rounded-lg bg-white text-foreground sm:size-8"
+              className="size-8 rounded-lg bg-white text-foreground"
               iconColor="#0A0A0A"
             />
             <div className="min-w-0 text-left">
-              <p className="truncate text-[12.5px] font-semibold sm:text-[13px]">
+              <p className="truncate text-[13px] font-semibold">
                 Today&apos;s sales rep queue
               </p>
-              <p className="truncate text-[11.5px] text-white/65 sm:text-[12px]">
+              <p className="text-[12px] text-white/65">
                 Calls, follow-ups, approvals, bookings
               </p>
             </div>
           </div>
-          <span className="hidden shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-foreground min-[380px]:inline-flex">
+          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-foreground">
             Private preview
           </span>
         </div>
@@ -380,29 +380,17 @@ function PreviewRow({
   }[tone];
 
   return (
-    <li className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 px-3 py-3 text-left sm:grid-cols-[auto_1fr_auto] sm:gap-3 sm:px-5 sm:py-4">
+    <li className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-3 text-left sm:px-5 sm:py-4">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-canvas sm:size-10">
         <Icon size={15} weight="fill" aria-hidden />
       </span>
       <div className="min-w-0">
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          <p className="truncate text-[13px] font-semibold sm:text-[13.5px]">
-            {title}
-          </p>
-          <span
-            className={cn(
-              "shrink-0 rounded-md px-2 py-1 text-[10.5px] font-medium sm:hidden",
-              toneClass
-            )}
-          >
-            {status}
-          </span>
-        </div>
+        <p className="truncate text-[13.5px] font-semibold">{title}</p>
         <p className="mt-1 truncate text-[12px] text-muted-foreground">
           {detail}
         </p>
       </div>
-      <span className={cn("hidden rounded-md px-2 py-1 text-[11px] font-medium sm:inline-flex", toneClass)}>
+      <span className={cn("rounded-md px-2 py-1 text-[11px] font-medium", toneClass)}>
         {status}
       </span>
     </li>
@@ -411,11 +399,11 @@ function PreviewRow({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-surface px-3 py-2.5 text-left sm:px-5 sm:py-4">
-      <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-[12px]">
+    <div className="bg-surface px-3 py-3 text-left sm:px-5 sm:py-4">
+      <p className="truncate text-[11.5px] font-medium text-muted-foreground sm:text-[12px]">
         {label}
       </p>
-      <p className="mt-1 text-lg font-semibold tabular-nums sm:mt-2 sm:text-2xl">
+      <p className="mt-1.5 text-xl font-semibold tabular-nums sm:mt-2 sm:text-2xl">
         {value}
       </p>
     </div>

@@ -75,7 +75,7 @@ export function PrelaunchEmailForm() {
     <form onSubmit={handleSubmit} className="w-full" noValidate>
       <div
         className={cn(
-          "group relative grid grid-cols-1 gap-1.5 rounded-2xl border bg-surface p-1.5 shadow-lg min-[430px]:grid-cols-[minmax(0,1fr)_auto] min-[430px]:rounded-[1.75rem]",
+          "group relative grid grid-cols-[minmax(0,1fr)_auto] gap-1.5 rounded-[1.75rem] border bg-surface p-1.5 shadow-lg",
           state === "error"
             ? "border-[#E5B6B1]"
             : "border-border focus-within:border-foreground"
@@ -95,12 +95,12 @@ export function PrelaunchEmailForm() {
           aria-invalid={state === "error"}
           aria-describedby="prelaunch-form-message"
           disabled={submitting || success}
-          className="h-11 rounded-xl border-transparent bg-canvas px-4 text-center text-[14.5px] placeholder:text-subtle focus-visible:border-border min-[430px]:rounded-full min-[430px]:text-left"
+          className="h-11 rounded-full border-transparent bg-canvas px-4 text-[14.5px] placeholder:text-subtle focus-visible:border-border"
         />
         <Button
           type="submit"
           disabled={submitting || success}
-          className="h-11 justify-center rounded-xl px-4 text-[13px] min-[430px]:rounded-full sm:px-5"
+          className="h-11 rounded-full px-4 text-[13px] sm:px-5"
         >
           {submitting ? (
             <CircleNotchIcon size={14} className="animate-spin" aria-hidden />

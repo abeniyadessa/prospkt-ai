@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher([
   "/app(.*)",
@@ -24,6 +25,14 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
+  const { pathname } = request.nextUrl;
+  const isPageRequest = request.method === "GET" || request.method === "HEAD";
+  const isPrelaunchPath = pathname === "/prelaunch" || pathname.startsWith("/prelaunch/");
+
+  if (isPageRequest && !isPrelaunchPath && !pathname.startsWith("/api/")) {
+    return NextResponse.redirect(new URL("/prelaunch", request.url));
+  }
+
   if (isProtectedRoute(request)) {
     await auth.protect({
       unauthenticatedUrl: new URL("/sign-in", request.url).toString(),

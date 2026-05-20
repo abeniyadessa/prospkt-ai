@@ -329,20 +329,14 @@ function ProductPreview() {
 
         <div className="grid gap-px bg-hairline md:grid-cols-[1fr_0.4fr]">
           <div className="bg-surface text-left">
-            <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
-              <div>
-                <p className="text-[13px] font-semibold">
-                  One missed call becomes a scheduled job.
-                </p>
-                <p className="mt-1 max-w-[500px] text-pretty text-[12.5px] leading-5 text-muted-foreground">
-                  Prospkt handles the callback, keeps the conversation inside
-                  your guardrails, and prepares the booking for approval.
-                </p>
-              </div>
-              <div className="flex items-center gap-2 rounded-full border border-hairline bg-canvas px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
-                <span className="size-1.5 rounded-full bg-success" aria-hidden />
-                Live call flow
-              </div>
+            <div className="p-5 sm:p-6">
+              <p className="text-[13px] font-semibold">
+                One missed call becomes a scheduled job.
+              </p>
+              <p className="mt-1 max-w-[520px] text-pretty text-[12.5px] leading-5 text-muted-foreground">
+                Prospkt handles the callback, keeps the conversation inside
+                your guardrails, and prepares the booking for approval.
+              </p>
             </div>
 
             <ul className="divide-y divide-hairline border-t border-hairline">

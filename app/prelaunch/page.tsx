@@ -74,28 +74,31 @@ const proofItems = [
   "Owner-approved outreach",
 ];
 
-const previewRows = [
+const previewSteps = [
   {
-    title: "Missed call callback",
-    detail: "AI rep calls back while the lead is still warm.",
-    status: "Calling",
+    time: "00:00",
+    title: "Missed lead captured",
+    detail: "Website call from a homeowner with an active leak.",
     icon: PhoneCallIcon,
-    tone: "dark",
   },
   {
-    title: "Estimate follow-up",
-    detail: "$4,800 quote revived with an owner-approved script.",
-    status: "Ready",
-    icon: WrenchIcon,
-    tone: "warm",
+    time: "00:04",
+    title: "AI callback starts",
+    detail: "Prospkt calls back with your approved service script.",
+    icon: LightningIcon,
   },
   {
-    title: "Booking confirmed",
-    detail: "Customer chooses a service window and the job is logged.",
-    status: "Booked",
+    time: "03:12",
+    title: "Booking window held",
+    detail: "Thursday 9-11 is ready for owner approval.",
     icon: CalendarCheckIcon,
-    tone: "green",
   },
+] as const;
+
+const ownerChecks = [
+  ["Review before confirmation", "On"],
+  ["Daily call cap", "20/day"],
+  ["DNC + local-hour checks", "Passed"],
 ] as const;
 
 export default function PrelaunchPage() {
@@ -302,8 +305,8 @@ function OrbitBadge({
 
 function ProductPreview() {
   return (
-    <section className="relative z-10 mx-auto w-full max-w-[920px] pb-14">
-      <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
+    <section className="relative z-10 mx-auto w-full max-w-[900px] pb-14">
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-lg">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline bg-foreground px-4 py-3 text-white sm:px-5">
           <div className="flex min-w-0 items-center gap-2">
             <LogoMark
@@ -312,52 +315,57 @@ function ProductPreview() {
             />
             <div className="min-w-0 text-left">
               <p className="truncate text-[13px] font-semibold">
-                Today&apos;s sales rep queue
+                Private beta preview
               </p>
               <p className="text-[12px] text-white/65">
-                Calls, follow-ups, approvals, bookings
+                Missed call to booked job
               </p>
             </div>
           </div>
           <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-foreground">
-            Private preview
+            Owner-approved
           </span>
         </div>
 
-        <div className="grid gap-px bg-hairline md:grid-cols-[1fr_0.42fr]">
-          <div className="bg-surface">
-            <div className="grid grid-cols-3 gap-px bg-hairline">
-              <Stat label="Callbacks" value="18" />
-              <Stat label="Follow-ups" value="42" />
-              <Stat label="Booked" value="7" />
+        <div className="grid gap-px bg-hairline md:grid-cols-[1fr_0.4fr]">
+          <div className="bg-surface text-left">
+            <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
+              <div>
+                <p className="text-[13px] font-semibold">
+                  One missed call becomes a scheduled job.
+                </p>
+                <p className="mt-1 max-w-[500px] text-pretty text-[12.5px] leading-5 text-muted-foreground">
+                  Prospkt handles the callback, keeps the conversation inside
+                  your guardrails, and prepares the booking for approval.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-hairline bg-canvas px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
+                <span className="size-1.5 rounded-full bg-success" aria-hidden />
+                Live call flow
+              </div>
             </div>
 
-            <ul className="divide-y divide-hairline">
-              {previewRows.map((row) => (
-                <PreviewRow key={row.title} {...row} />
+            <ul className="divide-y divide-hairline border-t border-hairline">
+              {previewSteps.map((step) => (
+                <PreviewStep key={step.title} {...step} />
               ))}
             </ul>
           </div>
 
-          <div className="hidden bg-canvas p-4 md:block">
-            <div className="rounded-xl border border-hairline bg-surface p-4 text-left">
+          <div className="bg-canvas p-5 text-left sm:p-6">
+            <div className="flex items-center gap-2">
+              <ShieldCheckIcon size={15} weight="fill" color="#2E7D4F" aria-hidden />
               <p className="text-[12px] font-semibold">Owner controls</p>
-              <div className="mt-4 space-y-3">
-                <ControlRow label="Approve before outreach" value="On" />
-                <ControlRow label="Daily call cap" value="20" />
-                <ControlRow label="Consumer cold calls" value="Locked" />
-              </div>
             </div>
+            <p className="mt-2 text-pretty text-[11.5px] leading-5 text-muted-foreground">
+              Built for phone, calendar, and CRM handoff without giving the AI
+              a blank check.
+            </p>
 
-            <div className="mt-3 rounded-xl border border-hairline bg-[#F4F8F5] p-4 text-left">
-              <div className="flex items-center gap-2">
-                <ShieldCheckIcon size={15} weight="fill" color="#2E7D4F" aria-hidden />
-                <p className="text-[12px] font-semibold">Guardrails built in</p>
-              </div>
-              <p className="mt-2 text-pretty text-[11.5px] leading-5 text-muted-foreground">
-                Source, DNC, local-hour, disclosure, and owner pause checks sit
-                in the loop.
-              </p>
+            <div className="mt-5 space-y-3">
+              {ownerChecks.map(([label, value]) => (
+                <ControlRow key={label} label={label} value={value} />
+              ))}
             </div>
           </div>
         </div>
@@ -366,47 +374,27 @@ function ProductPreview() {
   );
 }
 
-function PreviewRow({
+function PreviewStep({
+  time,
   title,
   detail,
-  status,
   icon: Icon,
-  tone,
-}: (typeof previewRows)[number]) {
-  const toneClass = {
-    dark: "bg-foreground text-white",
-    warm: "bg-[#F7ECD8] text-[#9A6619]",
-    green: "bg-[#E8F3EC] text-[#2E7D4F]",
-  }[tone];
-
+}: (typeof previewSteps)[number]) {
   return (
-    <li className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-3 text-left sm:px-5 sm:py-4">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-canvas sm:size-10">
+    <li className="grid grid-cols-[3rem_auto_1fr] items-start gap-3 px-5 py-4 sm:px-6">
+      <p className="pt-2 text-[11px] font-medium tabular-nums text-muted-foreground">
+        {time}
+      </p>
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-canvas">
         <Icon size={15} weight="fill" aria-hidden />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-[13.5px] font-semibold">{title}</p>
-        <p className="mt-1 truncate text-[12px] text-muted-foreground">
+        <p className="text-[13px] font-semibold">{title}</p>
+        <p className="mt-1 text-pretty text-[12px] leading-5 text-muted-foreground">
           {detail}
         </p>
       </div>
-      <span className={cn("rounded-md px-2 py-1 text-[11px] font-medium", toneClass)}>
-        {status}
-      </span>
     </li>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-surface px-3 py-3 text-left sm:px-5 sm:py-4">
-      <p className="truncate text-[11.5px] font-medium text-muted-foreground sm:text-[12px]">
-        {label}
-      </p>
-      <p className="mt-1.5 text-xl font-semibold tabular-nums sm:mt-2 sm:text-2xl">
-        {value}
-      </p>
-    </div>
   );
 }
 

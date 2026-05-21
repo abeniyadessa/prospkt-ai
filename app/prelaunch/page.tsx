@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import {
-  CalendarCheckIcon,
   LightningIcon,
   LinkedinLogoIcon,
-  PhoneCallIcon,
-  ShieldCheckIcon,
-  WrenchIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { PrelaunchAnalytics } from "@/components/marketing/prelaunch-analytics";
 import { PrelaunchEmailForm } from "@/components/marketing/prelaunch-email-form";
@@ -45,110 +41,72 @@ export const metadata: Metadata = {
   },
 };
 
-const orbitItems = [
-  {
-    title: "Missed calls",
-    icon: PhoneCallIcon,
-    className: "left-0 top-[23%]",
-  },
-  {
-    title: "Estimate follow-up",
-    icon: WrenchIcon,
-    className: "right-0 top-[20%]",
-  },
-  {
-    title: "Owner approval",
-    icon: ShieldCheckIcon,
-    className: "left-10 bottom-[22%]",
-  },
-  {
-    title: "Booked jobs",
-    icon: CalendarCheckIcon,
-    className: "right-10 bottom-[24%]",
-  },
-] as const;
-
 const proofItems = [
   "Private beta",
   "Open source",
   "Owner-approved outreach",
 ];
 
-const previewSteps = [
+const transcriptLines = [
   {
-    time: "00:00",
-    title: "Missed lead captured",
-    detail: "Website call from a homeowner with an active leak.",
-    icon: PhoneCallIcon,
+    speaker: "Prospkt",
+    time: "00:07",
+    text: "Hi Angela, this is Sarah with Greenway Services. I saw you requested a quote online. Is now still a good time?",
   },
   {
-    time: "00:04",
-    title: "AI callback starts",
-    detail: "Prospkt calls back with your approved service script.",
-    icon: LightningIcon,
-  },
-  {
-    time: "03:12",
-    title: "Booking window held",
-    detail: "Thursday 9-11 is ready for owner approval.",
-    icon: CalendarCheckIcon,
+    speaker: "Angela",
+    time: "00:11",
+    text: "Yes, I'm available. We'd like to get our deck replaced.",
   },
 ] as const;
 
-const ownerChecks = [
-  ["Review before confirmation", "On"],
-  ["Daily call cap", "20/day"],
-  ["DNC + local-hour checks", "Passed"],
+const headlinePhrases = [
+  "Leads pick up.",
+  "Jobs get booked.",
+  "You stay in control.",
+] as const;
+
+const waveformBars = [
+  10, 14, 20, 16, 28, 38, 24, 44, 18, 34, 48, 26, 58, 42, 30, 52, 36, 22, 46,
+  62, 34, 18, 40, 54, 28, 50, 36, 24, 44, 32, 16, 26,
 ] as const;
 
 export default function PrelaunchPage() {
   return (
     <main className="min-h-dvh overflow-x-hidden bg-canvas text-foreground">
       <PrelaunchAnalytics />
-      <div className="relative mx-auto flex min-h-dvh max-w-[1180px] flex-col px-5 sm:px-6 lg:px-8">
-        <header className="relative z-10 flex h-20 shrink-0 items-center justify-center">
+      <div className="relative mx-auto flex min-h-dvh max-w-[1120px] flex-col px-5 sm:px-6 lg:px-8">
+        <section className="relative mx-auto flex w-full flex-1 flex-col items-center pb-12 pt-10 text-center sm:pb-16 sm:pt-16">
           <Brand />
-        </header>
 
-        <section className="relative isolate pb-12 pt-5 sm:pb-16 sm:pt-8">
-          <OrbitField />
+          <h1 className="mx-auto mt-9 max-w-[820px] text-balance text-[36px] font-semibold leading-[1.06] text-foreground sm:text-[56px] lg:text-[62px]">
+            <span className="block">Your AI agent calls.</span>
+            <AnimatedOutcome />
+          </h1>
 
-          {orbitItems.map((item) => (
-            <OrbitBadge key={item.title} {...item} />
-          ))}
+          <p className="mx-auto mt-5 max-w-[520px] text-pretty text-[15px] leading-7 text-muted-foreground sm:text-[16px]">
+            Hear how Prospkt turns a missed call into a booked job.
+          </p>
 
-          <div className="relative z-10 mx-auto w-full max-w-[860px] text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] font-medium text-muted-foreground shadow-sm">
-              <span className="size-1.5 rounded-full bg-success" aria-hidden />
-              Private beta for local service teams
-            </span>
+          <VoiceDemo />
 
-            <AnimatedHeadline />
+          <div className="mx-auto mt-8 w-full max-w-[530px]">
+            <PrelaunchEmailForm />
+          </div>
 
-            <p className="mx-auto mt-6 max-w-[580px] text-pretty text-[15.5px] leading-relaxed text-muted-foreground sm:text-[16.5px]">
-              Prospkt calls back missed leads, follows up on old estimates, and
-              keeps you in control of every script, approval, and handoff.
-            </p>
-
-            <div className="mx-auto mt-8 max-w-[530px]">
-              <PrelaunchEmailForm />
-            </div>
-
-            <div className="mx-auto mt-5 flex max-w-[680px] flex-wrap justify-center gap-1.5 text-[12px] text-muted-foreground">
-              {proofItems.map((item) => (
-                <span
-                  key={item}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface px-2.5 py-1"
-                >
-                  <span className="size-1 rounded-full bg-subtle" aria-hidden />
-                  {item}
-                </span>
-              ))}
-            </div>
+          <div className="mx-auto mt-5 flex max-w-[680px] flex-wrap justify-center gap-2 text-[12px] text-muted-foreground">
+            {proofItems.map((item) => (
+              <span
+                key={item}
+                className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface px-3 py-1.5"
+              >
+                <span className="size-1.5 rounded-full bg-success" aria-hidden />
+                {item}
+              </span>
+            ))}
           </div>
         </section>
 
-        <ProductPreview />
         <Footer />
       </div>
     </main>
@@ -160,84 +118,78 @@ function Brand() {
     <div className="inline-flex items-center justify-center gap-2.5">
       <LogoMark className="size-9 rounded-xl" />
       <span className="text-[17px] font-semibold leading-none">Prospkt</span>
+      <span className="ml-2 rounded-full border border-[#BFE8CA] bg-[#F2FBF4] px-2.5 py-1 text-[10.5px] font-medium text-[#16823D]">
+        Early access
+      </span>
     </div>
   );
 }
 
-function AnimatedHeadline() {
-  const phrases = [
-    "calls back leads.",
-    "follows up fast.",
-    "books jobs.",
-  ];
-
+function AnimatedOutcome() {
   return (
     <>
-      <h1 className="mx-auto mt-6 max-w-[760px] text-balance text-[40px] font-semibold leading-[1.05] text-foreground sm:text-[60px] lg:text-[72px]">
-        <span className="sr-only">
-          An AI sales rep that calls back leads, follows up fast, and books jobs.
-        </span>
-        <span aria-hidden="true" className="block">
-          An AI sales rep that
-        </span>
-        <span
-          aria-hidden="true"
-          className="prelaunch-headline-rotator mx-auto mt-1 block h-[1.08em] max-w-full overflow-hidden text-center"
-        >
-          {phrases.map((phrase, index) => (
-            <span
-              key={phrase}
-              className="prelaunch-headline-phrase"
-              style={{ animationDelay: `${index * 2.8}s` }}
-            >
+      <span className="sr-only">
+        Leads pick up. Jobs get booked. You stay in control.
+      </span>
+      <span
+        aria-hidden="true"
+        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-[#16823D]"
+      >
+        <span className="prelaunch-outcome-track">
+          {[...headlinePhrases, headlinePhrases[0]].map((phrase, index) => (
+            <span key={`${phrase}-${index}`} className="prelaunch-outcome-row">
               {phrase}
             </span>
           ))}
         </span>
-      </h1>
+      </span>
       <style>{`
-        .prelaunch-headline-rotator {
-          display: grid;
+        .prelaunch-outcome-rotator {
+          display: block;
         }
 
-        .prelaunch-headline-phrase {
-          grid-area: 1 / 1;
-          opacity: 0;
-          transform: translateY(0.28em);
-          animation: prelaunchHeadlineSwap 8.4s ease-out infinite;
+        .prelaunch-outcome-track {
+          display: flex;
+          flex-direction: column;
+          animation: prelaunchOutcomeRoll 8.4s ease-in-out infinite;
         }
 
-        @keyframes prelaunchHeadlineSwap {
+        .prelaunch-outcome-row {
+          display: flex;
+          min-height: 1.32em;
+          align-items: center;
+          justify-content: center;
+          white-space: nowrap;
+        }
+
+        @keyframes prelaunchOutcomeRoll {
           0%,
-          6% {
-            opacity: 0;
-            transform: translateY(0.28em);
+          22% {
+            transform: translate3d(0, 0, 0);
           }
 
-          11%,
-          31% {
-            opacity: 1;
-            transform: translateY(0);
+          32%,
+          54% {
+            transform: translate3d(0, -25%, 0);
           }
 
-          37%,
+          64%,
+          86% {
+            transform: translate3d(0, -50%, 0);
+          }
+
           100% {
-            opacity: 0;
-            transform: translateY(-0.28em);
+            transform: translate3d(0, -75%, 0);
           }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .prelaunch-headline-phrase {
+          .prelaunch-outcome-track {
             animation: none;
             transform: none;
           }
 
-          .prelaunch-headline-phrase:first-child {
-            opacity: 1;
-          }
-
-          .prelaunch-headline-phrase:not(:first-child) {
+          .prelaunch-outcome-row:not(:first-child) {
             display: none;
           }
         }
@@ -266,139 +218,136 @@ function LogoMark({
   );
 }
 
-function OrbitField() {
+function VoiceDemo() {
   return (
-    <div
-      className="pointer-events-none absolute left-1/2 top-1/2 hidden size-[820px] -translate-x-1/2 -translate-y-1/2 md:block"
-      aria-hidden
-    >
-      <div className="absolute inset-[14%] rounded-full border border-hairline" />
-      <div className="absolute inset-0 rounded-full border border-hairline" />
-      <div className="absolute -inset-[18%] rounded-full border border-hairline" />
-      <div className="absolute left-[16%] top-[30%] size-1 rounded-full bg-border" />
-      <div className="absolute right-[20%] top-[38%] size-1 rounded-full bg-border" />
-      <div className="absolute bottom-[23%] left-[25%] size-1 rounded-full bg-border" />
-      <div className="absolute bottom-[27%] right-[18%] size-1 rounded-full bg-border" />
+    <div className="prelaunch-voice-demo mx-auto mt-9 w-full max-w-[720px] rounded-2xl border border-border bg-surface p-4 text-left shadow-lg sm:p-6">
+      <div className="grid gap-4 sm:grid-cols-[auto_1fr_auto] sm:items-center">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:contents">
+          <VoiceEndpoint
+            label="AI rep"
+            name="Prospkt"
+            time="00:00"
+            withLogo
+            className="sm:col-start-1 sm:row-start-1"
+          />
+          <VoiceEndpoint
+            label="Caller"
+            name="Angela"
+            time="02:14"
+            align="right"
+            className="sm:col-start-3 sm:row-start-1"
+          />
+        </div>
+
+        <div className="prelaunch-audio-strip flex min-w-0 items-center gap-2.5 rounded-2xl border border-hairline bg-canvas px-3 py-3 sm:col-start-2 sm:row-start-1 sm:gap-3 sm:border-0 sm:bg-transparent sm:px-1 sm:py-0">
+          <Waveform />
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-foreground text-white shadow-sm sm:size-12">
+            <span
+              className="ml-0.5 h-0 w-0 border-y-[7px] border-l-[10px] border-y-transparent border-l-white"
+              aria-hidden
+            />
+          </span>
+          <Waveform reverse />
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 min-[520px]:grid-cols-2 sm:mt-6">
+        {transcriptLines.map((line) => (
+          <TranscriptCard key={`${line.speaker}-${line.time}`} {...line} />
+        ))}
+      </div>
     </div>
   );
 }
 
-function OrbitBadge({
-  title,
-  icon: Icon,
+function VoiceEndpoint({
+  label,
+  name,
+  time,
+  align = "left",
+  withLogo = false,
   className,
-}: (typeof orbitItems)[number]) {
+}: {
+  label: string;
+  name: string;
+  time: string;
+  align?: "left" | "right";
+  withLogo?: boolean;
+  className?: string;
+}) {
   return (
     <div
       className={cn(
-        "absolute z-10 hidden items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-left shadow-md lg:flex",
+        "flex min-w-0 items-center gap-3",
+        align === "right" && "justify-end text-right",
         className
       )}
     >
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-canvas">
-        <Icon size={13} weight="fill" aria-hidden />
-      </span>
-      <span className="block truncate text-[12px] font-medium">{title}</span>
+      {withLogo ? <LogoMark className="size-9 shrink-0 rounded-xl" /> : null}
+      <div className="min-w-0">
+        <p className="truncate text-[12px] text-muted-foreground">{label}</p>
+        <p className="truncate text-[13px] font-semibold">{name}</p>
+        <p className="mt-0.5 text-[11px] tabular-nums text-subtle">{time}</p>
+      </div>
     </div>
   );
 }
 
-function ProductPreview() {
+function Waveform({ reverse = false }: { reverse?: boolean }) {
+  const bars = reverse ? [...waveformBars].reverse() : waveformBars;
+  const barWidth = 3;
+  const gap = 5;
+  const viewBoxWidth = bars.length * barWidth + (bars.length - 1) * gap;
+
   return (
-    <section className="relative z-10 mx-auto w-full max-w-[900px] pb-14">
-      <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-lg">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline bg-foreground px-4 py-3 text-white sm:px-5">
-          <div className="flex min-w-0 items-center gap-2">
-            <LogoMark
-              className="size-8 rounded-lg bg-white text-foreground"
-              iconColor="#0A0A0A"
-            />
-            <div className="min-w-0 text-left">
-              <p className="truncate text-[13px] font-semibold">
-                Private beta preview
-              </p>
-              <p className="text-[12px] text-white/65">
-                Missed call to booked job
-              </p>
-            </div>
-          </div>
-          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-foreground">
-            Owner-approved
-          </span>
-        </div>
-
-        <div className="grid gap-px bg-hairline md:grid-cols-[1fr_0.4fr]">
-          <div className="bg-surface text-left">
-            <div className="p-5 sm:p-6">
-              <p className="text-[13px] font-semibold">
-                One missed call becomes a scheduled job.
-              </p>
-              <p className="mt-1 max-w-[520px] text-pretty text-[12.5px] leading-5 text-muted-foreground">
-                Prospkt handles the callback, keeps the conversation inside
-                your guardrails, and prepares the booking for approval.
-              </p>
-            </div>
-
-            <ul className="divide-y divide-hairline border-t border-hairline">
-              {previewSteps.map((step) => (
-                <PreviewStep key={step.title} {...step} />
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-canvas p-5 text-left sm:p-6">
-            <div className="flex items-center gap-2">
-              <ShieldCheckIcon size={15} weight="fill" color="#2E7D4F" aria-hidden />
-              <p className="text-[12px] font-semibold">Owner controls</p>
-            </div>
-            <p className="mt-2 text-pretty text-[11.5px] leading-5 text-muted-foreground">
-              Built for phone, calendar, and CRM handoff without giving the AI
-              a blank check.
-            </p>
-
-            <div className="mt-5 space-y-3">
-              {ownerChecks.map(([label, value]) => (
-                <ControlRow key={label} label={label} value={value} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <div className="prelaunch-waveform min-w-0 flex-1">
+      <svg
+        className="h-9 w-full sm:h-10"
+        viewBox={`0 0 ${viewBoxWidth} 72`}
+        preserveAspectRatio="none"
+        shapeRendering="geometricPrecision"
+        aria-hidden
+      >
+        <line
+          x1="0"
+          x2={viewBoxWidth}
+          y1="36"
+          y2="36"
+          stroke="#E6E6E6"
+          strokeWidth="1"
+        />
+        {bars.map((height, index) => (
+          <rect
+            key={`${height}-${index}`}
+            x={index * (barWidth + gap)}
+            y={(72 - height) / 2}
+            width={barWidth}
+            height={height}
+            rx="2"
+            fill="#C7C7C7"
+          />
+        ))}
+      </svg>
+    </div>
   );
 }
 
-function PreviewStep({
+function TranscriptCard({
+  speaker,
   time,
-  title,
-  detail,
-  icon: Icon,
-}: (typeof previewSteps)[number]) {
+  text,
+}: (typeof transcriptLines)[number]) {
   return (
-    <li className="grid grid-cols-[3rem_auto_1fr] items-start gap-3 px-5 py-4 sm:px-6">
-      <p className="pt-2 text-[11px] font-medium tabular-nums text-muted-foreground">
-        {time}
-      </p>
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-canvas">
-        <Icon size={15} weight="fill" aria-hidden />
-      </span>
-      <div className="min-w-0">
-        <p className="text-[13px] font-semibold">{title}</p>
-        <p className="mt-1 text-pretty text-[12px] leading-5 text-muted-foreground">
-          {detail}
+    <div className="rounded-xl bg-canvas p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-medium text-muted-foreground">
+          {speaker}
         </p>
+        <p className="text-[11px] tabular-nums text-subtle">{time}</p>
       </div>
-    </li>
-  );
-}
-
-function ControlRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-[12px] text-muted-foreground">{label}</span>
-      <span className="rounded-md border border-border bg-surface px-2 py-1 text-[11px] font-medium">
-        {value}
-      </span>
+      <p className="mt-2 text-pretty text-[12px] leading-5 text-foreground">
+        {text}
+      </p>
     </div>
   );
 }

@@ -15,7 +15,7 @@ const MAX_DURATION_SECONDS = 60;
 type FetchTokenState =
   | { status: "idle" }
   | { status: "fetching" }
-  | { status: "ready"; token: string }
+  | { status: "ready"; token: string; configId?: string }
   | { status: "error"; message: string };
 
 export function PrelaunchLiveDemo() {
@@ -26,12 +26,16 @@ export function PrelaunchLiveDemo() {
     try {
       const res = await fetch("/api/voice/hume-token", { method: "POST" });
       const data = (await res.json()) as
-        | { ok: true; accessToken: string }
+        | { ok: true; accessToken: string; configId?: string }
         | { ok: false; error: string };
       if (!res.ok || !data.ok) {
         throw new Error(("error" in data && data.error) || "Failed to start session.");
       }
-      setTokenState({ status: "ready", token: data.accessToken });
+      setTokenState({
+        status: "ready",
+        token: data.accessToken,
+        configId: data.configId,
+      });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not start the voice demo.";
@@ -45,8 +49,19 @@ export function PrelaunchLiveDemo() {
 
   if (tokenState.status === "ready") {
     return (
-      <VoiceProvider>
-        <ActiveSession token={tokenState.token} onEnd={reset} />
+      <VoiceProvider
+        onOpen={() => console.log("[hume] socket opened")}
+        onClose={(event) => console.log("[hume] socket closed", event)}
+        onError={(err) => console.error("[hume] voice error", err)}
+        onMessage={(msg) => console.log("[hume] message:", msg.type, msg)}
+        onAudioStart={(clipId) => console.log("[hume] audio start", clipId)}
+        onAudioEnd={(clipId) => console.log("[hume] audio end", clipId)}
+      >
+        <ActiveSession
+          token={tokenState.token}
+          configId={tokenState.configId}
+          onEnd={reset}
+        />
       </VoiceProvider>
     );
   }
@@ -126,7 +141,15 @@ type TranscriptMessage = {
   text: string;
 };
 
-function ActiveSession({ token, onEnd }: { token: string; onEnd: () => void }) {
+function ActiveSession({
+  token,
+  configId,
+  onEnd,
+}: {
+  token: string;
+  configId?: string;
+  onEnd: () => void;
+}) {
   const voice = useVoice();
   const { status, messages, isMuted, fft } = voice;
   const [secondsLeft, setSecondsLeft] = useState(MAX_DURATION_SECONDS);
@@ -152,13 +175,19 @@ function ActiveSession({ token, onEnd }: { token: string; onEnd: () => void }) {
   useEffect(() => {
     if (connectAttempted.current) return;
     connectAttempted.current = true;
-    voiceRef.current.connect({ auth: { type: "accessToken", value: token } }).catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : "Could not connect.";
-      console.error("[hume] connect failed", err);
-      window.alert(message);
-      onEndRef.current();
-    });
-  }, [token]);
+    voiceRef.current
+      .connect({
+        auth: { type: "accessToken", value: token },
+        ...(configId ? { configId } : {}),
+      })
+      .catch((err: unknown) => {
+        const message =
+          err instanceof Error ? err.message : "Could not connect.";
+        console.error("[hume] connect failed", err);
+        window.alert(message);
+        onEndRef.current();
+      });
+  }, [token, configId]);
 
   // Countdown timer — depends only on whether we're connected and the
   // current seconds. No function refs in deps.

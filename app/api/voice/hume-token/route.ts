@@ -60,7 +60,8 @@ export async function POST(request: Request) {
 
   try {
     const accessToken = await fetchAccessToken({ apiKey, secretKey });
-    return NextResponse.json({ ok: true, accessToken });
+    const configId = process.env.HUME_EVI_CONFIG_ID;
+    return NextResponse.json({ ok: true, accessToken, configId });
   } catch (error) {
     console.error("Hume token exchange failed:", error);
     return NextResponse.json(

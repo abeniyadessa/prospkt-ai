@@ -127,58 +127,69 @@ type TranscriptMessage = {
 };
 
 function ActiveSession({ token, onEnd }: { token: string; onEnd: () => void }) {
-  const { connect, disconnect, status, messages, isMuted, mute, unmute, fft } = useVoice();
+  const voice = useVoice();
+  const { status, messages, isMuted, fft } = voice;
   const [secondsLeft, setSecondsLeft] = useState(MAX_DURATION_SECONDS);
-  const [hasConnected, setHasConnected] = useState(false);
+
+  // Hold all of Hume's hook-returned functions in a ref so effects never
+  // re-fire when those references change between renders (which they do
+  // every render — Hume returns fresh closures). This is the cure for the
+  // "Maximum update depth exceeded" loop. Ref values get synced in an
+  // effect (not during render) per React 19 rules.
+  const voiceRef = useRef(voice);
+  const onEndRef = useRef(onEnd);
+  useEffect(() => {
+    voiceRef.current = voice;
+    onEndRef.current = onEnd;
+  });
+
+  const isConnected = status.value === "connected";
   const connectAttempted = useRef(false);
 
-  // Auto-connect on mount.
+  // Auto-connect on mount. Depends only on `token` so we run it exactly once
+  // per session — never re-runs because Hume's connect/disconnect references
+  // changed.
   useEffect(() => {
     if (connectAttempted.current) return;
     connectAttempted.current = true;
-    connect({ auth: { type: "accessToken", value: token } }).catch((err: unknown) => {
+    voiceRef.current.connect({ auth: { type: "accessToken", value: token } }).catch((err: unknown) => {
       const message = err instanceof Error ? err.message : "Could not connect.";
       console.error("[hume] connect failed", err);
       window.alert(message);
-      onEnd();
+      onEndRef.current();
     });
-  }, [connect, onEnd, token]);
+  }, [token]);
 
-  // Derive "ever connected" by setting state during render (React's canonical
-  // pattern for tracking a transitional flag without an effect).
-  if (status.value === "connected" && !hasConnected) {
-    setHasConnected(true);
-  }
-
-  // Countdown timer once connected. End the call when it hits zero.
+  // Countdown timer — depends only on whether we're connected and the
+  // current seconds. No function refs in deps.
   useEffect(() => {
-    if (!hasConnected) return;
+    if (!isConnected) return;
     if (secondsLeft <= 0) {
-      disconnect();
-      onEnd();
+      voiceRef.current.disconnect();
+      onEndRef.current();
       return;
     }
     const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
-  }, [hasConnected, secondsLeft, disconnect, onEnd]);
+  }, [isConnected, secondsLeft]);
 
-  // Cleanup on unmount.
+  // Cleanup on unmount only. Empty deps — disconnect comes from ref.
   useEffect(() => {
     return () => {
-      disconnect();
+      voiceRef.current.disconnect();
     };
-  }, [disconnect]);
+  }, []);
 
   function handleEnd() {
-    disconnect();
+    voice.disconnect();
     onEnd();
   }
 
   function handleToggleMute() {
     if (isMuted) {
-      unmute();
+      voice.unmute();
     } else {
-      mute();
+      voice.mute();
     }
   }
 

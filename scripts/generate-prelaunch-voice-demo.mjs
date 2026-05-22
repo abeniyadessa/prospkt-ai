@@ -52,15 +52,26 @@ if (!API_KEY) {
 
 // --- voice config ----------------------------------------------------------
 
-// Hardcoded public ElevenLabs voice IDs from the official voice library:
-//   Sarah (warm professional female) — soft, friendly, receptionist-appropriate
-//   Rachel (calm conversational female) — distinct enough to feel like a real
-//   second person without sounding artificial
+// Voices tuned for natural American conversational English:
+//   Aria (Sarah role) — expressive, social American female, no detectable accent
+//   Jessica (Angela role) — conversational American female, distinct from Aria
+//
+// These are newer voices in the ElevenLabs library specifically rated as
+// "natural" / "conversational" for dialog. The older "Sarah" (EXAVITQu) and
+// "Rachel" (21m00Tcm) voices are still solid but have subtle pronunciation
+// quirks under the v2 model that some listeners hear as accent.
 //
 // Override via env if you want to A/B test other voices.
-const VOICE_SARAH = process.env.PROSPKT_DEMO_VOICE_SARAH || "EXAVITQu4vr4xnSDxMaL"; // Sarah
-const VOICE_ANGELA = process.env.PROSPKT_DEMO_VOICE_ANGELA || "21m00Tcm4TlvDq8ikWAM"; // Rachel
-const MODEL = process.env.PROSPKT_DEMO_MODEL || "eleven_multilingual_v2";
+const VOICE_SARAH = process.env.PROSPKT_DEMO_VOICE_SARAH || "9BWtsMINqrJLrRacOk9x"; // Aria
+const VOICE_ANGELA = process.env.PROSPKT_DEMO_VOICE_ANGELA || "cgSgspJ2msm6clMCkdW9"; // Jessica
+
+// Model preference chain. v3 is ElevenLabs' newest and most natural-sounding
+// model — dramatically less synthetic than v2. If v3 is not available on this
+// account's tier, we fall back to turbo_v2_5 then multilingual_v2.
+const MODEL_CHAIN = process.env.PROSPKT_DEMO_MODEL
+  ? [process.env.PROSPKT_DEMO_MODEL]
+  : ["eleven_v3", "eleven_turbo_v2_5", "eleven_multilingual_v2"];
+let CURRENT_MODEL = MODEL_CHAIN[0];
 
 const SAMPLE_RATE = 44100;
 const BITRATE_KBPS = 128; // mp3_44100_128 — CBR
@@ -69,50 +80,55 @@ const SILENCE_BETWEEN_TURNS_MS = 700;
 
 // --- script ----------------------------------------------------------------
 
+// Lower stability = more natural prosody variation (less robotic). v3 handles
+// stability differently than v2 — values around 0.35-0.5 produce the most
+// human-sounding delivery for conversational scripts.
+const SARAH_SETTINGS = { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true };
+const ANGELA_SETTINGS = { stability: 0.5, similarity_boost: 0.85, style: 0.2, use_speaker_boost: true };
+
 const dialog = [
   {
     speaker: "Sarah",
     voiceId: VOICE_SARAH,
     text: "Hi Angela, this is Sarah with Greenway Services. I saw you requested a deck quote online — is now still a good time?",
-    // voice_settings tuned for warmth + natural delivery on a friendly opener
-    settings: { stability: 0.45, similarity_boost: 0.78, style: 0.35, use_speaker_boost: true },
+    settings: SARAH_SETTINGS,
   },
   {
     speaker: "Angela",
     voiceId: VOICE_ANGELA,
     text: "Yeah, I'm available. We'd like to get our deck replaced.",
-    settings: { stability: 0.55, similarity_boost: 0.75, style: 0.25, use_speaker_boost: true },
+    settings: ANGELA_SETTINGS,
   },
   {
     speaker: "Sarah",
     voiceId: VOICE_SARAH,
     text: "Perfect. I've got Thursday between 9 and 11, or Friday after 2. Which window works better for you?",
-    settings: { stability: 0.45, similarity_boost: 0.78, style: 0.35, use_speaker_boost: true },
+    settings: SARAH_SETTINGS,
   },
   {
     speaker: "Angela",
     voiceId: VOICE_ANGELA,
     text: "Thursday morning works.",
-    settings: { stability: 0.55, similarity_boost: 0.75, style: 0.25, use_speaker_boost: true },
+    settings: ANGELA_SETTINGS,
   },
   {
     speaker: "Sarah",
     voiceId: VOICE_SARAH,
     text: "Great. I'll hold Thursday 9 to 11 and send it to the owner for approval before it's confirmed.",
-    settings: { stability: 0.45, similarity_boost: 0.78, style: 0.35, use_speaker_boost: true },
+    settings: SARAH_SETTINGS,
   },
 ];
 
 // --- ElevenLabs call -------------------------------------------------------
 
-async function generateLine(line) {
+async function callElevenLabs(line, modelId) {
   const url =
     `https://api.elevenlabs.io/v1/text-to-speech/${line.voiceId}` +
     `?output_format=mp3_${SAMPLE_RATE}_${BITRATE_KBPS}`;
 
   const body = {
     text: line.text,
-    model_id: MODEL,
+    model_id: modelId,
     voice_settings: line.settings,
   };
 
@@ -126,12 +142,41 @@ async function generateLine(line) {
     body: JSON.stringify(body),
   });
 
-  if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    throw new Error(`ElevenLabs ${res.status} for "${line.speaker}": ${errText.slice(0, 300)}`);
-  }
+  return res;
+}
 
-  return Buffer.from(await res.arrayBuffer());
+async function generateLine(line) {
+  // Try the current preferred model first. If it returns a 4xx that suggests
+  // model unavailability (403 subscription_required, 422 unprocessable, 400
+  // invalid model), fall back to the next model in the chain and remember
+  // that choice for subsequent lines so we're consistent across the demo.
+  for (let attempt = MODEL_CHAIN.indexOf(CURRENT_MODEL); attempt < MODEL_CHAIN.length; attempt++) {
+    const modelId = MODEL_CHAIN[attempt];
+    const res = await callElevenLabs(line, modelId);
+    if (res.ok) {
+      if (modelId !== CURRENT_MODEL) {
+        process.stderr.write(`  ↳ falling back to model: ${modelId}\n`);
+        CURRENT_MODEL = modelId;
+      }
+      return Buffer.from(await res.arrayBuffer());
+    }
+
+    const errText = await res.text().catch(() => "");
+    const looksLikeModelIssue =
+      res.status === 403 ||
+      res.status === 422 ||
+      res.status === 400 ||
+      /model/i.test(errText);
+    if (!looksLikeModelIssue || attempt === MODEL_CHAIN.length - 1) {
+      throw new Error(
+        `ElevenLabs ${res.status} for "${line.speaker}" (model ${modelId}): ${errText.slice(0, 300)}`
+      );
+    }
+    process.stderr.write(
+      `  ! ${modelId} rejected (${res.status}); trying next model in chain\n`
+    );
+  }
+  throw new Error("All models in chain exhausted");
 }
 
 // Strip ID3v2 header if present. ID3v2 headers start with "ID3" and the size is

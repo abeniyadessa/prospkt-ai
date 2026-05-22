@@ -8,39 +8,41 @@ import {
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
-const demoAudioSrc = "/prelaunch-voice-demo/agent-demo.mp3";
-const demoDurationSeconds = 26.59;
+// Cache-buster — bump this whenever we regenerate the audio so the browser
+// doesn't keep serving an old cached MP3.
+const demoAudioSrc = "/prelaunch-voice-demo/agent-demo.mp3?v=hume-persona-1";
+const demoDurationSeconds = 35.14;
 
 const demoScript = [
   {
     speaker: "Prospkt",
     start: 0,
-    end: 7.26,
-    text: "Hi Angela, this is Sarah with Greenway Services. I saw you requested a deck quote online — is now still a good time?",
+    end: 7.66,
+    text: "Hey Angela! Sarah from Greenway here — caught your missed call a sec ago. Did I catch you at a bad time?",
   },
   {
     speaker: "Angela",
-    start: 7.26,
-    end: 11.13,
-    text: "Yeah, I'm available. We'd like to get our deck replaced.",
+    start: 8.14,
+    end: 12.89,
+    text: "Oh, no, you're good. Yeah, we're looking at getting our deck replaced.",
   },
   {
     speaker: "Prospkt",
-    start: 11.13,
-    end: 18.39,
-    text: "Perfect. I've got Thursday between 9 and 11, or Friday after 2. Which window works better for you?",
+    start: 13.36,
+    end: 22.25,
+    text: "Gotcha — that's exactly what we do. Got two spots open this week: Thursday 9 to 11, or Friday after 2. Which works better?",
   },
   {
     speaker: "Angela",
-    start: 18.39,
-    end: 20.35,
-    text: "Thursday morning works.",
+    start: 22.72,
+    end: 24.69,
+    text: "Thursday morning. Definitely.",
   },
   {
     speaker: "Prospkt",
-    start: 20.35,
-    end: 26.59,
-    text: "Great. I'll hold Thursday 9 to 11 and send it to the owner for approval before it's confirmed.",
+    start: 25.16,
+    end: 35.14,
+    text: "Perfect. I'll hold that Thursday slot for you — sending it over for owner approval right now. You'll have a confirmation in a few minutes.",
   },
 ] as const;
 

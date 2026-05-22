@@ -5,7 +5,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { PrelaunchAnalytics } from "@/components/marketing/prelaunch-analytics";
 import { PrelaunchEmailForm } from "@/components/marketing/prelaunch-email-form";
-import { PrelaunchVoiceDemo } from "@/components/marketing/prelaunch-voice-demo";
+import { PrelaunchDemo } from "@/components/marketing/prelaunch-demo";
 import { cn } from "@/lib/utils";
 
 const pageTitle = "Prospkt Private Beta - AI Sales Rep for Local Service Teams";
@@ -71,7 +71,7 @@ export default function PrelaunchPage() {
             Hear how Prospkt turns a missed call into a booked job.
           </p>
 
-          <PrelaunchVoiceDemo />
+          <PrelaunchDemo />
 
           <div className="mx-auto mt-8 w-full max-w-[530px]">
             <PrelaunchEmailForm />

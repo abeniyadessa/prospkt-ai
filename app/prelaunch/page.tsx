@@ -5,6 +5,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { PrelaunchAnalytics } from "@/components/marketing/prelaunch-analytics";
 import { PrelaunchEmailForm } from "@/components/marketing/prelaunch-email-form";
+import { PrelaunchVoiceDemo } from "@/components/marketing/prelaunch-voice-demo";
 import { cn } from "@/lib/utils";
 
 const pageTitle = "Prospkt Private Beta - AI Sales Rep for Local Service Teams";
@@ -47,28 +48,10 @@ const proofItems = [
   "Owner-approved outreach",
 ];
 
-const transcriptLines = [
-  {
-    speaker: "Prospkt",
-    time: "00:07",
-    text: "Hi Angela, this is Sarah with Greenway Services. I saw you requested a quote online. Is now still a good time?",
-  },
-  {
-    speaker: "Angela",
-    time: "00:11",
-    text: "Yes, I'm available. We'd like to get our deck replaced.",
-  },
-] as const;
-
 const headlinePhrases = [
   "Leads pick up.",
   "Jobs get booked.",
   "You stay in control.",
-] as const;
-
-const waveformBars = [
-  10, 14, 20, 16, 28, 38, 24, 44, 18, 34, 48, 26, 58, 42, 30, 52, 36, 22, 46,
-  62, 34, 18, 40, 54, 28, 50, 36, 24, 44, 32, 16, 26,
 ] as const;
 
 export default function PrelaunchPage() {
@@ -88,7 +71,7 @@ export default function PrelaunchPage() {
             Hear how Prospkt turns a missed call into a booked job.
           </p>
 
-          <VoiceDemo />
+          <PrelaunchVoiceDemo />
 
           <div className="mx-auto mt-8 w-full max-w-[530px]">
             <PrelaunchEmailForm />
@@ -215,140 +198,6 @@ function LogoMark({
     >
       <LightningIcon size="46%" weight="fill" color={iconColor} />
     </span>
-  );
-}
-
-function VoiceDemo() {
-  return (
-    <div className="prelaunch-voice-demo mx-auto mt-9 w-full max-w-[720px] rounded-2xl border border-border bg-surface p-4 text-left shadow-lg sm:p-6">
-      <div className="grid gap-4 sm:grid-cols-[auto_1fr_auto] sm:items-center">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:contents">
-          <VoiceEndpoint
-            label="AI rep"
-            name="Prospkt"
-            time="00:00"
-            withLogo
-            className="sm:col-start-1 sm:row-start-1"
-          />
-          <VoiceEndpoint
-            label="Caller"
-            name="Angela"
-            time="02:14"
-            align="right"
-            className="sm:col-start-3 sm:row-start-1"
-          />
-        </div>
-
-        <div className="prelaunch-audio-strip flex min-w-0 items-center gap-2.5 rounded-2xl border border-hairline bg-canvas px-3 py-3 sm:col-start-2 sm:row-start-1 sm:gap-3 sm:border-0 sm:bg-transparent sm:px-1 sm:py-0">
-          <Waveform />
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-foreground text-white shadow-sm sm:size-12">
-            <span
-              className="ml-0.5 h-0 w-0 border-y-[7px] border-l-[10px] border-y-transparent border-l-white"
-              aria-hidden
-            />
-          </span>
-          <Waveform reverse />
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-3 min-[520px]:grid-cols-2 sm:mt-6">
-        {transcriptLines.map((line) => (
-          <TranscriptCard key={`${line.speaker}-${line.time}`} {...line} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function VoiceEndpoint({
-  label,
-  name,
-  time,
-  align = "left",
-  withLogo = false,
-  className,
-}: {
-  label: string;
-  name: string;
-  time: string;
-  align?: "left" | "right";
-  withLogo?: boolean;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "flex min-w-0 items-center gap-3",
-        align === "right" && "justify-end text-right",
-        className
-      )}
-    >
-      {withLogo ? <LogoMark className="size-9 shrink-0 rounded-xl" /> : null}
-      <div className="min-w-0">
-        <p className="truncate text-[12px] text-muted-foreground">{label}</p>
-        <p className="truncate text-[13px] font-semibold">{name}</p>
-        <p className="mt-0.5 text-[11px] tabular-nums text-subtle">{time}</p>
-      </div>
-    </div>
-  );
-}
-
-function Waveform({ reverse = false }: { reverse?: boolean }) {
-  const bars = reverse ? [...waveformBars].reverse() : waveformBars;
-  const barWidth = 3;
-  const gap = 5;
-  const viewBoxWidth = bars.length * barWidth + (bars.length - 1) * gap;
-
-  return (
-    <div className="prelaunch-waveform min-w-0 flex-1">
-      <svg
-        className="h-9 w-full sm:h-10"
-        viewBox={`0 0 ${viewBoxWidth} 72`}
-        preserveAspectRatio="none"
-        shapeRendering="geometricPrecision"
-        aria-hidden
-      >
-        <line
-          x1="0"
-          x2={viewBoxWidth}
-          y1="36"
-          y2="36"
-          stroke="#E6E6E6"
-          strokeWidth="1"
-        />
-        {bars.map((height, index) => (
-          <rect
-            key={`${height}-${index}`}
-            x={index * (barWidth + gap)}
-            y={(72 - height) / 2}
-            width={barWidth}
-            height={height}
-            rx="2"
-            fill="#C7C7C7"
-          />
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-function TranscriptCard({
-  speaker,
-  time,
-  text,
-}: (typeof transcriptLines)[number]) {
-  return (
-    <div className="rounded-xl bg-canvas p-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-medium text-muted-foreground">
-          {speaker}
-        </p>
-        <p className="text-[11px] tabular-nums text-subtle">{time}</p>
-      </div>
-      <p className="mt-2 text-pretty text-[12px] leading-5 text-foreground">
-        {text}
-      </p>
-    </div>
   );
 }
 

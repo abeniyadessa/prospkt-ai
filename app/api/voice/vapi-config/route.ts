@@ -70,22 +70,28 @@ function buildAssistantConfig() {
     name: "Prospkt Max",
     firstMessage:
       "Hey, what's good. Max here at Prospkt. Who am I talking to?",
-    // Anthropic Claude Haiku 4.5 — same model AssignX uses, fast (~800ms),
-    // strong instruction-following for the persona's structural rules.
+    // Anthropic Claude — uses Vapi's chat-message format (not systemPrompt).
+    // Sonet 4.5 selected because Hume-side tests confirmed reliability; can
+    // swap to a Haiku variant once we verify the assistant config validates.
     model: {
       provider: "anthropic",
       model: "claude-3-5-haiku-20241022",
       temperature: 0.6,
-      systemPrompt: SYSTEM_PROMPT,
       maxTokens: 200,
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+      ],
     },
-    // Cartesia Sonic 2 — fastest top-tier TTS (~90ms first-token-out),
-    // very natural prosody. Swap voiceId for different timbre.
-    // To switch to ElevenLabs: provider: "11labs", voiceId: "TX3LPaxmHKxFdv7VOQHJ" (Liam, male).
+    // ElevenLabs Liam — known-good, broadly available on Vapi without
+    // plan-tier issues. Cartesia voice IDs were causing session-start
+    // failures (likely an availability issue on the current Vapi plan).
+    // To swap back to Cartesia: provider: "cartesia", voiceId: "<id>".
     voice: {
-      provider: "cartesia",
-      voiceId: "729651dc-c6c3-4ee5-97fa-350da1f88600", // Sonic-English default male voice — replace with your preferred Cartesia voice ID
-      model: "sonic-2",
+      provider: "11labs",
+      voiceId: "TX3LPaxmHKxFdv7VOQHJ", // Liam — deep, mature American male
     },
     // Deepgram Nova 2 — industry-leading STT latency.
     transcriber: {
@@ -93,19 +99,11 @@ function buildAssistantConfig() {
       model: "nova-2",
       language: "en-US",
     },
-    // THE UNLOCK — backchanneling sends "mm-hm", "yeah", "right" while the
-    // user is still talking. Single biggest "this is human" cue.
-    backchannelingEnabled: true,
     backgroundDenoisingEnabled: true,
     silenceTimeoutSeconds: 20,
     maxDurationSeconds: 60,
     endCallMessage:
       "Cool, thanks for the chat. Drop your email on the form right below this. Talk soon.",
-    // First-message + interruption tuning closer to real conversation pacing.
-    responseDelaySeconds: 0.1,
-    numWordsToInterruptAssistant: 2,
-    // Privacy
-    serverMessages: [],
   };
 }
 

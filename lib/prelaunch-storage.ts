@@ -256,6 +256,81 @@ export async function createWaitlistSignupRecord(
   return createWaitlistSignup(input);
 }
 
+export type WaitlistListResult = {
+  signups: WaitlistSignup[];
+  total: number;
+  mode: ReturnType<typeof waitlistStorageMode> | "unavailable";
+  reason?: string;
+};
+
+async function listPgWaitlistSignups(limit: number): Promise<WaitlistListResult> {
+  const activePool = getPool();
+  if (!activePool) {
+    return { signups: [], total: 0, mode: "unavailable", reason: "no_pool" };
+  }
+  await ensurePgTables();
+
+  const [rowsResult, countResult] = await Promise.all([
+    activePool.query<WaitlistSignupRow>(
+      `SELECT id, email, company_name, city, source, created_at, updated_at
+       FROM waitlist_signups
+       ORDER BY created_at DESC
+       LIMIT $1`,
+      [limit]
+    ),
+    activePool.query<{ count: string }>(
+      `SELECT COUNT(*)::text AS count FROM waitlist_signups`
+    ),
+  ]);
+
+  return {
+    signups: rowsResult.rows.map(mapWaitlistSignup),
+    total: Number(countResult.rows[0]?.count ?? 0),
+    mode: "database",
+  };
+}
+
+export async function listWaitlistSignups(limit = 100): Promise<WaitlistListResult> {
+  if (databaseUrl()) {
+    try {
+      return await listPgWaitlistSignups(limit);
+    } catch (error) {
+      return {
+        signups: [],
+        total: 0,
+        mode: "unavailable",
+        reason: error instanceof Error ? error.message : "postgres_error",
+      };
+    }
+  }
+
+  if (process.env.VERCEL && process.env.RESEND_API_KEY) {
+    // Resend Contacts API does not expose a portable list endpoint by audience here,
+    // and signup records are not stored in a queryable shape we control. Surface this
+    // as unavailable so the admin UI can prompt the founder to connect Postgres.
+    return {
+      signups: [],
+      total: 0,
+      mode: "resend_contacts",
+      reason:
+        "Listing signups from Resend Contacts is not supported. Connect Neon Postgres for a queryable source of truth.",
+    };
+  }
+
+  try {
+    const { listWaitlistSignups: listLocal } = await import("@/lib/database");
+    const signups = listLocal(limit);
+    return { signups, total: signups.length, mode: "local" };
+  } catch (error) {
+    return {
+      signups: [],
+      total: 0,
+      mode: "unavailable",
+      reason: error instanceof Error ? error.message : "local_db_error",
+    };
+  }
+}
+
 export async function createPrelaunchEventRecord(
   input: PrelaunchEventInput
 ): Promise<PrelaunchEvent> {

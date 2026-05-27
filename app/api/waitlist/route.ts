@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { sendWaitlistSignupNotification } from "@/lib/email";
+import {
+  sendWaitlistConfirmation,
+  sendWaitlistSignupNotification,
+} from "@/lib/email";
 import {
   createWaitlistSignupRecord,
   waitlistStorageMode,
@@ -30,10 +33,13 @@ export async function POST(request: Request) {
       return null;
     });
 
-    const notification = await sendWaitlistSignupNotification({
-      ...signupInput,
-      storageMode: signup ? waitlistStorageMode() : "email_only",
-    });
+    const [notification, confirmation] = await Promise.all([
+      sendWaitlistSignupNotification({
+        ...signupInput,
+        storageMode: signup ? waitlistStorageMode() : "email_only",
+      }),
+      sendWaitlistConfirmation({ email: signupInput.email }),
+    ]);
 
     if (!signup && !notification.sent) {
       throw storageError instanceof Error
@@ -45,6 +51,7 @@ export async function POST(request: Request) {
       ok: true,
       signup,
       storage: signup ? waitlistStorageMode() : "email_only",
+      confirmationSent: confirmation.sent,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

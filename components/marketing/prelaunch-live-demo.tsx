@@ -6,99 +6,99 @@ import {
   PhoneDisconnectIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
-import { VoiceProvider, useVoice } from "@humeai/voice-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Vapi from "@vapi-ai/web";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const MAX_DURATION_SECONDS = 60;
 
-type FetchTokenState =
+type AssistantConfig = Record<string, unknown>;
+
+type ConfigState =
   | { status: "idle" }
   | { status: "fetching" }
-  | { status: "ready"; token: string; configId?: string }
+  | { status: "ready"; publicKey: string; assistant: AssistantConfig }
   | { status: "error"; message: string };
 
+type CallStatus =
+  | "idle"
+  | "connecting"
+  | "connected"
+  | "ended"
+  | "error";
+
+type TranscriptMessage = {
+  id: string;
+  role: "agent" | "user";
+  text: string;
+};
+
 export function PrelaunchLiveDemo() {
-  const [tokenState, setTokenState] = useState<FetchTokenState>({ status: "idle" });
+  const [configState, setConfigState] = useState<ConfigState>({ status: "idle" });
 
   async function startSession() {
-    setTokenState({ status: "fetching" });
+    setConfigState({ status: "fetching" });
     try {
-      const res = await fetch("/api/voice/hume-token", { method: "POST" });
+      const res = await fetch("/api/voice/vapi-config", { method: "POST" });
       const data = (await res.json()) as
-        | { ok: true; accessToken: string; configId?: string }
+        | { ok: true; publicKey: string; assistant: AssistantConfig }
         | { ok: false; error: string };
       if (!res.ok || !data.ok) {
         throw new Error(("error" in data && data.error) || "Failed to start session.");
       }
-      setTokenState({
+      setConfigState({
         status: "ready",
-        token: data.accessToken,
-        configId: data.configId,
+        publicKey: data.publicKey,
+        assistant: data.assistant,
       });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Could not start the voice demo.";
-      setTokenState({ status: "error", message });
+      setConfigState({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "Could not start the voice demo.",
+      });
     }
   }
 
   function reset() {
-    setTokenState({ status: "idle" });
+    setConfigState({ status: "idle" });
   }
 
-  if (tokenState.status === "ready") {
+  if (configState.status === "ready") {
     return (
-      <VoiceProvider
-        onOpen={() => console.log("[hume] socket opened")}
-        onClose={(event) => console.log("[hume] socket closed", event)}
-        onError={(err) => console.error("[hume] voice error", err)}
-        onMessage={(msg) => console.log("[hume] message:", msg.type, msg)}
-        onAudioStart={(clipId) => console.log("[hume] audio start", clipId)}
-        onAudioEnd={(clipId) => console.log("[hume] audio end", clipId)}
-      >
-        <ActiveSession
-          token={tokenState.token}
-          configId={tokenState.configId}
-          onEnd={reset}
-        />
-      </VoiceProvider>
+      <ActiveSession
+        publicKey={configState.publicKey}
+        assistant={configState.assistant}
+        onEnd={reset}
+      />
     );
   }
 
-  return (
-    <IdleSurface
-      tokenState={tokenState}
-      onStart={startSession}
-      onRetry={reset}
-    />
-  );
+  return <IdleSurface state={configState} onStart={startSession} onRetry={reset} />;
 }
 
 function IdleSurface({
-  tokenState,
+  state,
   onStart,
   onRetry,
 }: {
-  tokenState: FetchTokenState;
+  state: ConfigState;
   onStart: () => void;
   onRetry: () => void;
 }) {
-  const fetching = tokenState.status === "fetching";
-  const errored = tokenState.status === "error";
+  const fetching = state.status === "fetching";
+  const errored = state.status === "error";
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-surface p-6 text-center shadow-sm">
-      <div className="flex size-12 items-center justify-center rounded-full bg-foreground text-white">
-        <MicrophoneIcon size={22} weight="fill" />
-      </div>
+    <div className="flex flex-col items-center gap-5 rounded-xl border border-border bg-surface p-6 text-center shadow-sm">
       <div className="space-y-1">
         <p className="text-[15px] font-medium text-foreground">
-          Talk to Prospkt yourself.
+          Talk to Max, one of Prospkt&apos;s AI agents.
         </p>
-        <p className="max-w-[380px] text-[13px] leading-5 text-muted-foreground">
-          Have a real 60-second conversation. Tell it about a project you&apos;d
-          want quoted and see how it qualifies and books.
+        <p className="max-w-[400px] text-[13px] leading-5 text-muted-foreground">
+          Ask anything about Prospkt and how it fits your business. He
+          will answer in real time.
         </p>
       </div>
 
@@ -106,22 +106,34 @@ function IdleSurface({
         type="button"
         onClick={onStart}
         disabled={fetching}
-        className={cn(
-          "press inline-flex h-10 items-center gap-2 rounded-lg bg-foreground px-5 text-[13.5px] font-medium text-white transition-colors hover:bg-foreground/90 disabled:opacity-70"
-        )}
+        aria-label={fetching ? "Connecting" : "Start conversation"}
+        className="press group relative flex h-24 w-24 items-center justify-center rounded-full bg-foreground text-white shadow-lg ring-1 ring-black/10 transition-transform hover:scale-[1.02] disabled:opacity-70"
       >
-        <MicrophoneIcon size={14} weight="fill" />
-        {fetching ? "Connecting…" : "Start conversation"}
+        <span
+          className="pointer-events-none absolute -z-10 h-32 w-32 rounded-full opacity-50 transition-opacity group-hover:opacity-80"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(96,165,250,0.45) 0%, rgba(96,165,250,0) 65%)",
+            filter: "blur(20px)",
+          }}
+          aria-hidden
+        />
+        <MicrophoneIcon size={32} weight="fill" aria-hidden />
       </button>
 
-      <p className="text-[11px] text-subtle">
-        Uses your microphone · Up to {MAX_DURATION_SECONDS} seconds · Not recorded
-      </p>
+      <div className="text-center">
+        <p className="text-[13.5px] font-medium text-foreground">
+          {fetching ? "Connecting…" : "Tap to start"}
+        </p>
+        <p className="mt-1 text-[11px] text-subtle">
+          Uses your mic · Up to {MAX_DURATION_SECONDS}s · Not recorded
+        </p>
+      </div>
 
       {errored ? (
         <div className="mt-2 flex items-center gap-2 rounded-md border border-[#E5B6B1] bg-[#FFF5F3] px-3 py-2 text-[12px] text-[#9F2A22]">
           <WarningCircleIcon size={14} weight="fill" />
-          <span>{tokenState.message}</span>
+          <span>{state.message}</span>
           <button
             type="button"
             onClick={onRetry}
@@ -135,196 +147,193 @@ function IdleSurface({
   );
 }
 
-type TranscriptMessage = {
-  id: string;
-  role: "agent" | "user";
-  text: string;
-};
-
 function ActiveSession({
-  token,
-  configId,
+  publicKey,
+  assistant,
   onEnd,
 }: {
-  token: string;
-  configId?: string;
+  publicKey: string;
+  assistant: AssistantConfig;
   onEnd: () => void;
 }) {
-  const voice = useVoice();
-  const { status, messages, isMuted, fft } = voice;
+  const vapiRef = useRef<Vapi | null>(null);
+  const [callStatus, setCallStatus] = useState<CallStatus>("connecting");
+  const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
   const [secondsLeft, setSecondsLeft] = useState(MAX_DURATION_SECONDS);
-
-  // Hold all of Hume's hook-returned functions in a ref so effects never
-  // re-fire when those references change between renders (which they do
-  // every render — Hume returns fresh closures). This is the cure for the
-  // "Maximum update depth exceeded" loop. Ref values get synced in an
-  // effect (not during render) per React 19 rules.
-  const voiceRef = useRef(voice);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(0); // 0..1 — drives the pulse orb
+  const startedRef = useRef(false);
   const onEndRef = useRef(onEnd);
   useEffect(() => {
-    voiceRef.current = voice;
     onEndRef.current = onEnd;
   });
 
-  const isConnected = status.value === "connected";
-  const connectAttempted = useRef(false);
-
-  // Auto-connect on mount. Depends only on `token` so we run it exactly once
-  // per session — never re-runs because Hume's connect/disconnect references
-  // changed.
+  // Wire up Vapi SDK once on mount. The 80ms delay avoids React Strict Mode
+  // double-invoke killing our connect — same lesson as the Hume integration.
   useEffect(() => {
-    if (connectAttempted.current) return;
-    connectAttempted.current = true;
-    voiceRef.current
-      .connect({
-        auth: { type: "accessToken", value: token },
-        ...(configId ? { configId } : {}),
-      })
-      .catch((err: unknown) => {
-        const message =
-          err instanceof Error ? err.message : "Could not connect.";
-        console.error("[hume] connect failed", err);
-        window.alert(message);
+    if (startedRef.current) return;
+    const handle = setTimeout(() => {
+      if (startedRef.current) return;
+      startedRef.current = true;
+
+      const vapi = new Vapi(publicKey);
+      vapiRef.current = vapi;
+
+      vapi.on("call-start", () => {
+        console.log("[vapi] call-start");
+        setCallStatus("connected");
+      });
+      vapi.on("call-end", () => {
+        console.log("[vapi] call-end");
+        setCallStatus("ended");
         onEndRef.current();
       });
-  }, [token, configId]);
+      vapi.on("speech-start", () => console.log("[vapi] speech-start"));
+      vapi.on("speech-end", () => console.log("[vapi] speech-end"));
+      vapi.on("volume-level", (v: number) => setVolume(v));
+      vapi.on(
+        "message",
+        (msg: { type?: string; role?: string; transcript?: string; transcriptType?: string }) => {
+          if (msg.type === "transcript" && msg.transcriptType === "final" && msg.transcript) {
+            const role = msg.role === "assistant" ? "agent" : "user";
+            setTranscript((prev) => [
+              ...prev,
+              {
+                id: `${role}-${prev.length}`,
+                role,
+                text: msg.transcript!,
+              },
+            ]);
+          }
+        }
+      );
+      vapi.on("error", (err: unknown) => {
+        // Vapi sometimes emits sparse events with non-enumerable fields. Pull
+        // everything via reflection so the console actually shows what broke.
+        const e = err as unknown as Record<string, unknown> | null | undefined;
+        const dump: Record<string, unknown> = {
+          typeof: typeof err,
+          toString: e ? String(e) : null,
+          ownProps: e ? Object.getOwnPropertyNames(e) : null,
+          reflectKeys: e ? Reflect.ownKeys(e as object).map(String) : null,
+          message: (e as { message?: string })?.message,
+          errorMsg: (e as { error?: { message?: string } })?.error?.message,
+          type: (e as { type?: string })?.type,
+          status: (e as { status?: number })?.status,
+          code: (e as { code?: string })?.code,
+        };
+        try {
+          dump.json = JSON.stringify(
+            err,
+            e ? Object.getOwnPropertyNames(e) : undefined
+          );
+        } catch {
+          dump.json = "(unstringifiable)";
+        }
+        console.error("[vapi] error", dump, err);
+        setCallStatus("error");
+      });
 
-  // Countdown timer — depends only on whether we're connected and the
-  // current seconds. No function refs in deps.
+      vapi
+        .start(assistant as Parameters<typeof vapi.start>[0])
+        .catch((err: unknown) => {
+          console.error("[vapi] start failed", err);
+          setCallStatus("error");
+          onEndRef.current();
+        });
+    }, 80);
+
+    return () => clearTimeout(handle);
+  }, [publicKey, assistant]);
+
+  // Cleanup — stop the call when the component truly unmounts (handled by
+  // the user's End button or the timer).
   useEffect(() => {
-    if (!isConnected) return;
+    return () => {
+      try {
+        vapiRef.current?.stop();
+      } catch {
+        /* swallow — vapi may already be stopped */
+      }
+    };
+  }, []);
+
+  // 60-second countdown.
+  useEffect(() => {
+    if (callStatus !== "connected") return;
     if (secondsLeft <= 0) {
-      voiceRef.current.disconnect();
+      try {
+        vapiRef.current?.stop();
+      } catch {
+        /* noop */
+      }
       onEndRef.current();
       return;
     }
     const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
-  }, [isConnected, secondsLeft]);
+  }, [callStatus, secondsLeft]);
 
-  // Cleanup on unmount only. Empty deps — disconnect comes from ref.
-  useEffect(() => {
-    return () => {
-      voiceRef.current.disconnect();
-    };
-  }, []);
-
-  function handleEnd() {
-    voice.disconnect();
+  const handleEnd = useCallback(() => {
+    try {
+      vapiRef.current?.stop();
+    } catch {
+      /* noop */
+    }
     onEnd();
-  }
+  }, [onEnd]);
 
-  function handleToggleMute() {
-    if (isMuted) {
-      voice.unmute();
-    } else {
-      voice.mute();
+  const handleToggleMute = useCallback(() => {
+    const vapi = vapiRef.current;
+    if (!vapi) return;
+    const next = !isMuted;
+    try {
+      vapi.setMuted(next);
+      setIsMuted(next);
+    } catch (err) {
+      console.error("[vapi] mute toggle failed", err);
     }
-  }
+  }, [isMuted]);
 
-  // Distill the messages stream into a clean transcript.
-  const transcript: TranscriptMessage[] = [];
-  for (const message of messages) {
-    if (
-      message.type === "user_message" ||
-      message.type === "assistant_message"
-    ) {
-      const role: TranscriptMessage["role"] =
-        message.type === "user_message" ? "user" : "agent";
-      const text = message.message?.content?.toString() ?? "";
-      if (text.trim().length > 0) {
-        transcript.push({
-          id: `${message.type}-${transcript.length}`,
-          role,
-          text,
-        });
-      }
-    }
-  }
-
-  const isAgentSpeaking = status.value === "connected" && Boolean(fft?.length);
   const statusLabel =
-    status.value === "connecting"
+    callStatus === "connecting"
       ? "Connecting…"
-      : status.value === "connected"
-        ? isAgentSpeaking
-          ? "Prospkt is speaking…"
+      : callStatus === "connected"
+        ? volume > 0.05
+          ? "Max is speaking…"
           : "Listening…"
-        : status.value === "error"
+        : callStatus === "error"
           ? "Connection error"
           : "Disconnected";
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-5 text-left shadow-sm sm:p-6">
-      {/* Header — status + countdown */}
-      <div className="flex items-center justify-between gap-3 border-b border-hairline pb-3">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "size-2 rounded-full",
-              status.value === "connected"
-                ? "animate-pulse bg-[#2E7D4F]"
-                : "bg-subtle"
-            )}
-            aria-hidden
-          />
-          <span className="text-[12.5px] font-medium text-foreground">
-            {statusLabel}
-          </span>
-        </div>
-        <span className="text-[12px] tabular-nums text-muted-foreground">
-          {Math.max(0, secondsLeft)}s left
-        </span>
+    <div className="flex flex-col items-center gap-6">
+      <PulseOrb volume={volume} active={callStatus === "connected"} />
+
+      <div className="flex items-center justify-center gap-2 text-[12.5px] text-muted-foreground">
+        <span
+          className={cn(
+            "size-1.5 rounded-full",
+            callStatus === "connected" ? "animate-pulse bg-[#2E7D4F]" : "bg-subtle"
+          )}
+          aria-hidden
+        />
+        <span className="text-foreground">{statusLabel}</span>
+        <span className="text-subtle">·</span>
+        <span className="tabular-nums">{Math.max(0, secondsLeft)}s left</span>
       </div>
 
-      {/* Voice activity visualization */}
-      <VoiceActivity fft={fft} active={status.value === "connected"} />
+      <Transcript transcript={transcript} />
 
-      {/* Transcript */}
-      <div className="min-h-[120px] max-h-[200px] overflow-y-auto rounded-lg border border-hairline bg-background p-3">
-        {transcript.length === 0 ? (
-          <p className="text-[12.5px] text-subtle">
-            Say hi to get started — Prospkt will pick up the missed-call thread.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {transcript.map((m) => (
-              <li
-                key={m.id}
-                className={cn(
-                  "flex flex-col gap-0.5",
-                  m.role === "user" ? "items-end text-right" : "items-start"
-                )}
-              >
-                <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-subtle">
-                  {m.role === "user" ? "You" : "Prospkt"}
-                </span>
-                <span
-                  className={cn(
-                    "max-w-[88%] rounded-md px-2.5 py-1.5 text-[12.5px] leading-snug",
-                    m.role === "user"
-                      ? "bg-foreground text-white"
-                      : "bg-[color:var(--elevated)] text-foreground"
-                  )}
-                >
-                  {m.text}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-center gap-4 pt-1">
         <button
           type="button"
           onClick={handleToggleMute}
           className={cn(
-            "press inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-[12.5px] font-medium transition-colors",
+            "press inline-flex items-center gap-1.5 text-[12.5px] font-medium transition-colors",
             isMuted
-              ? "border-[#E5B6B1] bg-[#FFF5F3] text-[#9F2A22]"
-              : "border-hairline bg-surface text-foreground hover:bg-elevated"
+              ? "text-[#9F2A22] hover:text-[#7e1e16]"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           {isMuted ? (
@@ -335,10 +344,12 @@ function ActiveSession({
           {isMuted ? "Muted" : "Mute"}
         </button>
 
+        <span className="size-1 rounded-full bg-subtle/40" aria-hidden />
+
         <button
           type="button"
           onClick={handleEnd}
-          className="press ml-auto inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#9F2A22] px-3.5 text-[12.5px] font-medium text-white transition-colors hover:bg-[#8B221B]"
+          className="press inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[#9F2A22] transition-colors hover:text-[#7e1e16]"
         >
           <PhoneDisconnectIcon size={13} weight="fill" />
           End call
@@ -348,41 +359,132 @@ function ActiveSession({
   );
 }
 
-function VoiceActivity({
-  fft,
-  active,
-}: {
-  fft: number[] | undefined;
-  active: boolean;
-}) {
-  // Render a simple 24-bar visualizer from the FFT data. If there's no FFT
-  // data (mic not yet active), show a flat baseline so the UI doesn't jump.
-  const bars = 24;
-  const heights: number[] = [];
-  if (fft && fft.length > 0) {
-    const step = Math.floor(fft.length / bars);
-    for (let i = 0; i < bars; i++) {
-      const slice = fft.slice(i * step, (i + 1) * step);
-      const max = slice.length > 0 ? Math.max(...slice) : 0;
-      heights.push(Math.min(1, max));
-    }
-  } else {
-    for (let i = 0; i < bars; i++) heights.push(0.1);
+function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [transcript.length]);
+
+  if (transcript.length === 0) {
+    return (
+      <p className="text-center text-[12.5px] italic text-subtle">
+        Say hi to get started. Max will take it from there.
+      </p>
+    );
   }
 
   return (
-    <div className="flex h-12 items-center justify-center gap-[3px]">
-      {heights.map((h, i) => (
-        <span
-          key={i}
-          className={cn(
-            "w-[3px] rounded-full transition-[height] duration-75",
-            active ? "bg-foreground" : "bg-subtle/40"
-          )}
-          style={{ height: `${Math.max(8, h * 44)}px` }}
-          aria-hidden
-        />
-      ))}
+    <div
+      ref={containerRef}
+      className="w-full max-w-[480px] max-h-[220px] overflow-y-auto px-1 py-1"
+    >
+      <ol className="space-y-3">
+        {transcript.map((m) => {
+          const isMax = m.role === "agent";
+          return (
+            <li
+              key={m.id}
+              className={cn(
+                "flex w-full",
+                isMax ? "justify-start" : "justify-end"
+              )}
+            >
+              <div
+                className={cn(
+                  "flex max-w-[85%] flex-col gap-1",
+                  isMax ? "items-start" : "items-end"
+                )}
+              >
+                <span
+                  className={cn(
+                    "text-[10px] font-semibold uppercase tracking-[0.08em] leading-none",
+                    isMax ? "text-foreground" : "text-subtle"
+                  )}
+                  aria-hidden
+                >
+                  {isMax ? "Max" : "You"}
+                </span>
+                <Card
+                  size="sm"
+                  className={cn(
+                    "gap-0 rounded-2xl border-0 py-0 ring-0",
+                    isMax
+                      ? "bg-foreground text-white"
+                      : "bg-muted text-foreground ring-1 ring-inset ring-hairline"
+                  )}
+                >
+                  <CardContent className="px-3.5 py-2 text-left text-[13.5px] leading-[1.45]">
+                    {m.text}
+                  </CardContent>
+                </Card>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+function PulseOrb({ volume, active }: { volume: number; active: boolean }) {
+  // Vapi emits a 0..1 volume level via 'volume-level' events. Drive the
+  // halo scale + opacity off that. Single source of truth, no fft math.
+  const energy = Math.min(1, Math.max(0, volume));
+
+  return (
+    <div
+      className="relative mx-auto flex h-44 w-44 items-center justify-center"
+      role="img"
+      aria-label={energy > 0.05 ? "Voice active" : "Quiet"}
+    >
+      <div
+        className={cn("pointer-events-none absolute h-44 w-44 rounded-full")}
+        style={{
+          background:
+            "radial-gradient(circle, rgba(96,165,250,0.45) 0%, rgba(96,165,250,0) 65%)",
+          transform: `scale(${1.1 + energy * 1.1})`,
+          opacity: active ? 0.55 + energy * 0.4 : 0,
+          filter: "blur(28px)",
+          transition: "transform 90ms ease-out, opacity 120ms ease-out",
+        }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute h-36 w-36 rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(59,130,246,0.55) 0%, rgba(59,130,246,0) 60%)",
+          transform: `scale(${1 + energy * 0.8})`,
+          opacity: active ? 0.7 : 0,
+          filter: "blur(14px)",
+          transition: "transform 70ms ease-out, opacity 120ms ease-out",
+        }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute h-28 w-28 rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(147,197,253,0.85) 0%, rgba(147,197,253,0) 70%)",
+          transform: `scale(${0.95 + energy * 0.45})`,
+          opacity: active ? 0.85 : 0,
+          filter: "blur(6px)",
+          transition: "transform 50ms ease-out",
+        }}
+        aria-hidden
+      />
+      <div
+        className="relative flex h-24 w-24 items-center justify-center rounded-full bg-foreground text-white shadow-lg ring-1 ring-black/10"
+        style={{
+          transform: `scale(${1 + energy * 0.05})`,
+          transition: "transform 60ms ease-out",
+        }}
+      >
+        <MicrophoneIcon size={32} weight="fill" aria-hidden />
+      </div>
     </div>
   );
 }

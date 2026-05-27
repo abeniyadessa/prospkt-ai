@@ -359,6 +359,16 @@ kbd {
   50% { transform: scaleY(1); opacity: 1; }
 }
 
+/* Subtle "breathing" expand-contract for the pulsating live-demo orb when no
+   voice activity is detected, so the orb never looks frozen. */
+@keyframes pulseOrbBreath {
+  0%, 100% { transform: scale(0.98); opacity: 0.45; }
+  50%      { transform: scale(1.08); opacity: 0.7; }
+}
+.pulse-orb-breath {
+  animation: pulseOrbBreath 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
 /* Page crossfade — used with the View Transitions API for smooth nav */
 .view-crossfade {
   view-transition-name: main-view;

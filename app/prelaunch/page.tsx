@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {
   LightningIcon,
   LinkedinLogoIcon,
+  XLogoIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { PrelaunchAnalytics } from "@/components/marketing/prelaunch-analytics";
 import { PrelaunchEmailForm } from "@/components/marketing/prelaunch-email-form";
@@ -206,18 +207,29 @@ function Footer() {
     <footer className="relative z-10 mt-auto border-t border-hairline py-6">
       <div className="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
         <p className="text-pretty text-[12.5px] leading-5 text-muted-foreground">
-          Prospkt is open source and launching in public.
+          Prospkt is launching in public. Follow the build.
         </p>
 
-        <a
-          href="https://www.linkedin.com/company/prospkt"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Follow Prospkt on LinkedIn"
-          className="inline-flex size-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <LinkedinLogoIcon size={16} weight="fill" aria-hidden />
-        </a>
+        <div className="flex items-center gap-1">
+          <a
+            href="https://www.linkedin.com/company/prospktai"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Follow Prospkt on LinkedIn"
+            className="inline-flex size-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <LinkedinLogoIcon size={16} weight="fill" aria-hidden />
+          </a>
+          <a
+            href="https://x.com/Prospktai"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Follow Prospkt on X"
+            className="inline-flex size-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <XLogoIcon size={15} weight="fill" aria-hidden />
+          </a>
+        </div>
       </div>
     </footer>
   );

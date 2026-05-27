@@ -46,16 +46,22 @@ export async function POST(request: Request) {
     request.headers.get("x-real-ip") ??
     "unknown";
 
-  const limit = rateLimit(ip);
-  if (!limit.allowed) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "You've already tried the demo a couple times. Try again in a few minutes.",
-        retryAfterSeconds: Math.ceil((limit.resetIn ?? 0) / 1000),
-      },
-      { status: 429 }
-    );
+  // Skip rate limit in development so we can iterate freely. The limit only
+  // exists to protect the free tier from public-page abuse in production.
+  const skipRateLimit = process.env.NODE_ENV !== "production";
+
+  if (!skipRateLimit) {
+    const limit = rateLimit(ip);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "You've already tried the demo a couple times. Try again in a few minutes.",
+          retryAfterSeconds: Math.ceil((limit.resetIn ?? 0) / 1000),
+        },
+        { status: 429 }
+      );
+    }
   }
 
   try {

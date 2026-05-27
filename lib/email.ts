@@ -161,6 +161,85 @@ export async function sendWaitlistSignupNotification(
   return { sent: true };
 }
 
+// ─── User-facing waitlist confirmation ────────────────────────────────────────
+
+export async function sendWaitlistConfirmation(input: {
+  email: string;
+}): Promise<{ sent: boolean; reason?: string }> {
+  const apiKey = isResendConfigured();
+  if (!apiKey) {
+    return { sent: false, reason: "Resend not configured" };
+  }
+
+  const recipient = input.email.trim().toLowerCase();
+  if (!recipient) {
+    return { sent: false, reason: "Missing recipient" };
+  }
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 24px; background: #FFFFFF; color: #0A0A0A;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:32px;">
+        <div style="width:28px; height:28px; border-radius:6px; background:#0A0A0A; display:flex; align-items:center; justify-content:center;">
+          <span style="color:#FFFFFF; font-weight:700; font-size:14px; line-height:1;">P</span>
+        </div>
+        <span style="font-size:15px; font-weight:600;">Prospkt</span>
+      </div>
+
+      <h1 style="font-size:24px; font-weight:700; line-height:1.2; margin:0 0 12px;">
+        You&apos;re on the list.
+      </h1>
+      <p style="font-size:15px; line-height:1.55; color:#3D3D3D; margin:0 0 28px;">
+        Locked in. We&apos;ll email you the second waitlist invites start going out.
+      </p>
+
+      <div style="background:#F7F7F6; border-radius:14px; padding:20px 22px; margin-bottom:28px;">
+        <p style="font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#737373; margin:0 0 10px;">
+          What happens next
+        </p>
+        <ul style="font-size:14.5px; line-height:1.6; color:#0A0A0A; margin:0; padding-left:18px;">
+          <li>You&apos;ll get a heads-up email when your seat opens up.</li>
+          <li>Waitlist members are locked in at <strong>founder pricing</strong> (not public yet).</li>
+          <li>We&apos;ll share product progress along the way. No spam.</li>
+        </ul>
+      </div>
+
+      <p style="font-size:14.5px; line-height:1.6; color:#0A0A0A; margin:0 0 8px;">
+        Want to skip the line? Hit reply and tell me what business you run. The most relevant operators get in first.
+      </p>
+
+      <p style="font-size:13.5px; line-height:1.55; color:#737373; margin:28px 0 0;">
+        — Abeni, founder of Prospkt
+      </p>
+
+      <hr style="border:none; border-top:1px solid #ECECEA; margin:32px 0 16px;" />
+      <p style="font-size:11.5px; color:#9F9F9E; margin:0;">
+        Sent because you joined the Prospkt waitlist at prospkt.ai. Reply to unsubscribe.
+      </p>
+    </div>
+  `;
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: RESEND_FROM,
+      to: [recipient],
+      reply_to: FALLBACK_NOTIFICATION_TO,
+      subject: "You're on the Prospkt waitlist",
+      html,
+    }),
+  });
+
+  if (!res.ok) {
+    return { sent: false, reason: await res.text() };
+  }
+
+  return { sent: true };
+}
+
 // ─── Daily digest ─────────────────────────────────────────────────────────────
 
 function escape(value: string): string {

@@ -17,7 +17,12 @@
     "db:migrate": "drizzle-kit migrate",
     "start": "next start",
     "lint": "eslint",
-    "worker": "node scripts/worker.mjs"
+    "worker": "node scripts/worker.mjs",
+    "video:studio": "remotion studio remotion/index.ts",
+    "video:still": "remotion still remotion/index.ts ProspktWaitlistLandscape /tmp/prospkt-waitlist-landscape-frame.png --frame=180 --scale=0.25",
+    "video:still:vertical": "remotion still remotion/index.ts ProspktWaitlistVertical /tmp/prospkt-waitlist-vertical-frame.png --frame=180 --scale=0.25",
+    "video:render": "remotion render remotion/index.ts ProspktWaitlistLandscape out/prospkt-waitlist-landscape.mp4 --codec=h264",
+    "video:render:vertical": "remotion render remotion/index.ts ProspktWaitlistVertical out/prospkt-waitlist-vertical.mp4 --codec=h264"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.89.0",
@@ -25,6 +30,7 @@
     "@clerk/nextjs": "^7.3.0",
     "@humeai/voice-react": "^0.2.14",
     "@phosphor-icons/react": "^2.1.10",
+    "@vapi-ai/web": "^2.5.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
@@ -38,9 +44,11 @@
     "tailwind-merge": "^3.5.0",
     "tw-animate-css": "^1.4.0",
     "twilio": "^5.13.1",
-    "zod": "^4.4.2"
+    "zod": "4.3.6"
   },
   "devDependencies": {
+    "@remotion/cli": "^4.0.465",
+    "@remotion/media-utils": "^4.0.465",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
@@ -49,6 +57,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
+    "remotion": "^4.0.465",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

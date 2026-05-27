@@ -1043,6 +1043,16 @@ export function createWaitlistSignup(input: {
   return rowToWaitlistSignup(signup);
 }
 
+export function listWaitlistSignups(limit = 100): WaitlistSignup[] {
+  const database = getDb();
+  const rows = database
+    .prepare(
+      `SELECT * FROM waitlist_signups ORDER BY createdAt DESC LIMIT ?`
+    )
+    .all(limit) as WaitlistSignupRow[];
+  return rows.map(rowToWaitlistSignup);
+}
+
 export function createPrelaunchEvent(input: {
   name: string;
   source?: string | null;

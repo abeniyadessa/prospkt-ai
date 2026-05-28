@@ -130,6 +130,7 @@ function buildAssistantOverrides() {
 
 export async function POST(request: Request) {
   const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY?.trim();
+  const privateKey = process.env.VAPI_API_KEY?.trim();
   const assistantId = process.env.VAPI_ASSISTANT_ID?.trim();
 
   if (!publicKey || !assistantId) {
@@ -138,6 +139,27 @@ export async function POST(request: Request) {
         ok: false,
         error:
           "Voice demo is not configured. Set NEXT_PUBLIC_VAPI_PUBLIC_KEY and VAPI_ASSISTANT_ID.",
+      },
+      { status: 503 }
+    );
+  }
+
+  // Vapi enforces strict scope separation: only the PUBLIC key (tag=public on
+  // GET /token) is accepted by POST /call/web, which is what the Web SDK hits.
+  // If someone accidentally pastes the private key into NEXT_PUBLIC_* it will
+  // be (a) leaked in the JS bundle and (b) rejected by Vapi with an opaque
+  // empty {} error event. Fail loud here instead.
+  if (privateKey && publicKey === privateKey) {
+    console.error(
+      "[vapi-config] NEXT_PUBLIC_VAPI_PUBLIC_KEY equals VAPI_API_KEY — " +
+        "the private key is being exposed in the browser bundle and will be " +
+        "rejected by POST /call/web. Use the tag=public key from GET /token."
+    );
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "Voice demo is misconfigured (private key set as public). Server team has been notified.",
       },
       { status: 503 }
     );

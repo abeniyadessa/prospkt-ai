@@ -11,7 +11,7 @@ import Vapi from "@vapi-ai/web";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-const MAX_DURATION_SECONDS = 60;
+const MAX_DURATION_SECONDS = 240;
 
 type AssistantOverrides = Record<string, unknown>;
 
@@ -135,7 +135,7 @@ function IdleSurface({
           {fetching ? "Connecting…" : "Tap to start"}
         </p>
         <p className="mt-1 text-[11px] text-subtle">
-          Uses your mic · Up to {MAX_DURATION_SECONDS}s · Not recorded
+          Uses your mic · Up to {Math.round(MAX_DURATION_SECONDS / 60)} min · Not recorded
         </p>
       </div>
 
@@ -315,7 +315,14 @@ function ActiveSession({
         />
         <span className="text-foreground">{statusLabel}</span>
         <span className="text-subtle">·</span>
-        <span className="tabular-nums">{Math.max(0, secondsLeft)}s left</span>
+        <span className="tabular-nums">
+          {(() => {
+            const s = Math.max(0, secondsLeft);
+            const m = Math.floor(s / 60);
+            const r = s % 60;
+            return `${m}:${r.toString().padStart(2, "0")} left`;
+          })()}
+        </span>
       </div>
 
       <Transcript transcript={transcript} />

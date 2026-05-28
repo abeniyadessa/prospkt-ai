@@ -145,20 +145,25 @@ function buildAssistantOverrides() {
       keywords: ["Prospkt", "HVAC", "CRM", "estimate", "waitlist"],
     },
     backgroundSound: "off",
-    silenceTimeoutSeconds: 25,
-    maxDurationSeconds: 60,
+    silenceTimeoutSeconds: 30,
+    maxDurationSeconds: 240,
     startSpeakingPlan: {
-      // Conversation analysis (Sacks/Schegloff): instant replies signal
-      // scripted/non-listening. 500-600ms is the threshold below which a
-      // reply reads as "didn't actually consider what I said."
-      waitSeconds: 0.55,
+      // SNAPPY turn-taking after the user finishes — the "awkward silence"
+      // problem. The trust-tune set this to 0.55 globally, which fixed
+      // snap-reply-feels-scripted but introduced clear dead air on normal
+      // turn boundaries. Pulled back hard:
+      //   waitSeconds              0.20  — fires fast once Deepgram says final
+      //   onPunctuationSeconds     0.10  — sentence end = go
+      //   onNoPunctuationSeconds   0.60  — still gives the user a beat to
+      //                                    keep going, but not 1.4s of silence
+      //   onNumberSeconds          0.40  — for phone numbers etc
+      // (stopSpeakingPlan stays patient — that's a different problem.)
+      waitSeconds: 0.2,
       smartEndpointingEnabled: true,
       transcriptionEndpointingPlan: {
-        onPunctuationSeconds: 0.3,
-        // Bumped so the agent actually lets the user finish a thought even
-        // when Deepgram hasn't dropped final punctuation yet.
-        onNoPunctuationSeconds: 1.4,
-        onNumberSeconds: 0.6,
+        onPunctuationSeconds: 0.1,
+        onNoPunctuationSeconds: 0.6,
+        onNumberSeconds: 0.4,
       },
     },
     stopSpeakingPlan: {

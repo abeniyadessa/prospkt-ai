@@ -88,7 +88,7 @@ function buildAssistantOverrides() {
     },
     voice: {
       provider: "11labs",
-      voiceId: "TX3LPaxmHKxFdv7VOQHJ",
+      voiceId: "Ifu36BnEjjIY932etsqk",
       // Higher stability + slightly slower speed = grounded, less "performed".
       // Lower style keeps delivery neutral instead of emotive.
       stability: 0.6,

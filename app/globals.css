@@ -190,6 +190,26 @@ kbd {
   }
 }
 
+/* AI orb — used on the prelaunch live demo. The one place where a gradient
+   lives in the otherwise editorial-minimal UI. Represents Max's presence. */
+@keyframes orbRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes orbBreath {
+  0%, 100% { transform: scale(1);    opacity: 0.85; }
+  50%      { transform: scale(1.08); opacity: 1;    }
+}
+@keyframes orbDrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  33%  { transform: translate3d(4px, -6px, 0) scale(1.04); }
+  66%  { transform: translate3d(-5px, 5px, 0) scale(0.98); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+.orb-rotate  { animation: orbRotate 18s linear infinite; }
+.orb-breath  { animation: orbBreath 5.4s ease-in-out infinite; }
+.orb-drift   { animation: orbDrift 11s ease-in-out infinite; }
+
 /* Marketing hero field */
 .hero-shell {
   background-color: #FCFDFE;

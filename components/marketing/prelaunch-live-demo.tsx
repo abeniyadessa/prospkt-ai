@@ -100,47 +100,34 @@ function IdleSurface({
   const errored = state.status === "error";
 
   return (
-    <div className="flex flex-col items-center gap-5 rounded-xl border border-border bg-surface p-6 text-center shadow-sm">
-      <div className="space-y-1">
-        <p className="text-[15px] font-medium text-foreground">
-          Talk to Max, one of Prospkt&apos;s AI agents.
+    <div className="flex flex-col items-center gap-7 px-2 py-8 text-center">
+      <GlowOrb
+        state={fetching ? "connecting" : "idle"}
+        onClick={onStart}
+        disabled={fetching}
+      />
+
+      <div className="space-y-1.5">
+        <p className="text-[16px] font-semibold tracking-tight text-foreground">
+          Talk to Max
         </p>
-        <p className="max-w-[400px] text-[13px] leading-5 text-muted-foreground">
-          Ask anything about Prospkt and how it fits your business. He will
-          answer in real time.
+        <p className="max-w-[420px] text-[13.5px] leading-[1.5] text-muted-foreground">
+          Prospect&apos;s AI sales rep. Ask anything about how this fits your shop.
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={onStart}
-        disabled={fetching}
-        aria-label={fetching ? "Connecting" : "Start conversation"}
-        className="press group relative flex h-24 w-24 items-center justify-center rounded-full bg-foreground text-white shadow-lg ring-1 ring-black/10 transition-transform hover:scale-[1.02] disabled:opacity-70"
-      >
-        <span
-          className="pointer-events-none absolute -z-10 h-32 w-32 rounded-full opacity-50 transition-opacity group-hover:opacity-80"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(96,165,250,0.45) 0%, rgba(96,165,250,0) 65%)",
-            filter: "blur(20px)",
-          }}
-          aria-hidden
-        />
-        <MicrophoneIcon size={32} weight="fill" aria-hidden />
-      </button>
-
-      <div className="text-center">
+      <div className="space-y-1">
         <p className="text-[13.5px] font-medium text-foreground">
-          {fetching ? "Connecting…" : "Tap to start"}
+          {fetching ? "Connecting…" : "Tap the orb to start"}
         </p>
-        <p className="mt-1 text-[11px] text-subtle">
-          Uses your mic · Up to {Math.round(MAX_DURATION_SECONDS / 60)} min · Not recorded
+        <p className="text-[11px] text-subtle">
+          Uses your mic · Up to {Math.round(MAX_DURATION_SECONDS / 60)} min · Not
+          recorded
         </p>
       </div>
 
       {errored ? (
-        <div className="mt-2 flex items-center gap-2 rounded-md border border-[#E5B6B1] bg-[#FFF5F3] px-3 py-2 text-[12px] text-[#9F2A22]">
+        <div className="flex items-center gap-2 rounded-md border border-[#E5B6B1] bg-[#FFF5F3] px-3 py-2 text-[12px] text-[#9F2A22]">
           <WarningCircleIcon size={14} weight="fill" />
           <span>{state.message}</span>
           <button
@@ -227,8 +214,6 @@ function ActiveSession({
         setCallStatus("error");
       });
 
-      // Pass assistantId (persistent assistant) + per-call overrides.
-      // This is Vapi's preferred pattern for browser sessions vs inline configs.
       const startArgs: unknown[] = assistantOverrides
         ? [assistantId, assistantOverrides]
         : [assistantId];
@@ -301,9 +286,27 @@ function ActiveSession({
           ? "Connection error"
           : "Disconnected";
 
+  const timeLeftLabel = (() => {
+    const s = Math.max(0, secondsLeft);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `${m}:${r.toString().padStart(2, "0")} left`;
+  })();
+
   return (
-    <div className="flex flex-col items-center gap-6">
-      <PulseOrb volume={volume} active={callStatus === "connected"} />
+    <div className="flex flex-col items-center gap-6 px-2 py-8 text-center">
+      <GlowOrb
+        state={
+          callStatus === "error"
+            ? "error"
+            : callStatus === "connected"
+              ? "connected"
+              : callStatus === "connecting"
+                ? "connecting"
+                : "idle"
+        }
+        volume={volume}
+      />
 
       <div className="flex items-center justify-center gap-2 text-[12.5px] text-muted-foreground">
         <span
@@ -315,14 +318,7 @@ function ActiveSession({
         />
         <span className="text-foreground">{statusLabel}</span>
         <span className="text-subtle">·</span>
-        <span className="tabular-nums">
-          {(() => {
-            const s = Math.max(0, secondsLeft);
-            const m = Math.floor(s / 60);
-            const r = s % 60;
-            return `${m}:${r.toString().padStart(2, "0")} left`;
-          })()}
-        </span>
+        <span className="tabular-nums">{timeLeftLabel}</span>
       </div>
 
       <Transcript transcript={transcript} />
@@ -431,60 +427,119 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
   );
 }
 
-function PulseOrb({ volume, active }: { volume: number; active: boolean }) {
+/**
+ * The Max orb — the one visual element representing the AI on the prelaunch
+ * page. Three stacked gradient layers, all animated independently:
+ *   1. Outer halo  — rotating conic gradient, heavy blur
+ *   2. Middle drift — radial gradient drifting in a slow loop
+ *   3. Inner orb    — glassy ball, breathing scale + volume-reactive
+ *
+ * On idle the orb is a button (click to start). On active it's a passive
+ * visualizer driven by the call's `volume-level` events.
+ */
+function GlowOrb({
+  state,
+  volume = 0,
+  onClick,
+  disabled = false,
+}: {
+  state: "idle" | "connecting" | "connected" | "ended" | "error";
+  volume?: number;
+  onClick?: () => void;
+  disabled?: boolean;
+}) {
   const energy = Math.min(1, Math.max(0, volume));
+  const interactive = state === "idle" && !disabled;
+  const haloOpacity =
+    state === "connected" ? 0.85 + energy * 0.15 : state === "error" ? 0.45 : 0.75;
+
+  const content = (
+    <>
+      <div
+        className="orb-rotate pointer-events-none absolute h-60 w-60 rounded-full"
+        style={{
+          background: `conic-gradient(from 0deg,
+            rgba(176, 132, 255, 0.55) 0%,
+            rgba(98, 175, 255, 0.60) 25%,
+            rgba(126, 220, 255, 0.50) 50%,
+            rgba(255, 168, 222, 0.45) 75%,
+            rgba(176, 132, 255, 0.55) 100%
+          )`,
+          filter: "blur(34px)",
+          opacity: haloOpacity,
+          transform: `scale(${1.0 + energy * 0.18})`,
+          transition: "opacity 220ms ease-out, transform 90ms ease-out",
+        }}
+        aria-hidden
+      />
+
+      <div
+        className="orb-drift pointer-events-none absolute h-48 w-48 rounded-full"
+        style={{
+          background: `radial-gradient(circle at 30% 30%,
+            rgba(190, 150, 255, 0.85) 0%,
+            rgba(126, 178, 255, 0.45) 40%,
+            rgba(255, 170, 224, 0.18) 80%
+          )`,
+          filter: "blur(22px)",
+        }}
+        aria-hidden
+      />
+
+      <div
+        className="orb-breath pointer-events-none relative h-32 w-32 rounded-full"
+        style={{
+          background: `radial-gradient(circle at 38% 32%,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(214, 196, 255, 0.78) 40%,
+            rgba(174, 211, 255, 0.55) 100%
+          )`,
+          boxShadow: `
+            inset 0 -10px 32px rgba(180, 140, 255, 0.42),
+            inset 0 10px 24px rgba(255, 255, 255, 0.72),
+            0 14px 44px rgba(180, 140, 255, 0.22)
+          `,
+          transform: `scale(${1 + energy * 0.06})`,
+          transition: "transform 70ms ease-out",
+        }}
+        aria-hidden
+      />
+
+      {state === "connected" ? (
+        <span
+          className="pointer-events-none absolute bottom-3 right-3 size-2.5 animate-pulse rounded-full bg-[#2E7D4F] ring-2 ring-white"
+          aria-hidden
+        />
+      ) : null}
+    </>
+  );
+
+  if (interactive) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label="Start conversation with Max"
+        className="group relative mx-auto flex h-60 w-60 items-center justify-center transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C5BD6]/50 rounded-full"
+      >
+        {content}
+      </button>
+    );
+  }
 
   return (
     <div
-      className="relative mx-auto flex h-44 w-44 items-center justify-center"
-      role="img"
-      aria-label={energy > 0.05 ? "Voice active" : "Quiet"}
+      role={state === "connected" ? "img" : undefined}
+      aria-label={
+        state === "connected"
+          ? energy > 0.05
+            ? "Max is speaking"
+            : "Listening"
+          : undefined
+      }
+      className="relative mx-auto flex h-60 w-60 items-center justify-center"
     >
-      <div
-        className="pointer-events-none absolute h-44 w-44 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(96,165,250,0.45) 0%, rgba(96,165,250,0) 65%)",
-          transform: `scale(${1.1 + energy * 1.1})`,
-          opacity: active ? 0.55 + energy * 0.4 : 0,
-          filter: "blur(28px)",
-          transition: "transform 90ms ease-out, opacity 120ms ease-out",
-        }}
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute h-36 w-36 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(59,130,246,0.55) 0%, rgba(59,130,246,0) 60%)",
-          transform: `scale(${1 + energy * 0.8})`,
-          opacity: active ? 0.7 : 0,
-          filter: "blur(14px)",
-          transition: "transform 70ms ease-out, opacity 120ms ease-out",
-        }}
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute h-28 w-28 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(147,197,253,0.85) 0%, rgba(147,197,253,0) 70%)",
-          transform: `scale(${0.95 + energy * 0.45})`,
-          opacity: active ? 0.85 : 0,
-          filter: "blur(6px)",
-          transition: "transform 50ms ease-out",
-        }}
-        aria-hidden
-      />
-      <div
-        className="relative flex h-24 w-24 items-center justify-center rounded-full bg-foreground text-white shadow-lg ring-1 ring-black/10"
-        style={{
-          transform: `scale(${1 + energy * 0.05})`,
-          transition: "transform 60ms ease-out",
-        }}
-      >
-        <MicrophoneIcon size={32} weight="fill" aria-hidden />
-      </div>
+      {content}
     </div>
   );
 }

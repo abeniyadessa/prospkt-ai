@@ -428,14 +428,25 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
 }
 
 /**
- * The Max orb — the one visual element representing the AI on the prelaunch
- * page. Three stacked gradient layers, all animated independently:
- *   1. Outer halo  — rotating conic gradient, heavy blur
- *   2. Middle drift — radial gradient drifting in a slow loop
- *   3. Inner orb    — glassy ball, breathing scale + volume-reactive
+ * The Max orb — the AI's visual signature on the prelaunch page.
  *
- * On idle the orb is a button (click to start). On active it's a passive
- * visualizer driven by the call's `volume-level` events.
+ * Brand decisions:
+ *   Palette  — cool monochrome blue (sky/blue/ice + brand-success green pip).
+ *              Reads B2B + trustworthy + AI, without the consumer purple
+ *              connotation Prospkt's trades audience would distrust.
+ *   Motion   — ripple/sonar metaphor (concentric expanding rings) instead of
+ *              rotating shimmer. Functional: "AI listening." Futuristic
+ *              without flashy.
+ *   Layers   — softer than the prior purple. Single-family blue.
+ *
+ * Composition (back to front):
+ *   1. Outer halo   — radial blue glow, heavy blur, slow drift (orbDrift)
+ *   2. Ripple rings — 3 concentric expanding rings, staggered 1.2s each
+ *   3. Inner orb    — chrome/ice glassy ball, breathing + volume-reactive
+ *   4. Status pip   — brand-green, only when connected
+ *
+ * On idle the orb is a button. On active it's a passive visualizer driven by
+ * the call's `volume-level` events.
  */
 function GlowOrb({
   state,
@@ -450,54 +461,67 @@ function GlowOrb({
 }) {
   const energy = Math.min(1, Math.max(0, volume));
   const interactive = state === "idle" && !disabled;
+  const isActive = state === "connected" || state === "connecting";
   const haloOpacity =
-    state === "connected" ? 0.85 + energy * 0.15 : state === "error" ? 0.45 : 0.75;
+    state === "connected"
+      ? 0.78 + energy * 0.2
+      : state === "error"
+        ? 0.35
+        : state === "idle"
+          ? 0.7
+          : 0.6;
 
   const content = (
     <>
       <div
-        className="orb-rotate pointer-events-none absolute h-60 w-60 rounded-full"
+        className="orb-drift pointer-events-none absolute h-60 w-60 rounded-full"
         style={{
-          background: `conic-gradient(from 0deg,
-            rgba(176, 132, 255, 0.55) 0%,
-            rgba(98, 175, 255, 0.60) 25%,
-            rgba(126, 220, 255, 0.50) 50%,
-            rgba(255, 168, 222, 0.45) 75%,
-            rgba(176, 132, 255, 0.55) 100%
+          background: `radial-gradient(circle at center,
+            rgba(96, 165, 250, 0.55) 0%,
+            rgba(59, 130, 246, 0.32) 38%,
+            rgba(30, 64, 175, 0.0) 78%
           )`,
-          filter: "blur(34px)",
+          filter: "blur(32px)",
           opacity: haloOpacity,
-          transform: `scale(${1.0 + energy * 0.18})`,
-          transition: "opacity 220ms ease-out, transform 90ms ease-out",
+          transform: `scale(${1.0 + energy * 0.16})`,
+          transition: "opacity 240ms ease-out, transform 90ms ease-out",
         }}
         aria-hidden
       />
 
-      <div
-        className="orb-drift pointer-events-none absolute h-48 w-48 rounded-full"
-        style={{
-          background: `radial-gradient(circle at 30% 30%,
-            rgba(190, 150, 255, 0.85) 0%,
-            rgba(126, 178, 255, 0.45) 40%,
-            rgba(255, 170, 224, 0.18) 80%
-          )`,
-          filter: "blur(22px)",
-        }}
-        aria-hidden
-      />
+      {isActive ? (
+        <>
+          <span
+            className="orb-ripple-1 pointer-events-none absolute h-32 w-32 rounded-full border"
+            style={{ borderColor: "rgba(59, 130, 246, 0.55)", borderWidth: "1.5px" }}
+            aria-hidden
+          />
+          <span
+            className="orb-ripple-2 pointer-events-none absolute h-32 w-32 rounded-full border"
+            style={{ borderColor: "rgba(96, 165, 250, 0.45)", borderWidth: "1.5px" }}
+            aria-hidden
+          />
+          <span
+            className="orb-ripple-3 pointer-events-none absolute h-32 w-32 rounded-full border"
+            style={{ borderColor: "rgba(125, 211, 252, 0.4)", borderWidth: "1.5px" }}
+            aria-hidden
+          />
+        </>
+      ) : null}
 
       <div
         className="orb-breath pointer-events-none relative h-32 w-32 rounded-full"
         style={{
-          background: `radial-gradient(circle at 38% 32%,
-            rgba(255, 255, 255, 0.95) 0%,
-            rgba(214, 196, 255, 0.78) 40%,
-            rgba(174, 211, 255, 0.55) 100%
+          background: `radial-gradient(circle at 36% 30%,
+            rgba(255, 255, 255, 0.98) 0%,
+            rgba(224, 240, 254, 0.88) 26%,
+            rgba(159, 202, 234, 0.7) 62%,
+            rgba(96, 142, 200, 0.55) 100%
           )`,
           boxShadow: `
-            inset 0 -10px 32px rgba(180, 140, 255, 0.42),
-            inset 0 10px 24px rgba(255, 255, 255, 0.72),
-            0 14px 44px rgba(180, 140, 255, 0.22)
+            inset 0 -10px 30px rgba(30, 64, 175, 0.38),
+            inset 0 10px 24px rgba(255, 255, 255, 0.78),
+            0 14px 44px rgba(59, 130, 246, 0.22)
           `,
           transform: `scale(${1 + energy * 0.06})`,
           transition: "transform 70ms ease-out",
@@ -520,7 +544,7 @@ function GlowOrb({
         type="button"
         onClick={onClick}
         aria-label="Start conversation with Max"
-        className="group relative mx-auto flex h-60 w-60 items-center justify-center transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C5BD6]/50 rounded-full"
+        className="group relative mx-auto flex h-60 w-60 items-center justify-center rounded-full transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]/40"
       >
         {content}
       </button>

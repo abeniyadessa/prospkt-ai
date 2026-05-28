@@ -112,7 +112,7 @@ function IdleSurface({
           Talk to Max
         </p>
         <p className="max-w-[420px] text-[13.5px] leading-[1.5] text-muted-foreground">
-          Prospect&apos;s AI sales rep. Ask anything about how this fits your shop.
+          Prospect&apos;s AI sales rep. Ask anything about how this would fit in your business.
         </p>
       </div>
 
@@ -399,7 +399,7 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
                 <span
                   className={cn(
                     "text-[10px] font-semibold uppercase tracking-[0.08em] leading-none",
-                    isMax ? "text-foreground" : "text-subtle"
+                    isMax ? "text-[#1E3A8A]" : "text-subtle"
                   )}
                   aria-hidden
                 >
@@ -410,8 +410,8 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
                   className={cn(
                     "gap-0 rounded-2xl border-0 py-0 ring-0",
                     isMax
-                      ? "bg-foreground text-white"
-                      : "bg-muted text-foreground ring-1 ring-inset ring-hairline"
+                      ? "bg-[#1E3A8A] text-white"
+                      : "bg-[#F1F5F9] text-foreground ring-1 ring-inset ring-[#E2E8F0]"
                   )}
                 >
                   <CardContent className="px-3.5 py-2 text-left text-[13.5px] leading-[1.45]">

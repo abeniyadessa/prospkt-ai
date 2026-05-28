@@ -102,7 +102,7 @@ function Brand() {
     <div className="inline-flex items-center justify-center gap-2.5">
       <LogoMark className="size-9 rounded-xl" />
       <span className="text-[17px] font-semibold leading-none">Prospkt</span>
-      <span className="ml-2 rounded-full border border-[#BFE8CA] bg-[#F2FBF4] px-2.5 py-1 text-[10.5px] font-medium text-[#16823D]">
+      <span className="ml-2 rounded-full border border-[#BFD7F4] bg-[#EFF6FF] px-2.5 py-1 text-[10.5px] font-medium text-[#1D4ED8]">
         Early access
       </span>
     </div>
@@ -117,7 +117,7 @@ function AnimatedOutcome() {
       </span>
       <span
         aria-hidden="true"
-        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-[#16823D]"
+        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-[#1D4ED8]"
       >
         <span className="prelaunch-outcome-track">
           {[...headlinePhrases, headlinePhrases[0]].map((phrase, index) => (

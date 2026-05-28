@@ -13,20 +13,20 @@ import { cn } from "@/lib/utils";
 
 const MAX_DURATION_SECONDS = 60;
 
-type AssistantConfig = Record<string, unknown>;
+type AssistantOverrides = Record<string, unknown>;
 
 type ConfigState =
   | { status: "idle" }
   | { status: "fetching" }
-  | { status: "ready"; publicKey: string; assistant: AssistantConfig }
+  | {
+      status: "ready";
+      publicKey: string;
+      assistantId: string;
+      assistantOverrides?: AssistantOverrides;
+    }
   | { status: "error"; message: string };
 
-type CallStatus =
-  | "idle"
-  | "connecting"
-  | "connected"
-  | "ended"
-  | "error";
+type CallStatus = "idle" | "connecting" | "connected" | "ended" | "error";
 
 type TranscriptMessage = {
   id: string;
@@ -42,15 +42,23 @@ export function PrelaunchLiveDemo() {
     try {
       const res = await fetch("/api/voice/vapi-config", { method: "POST" });
       const data = (await res.json()) as
-        | { ok: true; publicKey: string; assistant: AssistantConfig }
+        | {
+            ok: true;
+            publicKey: string;
+            assistantId: string;
+            assistantOverrides?: AssistantOverrides;
+          }
         | { ok: false; error: string };
       if (!res.ok || !data.ok) {
-        throw new Error(("error" in data && data.error) || "Failed to start session.");
+        throw new Error(
+          ("error" in data && data.error) || "Failed to start session."
+        );
       }
       setConfigState({
         status: "ready",
         publicKey: data.publicKey,
-        assistant: data.assistant,
+        assistantId: data.assistantId,
+        assistantOverrides: data.assistantOverrides,
       });
     } catch (error) {
       setConfigState({
@@ -69,7 +77,8 @@ export function PrelaunchLiveDemo() {
     return (
       <ActiveSession
         publicKey={configState.publicKey}
-        assistant={configState.assistant}
+        assistantId={configState.assistantId}
+        assistantOverrides={configState.assistantOverrides}
         onEnd={reset}
       />
     );
@@ -97,8 +106,8 @@ function IdleSurface({
           Talk to Max, one of Prospkt&apos;s AI agents.
         </p>
         <p className="max-w-[400px] text-[13px] leading-5 text-muted-foreground">
-          Ask anything about Prospkt and how it fits your business. He
-          will answer in real time.
+          Ask anything about Prospkt and how it fits your business. He will
+          answer in real time.
         </p>
       </div>
 
@@ -149,11 +158,13 @@ function IdleSurface({
 
 function ActiveSession({
   publicKey,
-  assistant,
+  assistantId,
+  assistantOverrides,
   onEnd,
 }: {
   publicKey: string;
-  assistant: AssistantConfig;
+  assistantId: string;
+  assistantOverrides?: AssistantOverrides;
   onEnd: () => void;
 }) {
   const vapiRef = useRef<Vapi | null>(null);
@@ -161,15 +172,13 @@ function ActiveSession({
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
   const [secondsLeft, setSecondsLeft] = useState(MAX_DURATION_SECONDS);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(0); // 0..1 — drives the pulse orb
+  const [volume, setVolume] = useState(0);
   const startedRef = useRef(false);
   const onEndRef = useRef(onEnd);
   useEffect(() => {
     onEndRef.current = onEnd;
   });
 
-  // Wire up Vapi SDK once on mount. The 80ms delay avoids React Strict Mode
-  // double-invoke killing our connect — same lesson as the Hume integration.
   useEffect(() => {
     if (startedRef.current) return;
     const handle = setTimeout(() => {
@@ -179,86 +188,72 @@ function ActiveSession({
       const vapi = new Vapi(publicKey);
       vapiRef.current = vapi;
 
-      vapi.on("call-start", () => {
-        console.log("[vapi] call-start");
-        setCallStatus("connected");
-      });
+      vapi.on("call-start", () => setCallStatus("connected"));
       vapi.on("call-end", () => {
-        console.log("[vapi] call-end");
         setCallStatus("ended");
         onEndRef.current();
       });
-      vapi.on("speech-start", () => console.log("[vapi] speech-start"));
-      vapi.on("speech-end", () => console.log("[vapi] speech-end"));
       vapi.on("volume-level", (v: number) => setVolume(v));
       vapi.on(
         "message",
-        (msg: { type?: string; role?: string; transcript?: string; transcriptType?: string }) => {
-          if (msg.type === "transcript" && msg.transcriptType === "final" && msg.transcript) {
+        (msg: {
+          type?: string;
+          role?: string;
+          transcript?: string;
+          transcriptType?: string;
+        }) => {
+          if (
+            msg.type === "transcript" &&
+            msg.transcriptType === "final" &&
+            msg.transcript
+          ) {
             const role = msg.role === "assistant" ? "agent" : "user";
             setTranscript((prev) => [
               ...prev,
-              {
-                id: `${role}-${prev.length}`,
-                role,
-                text: msg.transcript!,
-              },
+              { id: `${role}-${prev.length}`, role, text: msg.transcript! },
             ]);
           }
         }
       );
       vapi.on("error", (err: unknown) => {
-        // Vapi sometimes emits sparse events with non-enumerable fields. Pull
-        // everything via reflection so the console actually shows what broke.
-        const e = err as unknown as Record<string, unknown> | null | undefined;
-        const dump: Record<string, unknown> = {
-          typeof: typeof err,
+        const e = err as Record<string, unknown> | null | undefined;
+        console.error("[vapi] error", {
           toString: e ? String(e) : null,
           ownProps: e ? Object.getOwnPropertyNames(e) : null,
-          reflectKeys: e ? Reflect.ownKeys(e as object).map(String) : null,
           message: (e as { message?: string })?.message,
-          errorMsg: (e as { error?: { message?: string } })?.error?.message,
           type: (e as { type?: string })?.type,
-          status: (e as { status?: number })?.status,
-          code: (e as { code?: string })?.code,
-        };
-        try {
-          dump.json = JSON.stringify(
-            err,
-            e ? Object.getOwnPropertyNames(e) : undefined
-          );
-        } catch {
-          dump.json = "(unstringifiable)";
-        }
-        console.error("[vapi] error", dump, err);
+          raw: err,
+        });
         setCallStatus("error");
       });
 
-      vapi
-        .start(assistant as Parameters<typeof vapi.start>[0])
-        .catch((err: unknown) => {
-          console.error("[vapi] start failed", err);
-          setCallStatus("error");
-          onEndRef.current();
-        });
+      // Pass assistantId (persistent assistant) + per-call overrides.
+      // This is Vapi's preferred pattern for browser sessions vs inline configs.
+      const startArgs: unknown[] = assistantOverrides
+        ? [assistantId, assistantOverrides]
+        : [assistantId];
+      (
+        vapi.start as unknown as (...args: unknown[]) => Promise<unknown>
+      )(...startArgs).catch((err: unknown) => {
+        console.error("[vapi] start failed", err);
+        setCallStatus("error");
+        onEndRef.current();
+      });
     }, 80);
 
     return () => clearTimeout(handle);
-  }, [publicKey, assistant]);
+  }, [publicKey, assistantId, assistantOverrides]);
 
-  // Cleanup — stop the call when the component truly unmounts (handled by
-  // the user's End button or the timer).
   useEffect(() => {
     return () => {
       try {
         vapiRef.current?.stop();
       } catch {
-        /* swallow — vapi may already be stopped */
+        /* noop */
       }
     };
   }, []);
 
-  // 60-second countdown.
   useEffect(() => {
     if (callStatus !== "connected") return;
     if (secondsLeft <= 0) {
@@ -430,8 +425,6 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
 }
 
 function PulseOrb({ volume, active }: { volume: number; active: boolean }) {
-  // Vapi emits a 0..1 volume level via 'volume-level' events. Drive the
-  // halo scale + opacity off that. Single source of truth, no fft math.
   const energy = Math.min(1, Math.max(0, volume));
 
   return (
@@ -441,7 +434,7 @@ function PulseOrb({ volume, active }: { volume: number; active: boolean }) {
       aria-label={energy > 0.05 ? "Voice active" : "Quiet"}
     >
       <div
-        className={cn("pointer-events-none absolute h-44 w-44 rounded-full")}
+        className="pointer-events-none absolute h-44 w-44 rounded-full"
         style={{
           background:
             "radial-gradient(circle, rgba(96,165,250,0.45) 0%, rgba(96,165,250,0) 65%)",

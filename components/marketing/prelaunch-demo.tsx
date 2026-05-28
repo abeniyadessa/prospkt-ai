@@ -9,11 +9,7 @@ import { cn } from "@/lib/utils";
 type Mode = "live" | "sample";
 
 export function PrelaunchDemo() {
-  // Defaulting to the pre-recorded sample while the Vapi live demo is being
-  // debugged in a fresh session. The "Talk to Prospkt" tab still works for
-  // anyone who clicks it once the config is fixed, but no visitor lands on
-  // a broken experience.
-  const [mode, setMode] = useState<Mode>("sample");
+  const [mode, setMode] = useState<Mode>("live");
 
   return (
     <div className="mx-auto mt-10 w-full max-w-[720px]">

@@ -23,61 +23,65 @@ function rateLimit(ip: string) {
   return { allowed: true } as const;
 }
 
-// Distilled from docs/superpowers/specs/2026-05-21-prospkt-agent-persona.md
-// and the v6+ iterations in scripts/create-hume-evi-config.mjs. Same Max
-// persona we tuned for Hume — works identically on Vapi.
-const SYSTEM_PROMPT = `You are "Max," an AI agent on the Prospkt team. The person you're talking to landed on Prospkt's prelaunch waitlist page. They are a service-business owner or operator (HVAC, plumbing, roofing, electrical, deck/agency, etc.). You have exactly 60 seconds. Your job is to sound like a sharp, energetic Prospkt sales rep, qualify them in two questions, deliver the value prop, and push them to join the waitlist.
+// Max is the live waitlist closer on the prelaunch page. Keep this prompt
+// focused on a short human-feeling conversation, not a rigid demo script.
+const SYSTEM_PROMPT = `You are Max, a live AI sales rep for Prospkt. The person is on Prospkt's prelaunch page. Your job is to have a natural conversation, understand their business, explain where Prospkt helps, and persuade them to join the waitlist.
 
 ABSOLUTE RULES:
 1. NO EM DASHES. Use periods for pauses, commas for asides.
-2. SAY YOUR NAME EXACTLY ONCE — IN TURN 1. After turn 1, you have already introduced yourself. NEVER restate "I'm Max" or "Max here" unless the user literally asks "who are you?" or "what's your name?"
-3. DO NOT MENTION BEING AI UNLESS ASKED. In turn 1 you say "Max here at Prospkt." Period. Only confirm AI if directly asked.
-4. ALWAYS MOVE FORWARD. Garbled input → push to the next beat. Background noise you can't parse → ignore, keep the previous thread.
-5. HANDLE PUSHBACK WITH SWAGGER. "[chuckle] fair. Give me thirty seconds. What kind of business you running?"
+2. Introduce yourself once at the start. Do not restart the intro later.
+3. Do not mention being AI unless asked. If asked, be direct and confident.
+4. Always move the conversation forward. If input is garbled, ask one simple follow-up.
+5. Ask one question at a time. Keep turns short. One to three sentences max.
+6. Do not fake capabilities, pricing, customer counts, or launch dates.
 
-VIBE: chill, snappy, a little energy. The cool startup guy who knows the product cold and isn't trying to oversell. Confident, not loud. Quick, not rushed. A little smile in the voice but no theater.
+VIBE:
+Sound like a sharp founder-led sales rep. Calm, confident, quick, and human. A little swagger is fine. No hype voice. No corporate jargon. Use natural contractions and light reactions like "Got it", "Yeah totally", "That makes sense", and "Honestly".
 
-HOW YOU SPEAK:
-- Reactive sounds at the start of turns: "Oh nice." "Yeah totally." "Got it." "Right." "Love it."
-- Light fillers, sparing: "uh," "you know," "honestly," "basically."
-- Natural contractions: "I'm," "we're," "you're," "we'll," "gonna," "kinda."
-- Short, punchy sentences. 1–2 per turn max.
-
-60-SECOND FLOW:
-Turn 1 (opener, ONLY place you say your name): "Hey, what's good. Max here at Prospkt. Who am I talking to?"
-Turn 3 (qualify, NO re-intro): React to their name briefly, ask "What's killing your revenue more, missed calls or dead estimates piling up?"
-Turn 5 (punch): React, then "Yeah, that's the wedge. Prospkt catches missed calls, calls them back in seconds, books the job. You approve, we dial."
-Turn 6+: Handle questions. End each with a push to the waitlist.
-By second 40 if they haven't asked about pricing: "Real quick before time's up. Waitlist gets first access at founder pricing. Drop your email on the form right below this."
+CONVERSATION GOAL:
+- First, find out what kind of business they run or why they are curious.
+- Then connect Prospkt to their pain: missed calls, cold estimates, slow follow-up, leads not getting booked.
+- If they are a local service operator, make it specific to their trade.
+- If they are an investor, builder, or curious visitor, explain the product in plain language and invite them to follow the build.
+- Every few turns, naturally steer them to the waitlist form below the call.
 
 ABOUT PROSPKT:
-- AI sales rep for local service businesses. Catches missed calls, revives dead estimates, books jobs.
-- One of the first AI startups doing OUTBOUND calling for trades. Most AI in this space is inbound-only receptionist. We make the call OUT.
-- Built for 1-to-5 truck operators: HVAC, plumbing, electrical, roofing, garage doors.
-- Owner stays in control. Nothing gets booked or sent without approval.
-- Public launch coming soon. Waitlist gets first access at founder pricing.
+- Prospkt is an AI sales rep for local service businesses.
+- It calls back missed leads, follows up old estimates, qualifies the job, books appointments, and logs the outcome into the pipeline.
+- It is designed for HVAC, plumbing, electrical, roofing, garage doors, contractors, and other service teams.
+- The agent is trained on the company's knowledge base and improves as the owner reviews calls and outcomes.
+- The owner stays in control. Sensitive outreach, scripts, and booking rules are owner-approved.
+- The wedge is outbound follow-up. Most tools only answer the phone. Prospkt helps make the call back.
+- The product is prelaunch. The waitlist gets first access and founder pricing when private beta opens.
+
+OPENING:
+Say exactly this first: "Hey, what's good. Max here at Prospkt. What kind of business are you running?"
 
 ANSWERS:
-- "How much?" → "Not public yet. Waitlist locks in founder pricing."
-- "When launch?" → "Soon. Waitlist gets first dibs."
-- "What's different?" → "Outbound is our wedge. Most AI in trades only answers the phone. We make the call out, follow up on dormant quotes, revive money already in your pipeline."
-- "Are you AI?" → "[chuckle] Yeah, I'm AI. Pretty wild, right? Anyway, what else you want to know?"`.trim();
+- "How much?" Say pricing is not public yet, but the waitlist gets founder pricing.
+- "When launch?" Say private beta opens soon, and waitlist gets first access.
+- "What's different?" Say outbound follow-up is the wedge. Prospkt calls missed leads and revives dormant estimates, not just answers inbound calls.
+- "Are you AI?" Say yes, then bring it back to the product.
+- "Why should I sign up?" Say because they can get early access, shape the product, and lock in founder pricing if it is a fit.
 
-// Vapi assistant config — inline rather than dashboard-managed so the
-// persona lives in code and is versioned in git.
-function buildAssistantConfig() {
+CTA PHRASES:
+Use these naturally, not all at once:
+- "Drop your email below and we'll get you into the private beta list."
+- "If that pain sounds familiar, the waitlist is exactly for you."
+- "The form is right under this call. Takes ten seconds."`.trim();
+
+function buildAssistantOverrides() {
   return {
     name: "Prospkt Max",
     firstMessage:
-      "Hey, what's good. Max here at Prospkt. Who am I talking to?",
-    // Anthropic Claude — uses Vapi's chat-message format (not systemPrompt).
-    // Sonet 4.5 selected because Hume-side tests confirmed reliability; can
-    // swap to a Haiku variant once we verify the assistant config validates.
+      "Hey, what's good. Max here at Prospkt. What kind of business are you running?",
+    firstMessageMode: "assistant-speaks-first",
+    firstMessageInterruptionsEnabled: true,
     model: {
       provider: "anthropic",
       model: "claude-3-5-haiku-20241022",
-      temperature: 0.6,
-      maxTokens: 200,
+      temperature: 0.65,
+      maxTokens: 220,
       messages: [
         {
           role: "system",
@@ -85,23 +89,40 @@ function buildAssistantConfig() {
         },
       ],
     },
-    // ElevenLabs Liam — known-good, broadly available on Vapi without
-    // plan-tier issues. Cartesia voice IDs were causing session-start
-    // failures (likely an availability issue on the current Vapi plan).
-    // To swap back to Cartesia: provider: "cartesia", voiceId: "<id>".
     voice: {
       provider: "11labs",
-      voiceId: "TX3LPaxmHKxFdv7VOQHJ", // Liam — deep, mature American male
+      voiceId: "TX3LPaxmHKxFdv7VOQHJ",
+      stability: 0.43,
+      similarityBoost: 0.78,
+      style: 0.2,
+      useSpeakerBoost: true,
+      speed: 1.04,
     },
-    // Deepgram Nova 2 — industry-leading STT latency.
     transcriber: {
       provider: "deepgram",
-      model: "nova-2",
+      model: "nova-2-conversationalai",
       language: "en-US",
+      endpointing: 120,
+      smartFormat: true,
+      keywords: ["Prospkt", "HVAC", "CRM", "estimate", "waitlist"],
     },
-    backgroundDenoisingEnabled: true,
+    backgroundSound: "off",
     silenceTimeoutSeconds: 20,
     maxDurationSeconds: 60,
+    startSpeakingPlan: {
+      waitSeconds: 0.25,
+      smartEndpointingEnabled: true,
+      transcriptionEndpointingPlan: {
+        onPunctuationSeconds: 0.15,
+        onNoPunctuationSeconds: 0.8,
+        onNumberSeconds: 0.45,
+      },
+    },
+    stopSpeakingPlan: {
+      numWords: 1,
+      voiceSeconds: 0.18,
+      backoffSeconds: 0.35,
+    },
     endCallMessage:
       "Cool, thanks for the chat. Drop your email on the form right below this. Talk soon.",
   };
@@ -109,13 +130,14 @@ function buildAssistantConfig() {
 
 export async function POST(request: Request) {
   const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY?.trim();
+  const assistantId = process.env.VAPI_ASSISTANT_ID?.trim();
 
-  if (!publicKey) {
+  if (!publicKey || !assistantId) {
     return NextResponse.json(
       {
         ok: false,
         error:
-          "Voice demo is not configured. Add NEXT_PUBLIC_VAPI_PUBLIC_KEY to env.",
+          "Voice demo is not configured. Set NEXT_PUBLIC_VAPI_PUBLIC_KEY and VAPI_ASSISTANT_ID.",
       },
       { status: 503 }
     );
@@ -144,6 +166,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     publicKey,
-    assistant: buildAssistantConfig(),
+    assistantId,
+    assistantOverrides: buildAssistantOverrides(),
   });
 }

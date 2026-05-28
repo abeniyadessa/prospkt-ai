@@ -38,6 +38,13 @@ ABSOLUTE RULES:
 VIBE:
 You sound like a calm, measured operator who's heard a lot of stories from local service owners. No hype voice. No swagger. No "yeah totally" energy. Think a senior person who's grounded, takes their time, and doesn't talk over people. Use short reactions like "Got it.", "Makes sense.", "Mm.", "Right." Let pauses do work.
 
+CADENCE RULES (these shape how the voice synthesizer reads your replies):
+- End every statement with a period. Never end with an exclamation mark. Never end a declarative sentence with a question mark unless you are genuinely asking.
+- Use short sentences. Periods, not commas, for separation. A new sentence is a new breath.
+- Open each reply with a verbal nod when appropriate: "Got it.", "Right.", "Mm.", "Okay.". This buys a thinking beat and signals you heard them.
+- Never use uptalk on a statement. If a sentence is a statement, write it as a statement.
+- Avoid filler that sounds rehearsed: no "absolutely", no "great question", no "love that".
+
 LISTEN FIRST:
 - Your first three turns are about understanding their world, not pitching ours.
 - Reflect back what they said before suggesting anything. ("So you're running a two-truck plumbing shop, mostly residential. Got it.")
@@ -89,13 +96,30 @@ function buildAssistantOverrides() {
     voice: {
       provider: "11labs",
       voiceId: "Ifu36BnEjjIY932etsqk",
-      // Higher stability + slightly slower speed = grounded, less "performed".
-      // Lower style keeps delivery neutral instead of emotive.
-      stability: 0.6,
-      similarityBoost: 0.78,
-      style: 0.15,
+      // Trust-tuned settings (Klofstad/Tigue lower-pitch competence research,
+      // Anderson 2014 anti-vocal-fry / anti-affect):
+      //   stability ↑    — steadier pitch reads as more competent
+      //   similarity ↓   — slightly less "voicy", reduces mimicked tics
+      //   style 0         — no performed affect; neutral baseline
+      //   speed 0.94      — ~140-150 WPM, the sales-trust sweet spot
+      stability: 0.7,
+      similarityBoost: 0.75,
+      style: 0,
       useSpeakerBoost: true,
-      speed: 0.97,
+      speed: 0.94,
+      // chunkPlan controls how Vapi streams audio from ElevenLabs. Small,
+      // mid-sentence chunks produce the choppy "cuts" — boundaries between
+      // fragments don't carry natural breath/decay. Restricting boundaries to
+      // strong punctuation forces each chunk to be a complete clause or
+      // sentence, which preserves the trailing audio shape.
+      chunkPlan: {
+        enabled: true,
+        punctuationBoundaries: [".", "!", "?", ";", ":"],
+        formatPlan: {
+          enabled: true,
+          numberToDigitsCutoff: 2025,
+        },
+      },
     },
     transcriber: {
       provider: "deepgram",
@@ -109,21 +133,26 @@ function buildAssistantOverrides() {
     silenceTimeoutSeconds: 25,
     maxDurationSeconds: 60,
     startSpeakingPlan: {
-      // Longer reply-wait gives the model a "thinking" beat. Snap-replies are
-      // the single strongest cue that the listener is talking to a machine.
-      waitSeconds: 0.45,
+      // Conversation analysis (Sacks/Schegloff): instant replies signal
+      // scripted/non-listening. 500-600ms is the threshold below which a
+      // reply reads as "didn't actually consider what I said."
+      waitSeconds: 0.55,
       smartEndpointingEnabled: true,
       transcriptionEndpointingPlan: {
-        onPunctuationSeconds: 0.25,
-        onNoPunctuationSeconds: 1.0,
-        onNumberSeconds: 0.55,
+        onPunctuationSeconds: 0.3,
+        // Bumped so the agent actually lets the user finish a thought even
+        // when Deepgram hasn't dropped final punctuation yet.
+        onNoPunctuationSeconds: 1.4,
+        onNumberSeconds: 0.6,
       },
     },
     stopSpeakingPlan: {
-      // Don't interrupt after a single word — it feels grabby and impatient.
-      numWords: 2,
-      voiceSeconds: 0.25,
-      backoffSeconds: 0.5,
+      // Interrupting before the user has said 3 words reads as dominance /
+      // impatience. Bigger backoff keeps the agent quiet once the user does
+      // start talking.
+      numWords: 3,
+      voiceSeconds: 0.3,
+      backoffSeconds: 0.7,
     },
     endCallMessage:
       "Thanks for the chat. If any of that lines up, drop your email on the form below. Talk soon.",

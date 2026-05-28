@@ -126,15 +126,16 @@ function buildAssistantOverrides() {
     backgroundDenoisingEnabled: true,
     model: {
       provider: "anthropic",
-      // Haiku 4.5 (Oct 2025): better instruction following on the behavioral-
-      // psychology playbook than Haiku 3.5. Same latency band. Vapi accepts
-      // this model ID (probed 2026-05-28 via scripts/probe-vapi-haiku45.mjs).
-      model: "claude-haiku-4-5-20251001",
-      // Temperature 0.5 keeps replies steady but lets the model improvise on
-      // labels and future-pacing instead of repeating the example lines. Max
-      // tokens lifted to 180 — labels + calibrated Q sometimes need the room.
+      // Haiku 3.5 (claude-3-5-haiku-20241022) wins on time-to-first-token vs
+      // Haiku 4.5 for voice workloads — user reported "response time is
+      // horrible" on 4.5. The psychology playbook carries the behavior; the
+      // model just needs to be fast and instruction-followable enough to hit
+      // the labels/calibrated questions, which 3.5 does fine.
+      model: "claude-3-5-haiku-20241022",
       temperature: 0.5,
-      maxTokens: 180,
+      // Tighter token cap = faster end-to-end render. Each spoken sentence is
+      // ~20-40 tokens; 140 covers two sentences with headroom.
+      maxTokens: 140,
       messages: [
         {
           role: "system",

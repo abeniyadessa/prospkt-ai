@@ -69,11 +69,11 @@ export default function PrelaunchPage() {
       <PrelaunchAnalytics />
       <div className="relative mx-auto flex min-h-dvh max-w-[1120px] flex-col px-5 sm:px-6 lg:px-8">
         <section
-        className="relative mx-auto flex w-full max-w-[560px] flex-1 flex-col items-center justify-center py-12 text-center"
+          className="relative mx-auto flex w-full max-w-[560px] flex-1 flex-col items-center justify-center py-12 text-center"
         >
           <Brand />
 
-          <h1 className="mx-auto mt-7 max-w-[760px] text-balance text-[34px] font-semibold leading-[1.06] text-black sm:text-[50px] lg:text-[56px]">
+          <h1 className="mx-auto mt-7 text-balance text-[34px] font-semibold leading-[1.06] text-black sm:text-[50px] lg:text-[56px]">
             <span className="block">Your AI agent calls.</span>
             <AnimatedOutcome />
           </h1>
@@ -90,11 +90,11 @@ export default function PrelaunchPage() {
             </div>
           </div>
 
-          <div className="mx-auto mt-6 flex max-w-[680px] flex-wrap justify-center gap-2 text-[12px]">
+          <div className="mx-auto mt-6 flex flex-wrap justify-center gap-2 text-[12px]">
             {proofItems.map((item) => (
               <span
                 key={item}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/55 px-3 py-1.5 text-black/80"
+                className="inline-flex items-center rounded-full border border-white/70 bg-white/55 px-3 py-1.5 text-black/80"
               >
                 {item}
               </span>
@@ -128,7 +128,7 @@ function AnimatedOutcome() {
       </span>
       <span
         aria-hidden="true"
-        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-white [text-shadow:0_1px_14px_rgba(0,0,0,0.12)]"
+        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.35),0_2px_20px_rgba(0,0,0,0.22)]"
       >
         <span className="prelaunch-outcome-track">
           {[...headlinePhrases, headlinePhrases[0]].map((phrase, index) => (

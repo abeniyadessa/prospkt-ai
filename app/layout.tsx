@@ -61,7 +61,7 @@ export default function RootLayout({
           />
           <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap"
           />
         </head>
         <body className="min-h-full antialiased">

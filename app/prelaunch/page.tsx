@@ -73,7 +73,10 @@ export default function PrelaunchPage() {
         >
           <Brand />
 
-          <h1 className="mx-auto mt-7 text-balance text-[34px] font-semibold leading-[1.06] text-black sm:text-[50px] lg:text-[56px]">
+          <h1
+            className="mx-auto mt-7 text-balance text-[34px] font-semibold leading-[1.04] tracking-[-0.012em] text-[#16181D] sm:text-[50px] lg:text-[56px]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             <span className="block">Your AI agent calls.</span>
             <AnimatedOutcome />
           </h1>
@@ -128,7 +131,7 @@ function AnimatedOutcome() {
       </span>
       <span
         aria-hidden="true"
-        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.35),0_2px_20px_rgba(0,0,0,0.22)]"
+        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden italic text-[#16181D]"
       >
         <span className="prelaunch-outcome-track">
           {[...headlinePhrases, headlinePhrases[0]].map((phrase, index) => (

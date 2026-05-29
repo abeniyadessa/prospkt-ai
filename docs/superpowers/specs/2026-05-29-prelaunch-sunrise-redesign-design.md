@@ -120,8 +120,10 @@ and pill bars, rounded-full on the waitlist/CTA), tight tracking on the headline
 
 ## Constraints / Non-Goals
 
-- **No new npm dependencies.** `framer-motion` is NOT installed and is NOT needed — all
-  animation is CSS + SVG. Do not add it.
+- **`framer-motion`** (`^12.40.0`, installed) is used for animation: orb breathing/volume
+  pulse, status-label crossfades, and headline/element entrance transitions. Keep SVG for the
+  glass refraction filter itself. Respect `prefers-reduced-motion` (gate motion via
+  `useReducedMotion`).
 - Phosphor icons only (no `lucide-react`), per `CLAUDE.md`.
 - Do not touch the Vapi call lifecycle, the `/api/voice/vapi-config` route, or the email
   waitlist API — visual/layout layer only.
@@ -138,4 +140,4 @@ and pill bars, rounded-full on the waitlist/CTA), tight tracking on the headline
 4. Revolving headline line is white; static line black.
 5. Live status pill shows real Connecting/Listening/Speaking states + countdown.
 6. Waitlist pill sits directly under the demo and submits exactly as today.
-7. No new dependencies; no `lucide-react`; reduced-motion + a11y preserved.
+7. Animation via `framer-motion`; no `lucide-react`; reduced-motion + a11y preserved.

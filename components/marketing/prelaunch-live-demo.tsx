@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { GlassOrb } from "@/components/marketing/glass-orb";
 
-const MAX_DURATION_SECONDS = 90;
+const MAX_DURATION_SECONDS = 240;
 
 // Max says the brand phonetically ("Prospect") so ElevenLabs pronounces it right,
 // but on screen that looks like a misspelling of "Prospkt". Fix it at the display
@@ -174,7 +174,7 @@ function IdleSurface({
           </div>
         ) : (
           <p className="text-[10.5px] text-black/55">
-            Uses your mic · Up to {MAX_DURATION_SECONDS} sec · Not recorded
+            Uses your mic · Up to {Math.round(MAX_DURATION_SECONDS / 60)} min · Not recorded
           </p>
         )}
       </div>

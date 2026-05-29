@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 type OrbState = "idle" | "connecting" | "connected" | "ended" | "error";
@@ -11,8 +12,8 @@ type OrbState = "idle" | "connecting" | "connected" | "ended" | "error";
  *   1. Halo        — soft white radial glow, opacity reacts to voice volume
  *   2. Glass base  — translucent radial fill so the orb reads as glass even
  *                    where SVG backdrop-filter is unsupported (Safari)
- *   3. Refraction  — backdrop-filter: url(#prospkt-orb-glass) bends the
- *                    gradient behind the orb (Chrome/FF); no-op in Safari
+ *   3. Refraction  — backdrop-filter: url(#…) bends the gradient behind the
+ *                    orb (Chrome/FF); Safari falls back to -webkit blur (frosted glass)
  *   4. Rim         — layered inset shadows for the glass edge
  *   5. Specular    — bright top-left highlight
  *
@@ -31,6 +32,7 @@ export function GlassOrb({
   disabled?: boolean;
 }) {
   const reduceMotion = useReducedMotion();
+  const filterId = `prospkt-orb-glass-${useId().replace(/:/g, "")}`;
   const energy = Math.min(1, Math.max(0, volume));
   const interactive = state === "idle" && !disabled;
   const live = state === "connected";
@@ -44,7 +46,7 @@ export function GlassOrb({
       <svg aria-hidden className="pointer-events-none absolute size-0">
         <defs>
           <filter
-            id="prospkt-orb-glass"
+            id={filterId}
             x="-20%"
             y="-20%"
             width="140%"
@@ -98,11 +100,11 @@ export function GlassOrb({
               "radial-gradient(circle at 36% 30%, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.32) 38%, rgba(255,255,255,0.08) 72%, rgba(255,255,255,0.02) 100%)",
           }}
         />
-        {/* refraction (Chrome/FF; transparent no-op in Safari) */}
+        {/* refraction: SVG displacement in Chrome/FF; Safari falls back to -webkit blur (frosted glass) */}
         <div
           className="absolute inset-0 rounded-full"
           style={{
-            backdropFilter: "url(#prospkt-orb-glass) blur(1px)",
+            backdropFilter: `url(#${filterId}) blur(1px)`,
             WebkitBackdropFilter: "blur(2px)",
           }}
         />

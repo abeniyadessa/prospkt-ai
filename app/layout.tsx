@@ -53,16 +53,6 @@ export default function RootLayout({
             rel="stylesheet"
             href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap"
           />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link
-            rel="preconnect"
-            href="https://fonts.gstatic.com"
-            crossOrigin="anonymous"
-          />
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap"
-          />
         </head>
         <body className="min-h-full antialiased">
           <TooltipProvider>{children}</TooltipProvider>

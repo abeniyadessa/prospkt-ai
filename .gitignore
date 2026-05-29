@@ -49,3 +49,6 @@ next-env.d.ts
 # internal product spec — not for public repo
 CLAUDE.md
 .claude/
+
+# Brainstorming visual companion
+.superpowers/

@@ -57,34 +57,45 @@ const headlinePhrases = [
 
 export default function PrelaunchPage() {
   return (
-    <main className="min-h-dvh overflow-x-hidden bg-canvas text-foreground">
+    // NOTE: This full-page gradient is a deliberate prelaunch-only exception to the
+    // CLAUDE.md "no gradients" rule. Do not propagate to the app/dashboard.
+    <main
+      className="min-h-dvh overflow-x-hidden text-black"
+      style={{
+        background:
+          "radial-gradient(125% 125% at 50% 101%, rgba(245,87,2,1) 10.5%, rgba(245,120,2,1) 16%, rgba(245,140,2,1) 17.5%, rgba(245,170,100,1) 25%, rgba(238,174,202,1) 40%, rgba(202,179,214,1) 65%, rgba(148,201,233,1) 100%)",
+      }}
+    >
       <PrelaunchAnalytics />
       <div className="relative mx-auto flex min-h-dvh max-w-[1120px] flex-col px-5 sm:px-6 lg:px-8">
-        <section className="relative mx-auto flex w-full flex-1 flex-col items-center pb-12 pt-10 text-center sm:pb-16 sm:pt-16">
+        <section
+        className="relative mx-auto flex w-full max-w-[560px] flex-1 flex-col items-center justify-center py-12 text-center"
+        >
           <Brand />
 
-          <h1 className="mx-auto mt-9 max-w-[820px] text-balance text-[36px] font-semibold leading-[1.06] text-foreground sm:text-[56px] lg:text-[62px]">
+          <h1 className="mx-auto mt-7 max-w-[760px] text-balance text-[34px] font-semibold leading-[1.06] text-black sm:text-[50px] lg:text-[56px]">
             <span className="block">Your AI agent calls.</span>
             <AnimatedOutcome />
           </h1>
 
-          <p className="mx-auto mt-5 max-w-[520px] text-pretty text-[15px] leading-7 text-muted-foreground sm:text-[16px]">
+          <p className="mx-auto mt-4 max-w-[480px] text-pretty text-[14.5px] leading-6 text-black/75 sm:text-[15px]">
             Hear how Prospkt turns a missed call into a booked job.
           </p>
 
-          <PrelaunchDemo />
+          <div className="mx-auto mt-7 w-full max-w-[420px]">
+            <PrelaunchDemo />
 
-          <div className="mx-auto mt-8 w-full max-w-[530px]">
-            <PrelaunchEmailForm />
+            <div className="mt-4 w-full">
+              <PrelaunchEmailForm />
+            </div>
           </div>
 
-          <div className="mx-auto mt-5 flex max-w-[680px] flex-wrap justify-center gap-2 text-[12px] text-muted-foreground">
+          <div className="mx-auto mt-6 flex max-w-[680px] flex-wrap justify-center gap-2 text-[12px]">
             {proofItems.map((item) => (
               <span
                 key={item}
-                className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface px-3 py-1.5"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/55 px-3 py-1.5 text-black/80"
               >
-                <span className="size-1.5 rounded-full bg-success" aria-hidden />
                 {item}
               </span>
             ))}
@@ -102,7 +113,7 @@ function Brand() {
     <div className="inline-flex items-center justify-center gap-2.5">
       <LogoMark className="size-9 rounded-xl" />
       <span className="text-[17px] font-semibold leading-none">Prospkt</span>
-      <span className="ml-2 rounded-full border border-[#BFD7F4] bg-[#EFF6FF] px-2.5 py-1 text-[10.5px] font-medium text-[#1D4ED8]">
+      <span className="ml-2 rounded-full border border-white/75 bg-white/60 px-2.5 py-1 text-[10.5px] font-medium uppercase tracking-[0.04em] text-black">
         Early access
       </span>
     </div>
@@ -117,7 +128,7 @@ function AnimatedOutcome() {
       </span>
       <span
         aria-hidden="true"
-        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-[#1D4ED8]"
+        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-white [text-shadow:0_1px_14px_rgba(0,0,0,0.12)]"
       >
         <span className="prelaunch-outcome-track">
           {[...headlinePhrases, headlinePhrases[0]].map((phrase, index) => (
@@ -204,9 +215,9 @@ function LogoMark({
 
 function Footer() {
   return (
-    <footer className="relative z-10 mt-auto border-t border-hairline py-6">
+    <footer className="relative z-10 mt-auto border-t border-white/50 py-6">
       <div className="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
-        <p className="text-pretty text-[12.5px] leading-5 text-muted-foreground">
+        <p className="text-pretty text-[12.5px] leading-5 text-black/70">
           Prospkt is launching in public. Follow the build.
         </p>
 
@@ -216,7 +227,7 @@ function Footer() {
             target="_blank"
             rel="noreferrer"
             aria-label="Follow Prospkt on LinkedIn"
-            className="inline-flex size-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex size-8 items-center justify-center text-black/70 transition-colors hover:text-black"
           >
             <LinkedinLogoIcon size={16} weight="fill" aria-hidden />
           </a>
@@ -225,7 +236,7 @@ function Footer() {
             target="_blank"
             rel="noreferrer"
             aria-label="Follow Prospkt on X"
-            className="inline-flex size-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex size-8 items-center justify-center text-black/70 transition-colors hover:text-black"
           >
             <XLogoIcon size={15} weight="fill" aria-hidden />
           </a>

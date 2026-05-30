@@ -99,6 +99,55 @@ export function VoiceOrb({
               : { duration: 4.6, repeat: Infinity, ease: "easeInOut" }
         }
       >
+        {/* Flowing interior — soft color blobs drift/swirl inside the sphere
+            (clipped by overflow-hidden). Transform-only; off under reduced motion. */}
+        {!reduceMotion ? (
+          <>
+            <motion.span
+              aria-hidden
+              className="absolute left-1/2 top-1/2 size-[80%] rounded-full"
+              style={{
+                marginLeft: "-40%",
+                marginTop: "-40%",
+                background:
+                  "radial-gradient(circle, rgba(244,168,205,0.9) 0%, rgba(244,168,205,0) 68%)",
+                filter: "blur(14px)",
+                willChange: "transform",
+              }}
+              animate={{ x: [0, 13, -9, 0], y: [0, -11, 11, 0], scale: [1, 1.14, 0.95, 1] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.span
+              aria-hidden
+              className="absolute left-1/2 top-1/2 size-[72%] rounded-full"
+              style={{
+                marginLeft: "-36%",
+                marginTop: "-36%",
+                background:
+                  "radial-gradient(circle, rgba(168,188,240,0.85) 0%, rgba(168,188,240,0) 70%)",
+                filter: "blur(16px)",
+                willChange: "transform",
+              }}
+              animate={{ x: [0, -15, 10, 0], y: [0, 12, -7, 0], scale: [1, 0.94, 1.12, 1] }}
+              transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.span
+              aria-hidden
+              className="absolute left-1/2 top-1/2 size-[66%] rounded-full"
+              style={{
+                marginLeft: "-33%",
+                marginTop: "-22%",
+                background:
+                  "radial-gradient(circle, rgba(248,198,158,0.85) 0%, rgba(248,198,158,0) 70%)",
+                filter: "blur(15px)",
+                willChange: "transform",
+              }}
+              animate={{ x: [0, 11, -13, 0], y: [0, 9, 13, 0], scale: [1, 1.09, 0.93, 1] }}
+              transition={{ duration: 11.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </>
+        ) : null}
+
         {/* state tint — keeps the pastel, just leans it */}
         <motion.span
           aria-hidden

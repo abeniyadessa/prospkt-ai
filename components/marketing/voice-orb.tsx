@@ -97,10 +97,16 @@ export function VoiceOrb({
           animate={
             reduceMotion
               ? {}
-              : { scaleX: [1, 1.08, 0.93, 1], scaleY: [1, 0.93, 1.08, 1] }
+              : { scaleX: [1, 1.1, 0.91, 1], scaleY: [1, 0.91, 1.1, 1] }
           }
           transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
         >
+          {/* Soft circular body — keeps the silhouette clearly round */}
+          <span
+            className="absolute inset-[6%] rounded-full"
+            style={blob("250, 244, 252", 0.6, 12)}
+          />
+
           {/* Rotating cluster of color masses */}
           <motion.div
             className="absolute inset-0"
@@ -154,10 +160,10 @@ export function VoiceOrb({
               aria-hidden
               className="absolute left-1/2 top-1/2 rounded-full"
               style={{
-                width: 96,
-                height: 96,
-                marginLeft: -48,
-                marginTop: -48,
+                width: 132,
+                height: 132,
+                marginLeft: -66,
+                marginTop: -66,
                 border: `1.5px solid rgba(${ringRgb},0.4)`,
               }}
               initial={{ scale: 0.7, opacity: 0.45 }}
@@ -191,7 +197,7 @@ export function VoiceOrb({
         type="button"
         onClick={onClick}
         aria-label="Tap to talk to Max"
-        className="group relative mx-auto flex size-44 items-center justify-center rounded-full transition-transform duration-200 [-webkit-tap-highlight-color:transparent] hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-4"
+        className="group relative mx-auto flex size-56 items-center justify-center rounded-full transition-transform duration-200 [-webkit-tap-highlight-color:transparent] hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-4"
       >
         {content}
       </button>
@@ -210,7 +216,7 @@ export function VoiceOrb({
               ? "Listening"
               : "Connecting"
       }
-      className="relative mx-auto flex size-44 items-center justify-center"
+      className="relative mx-auto flex size-56 items-center justify-center"
     >
       {content}
     </div>

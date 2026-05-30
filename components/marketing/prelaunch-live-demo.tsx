@@ -148,7 +148,7 @@ function IdleSurface({
             {fetching ? "Connecting…" : "Tap to talk to Max"}
           </p>
           <p className="mx-auto max-w-[320px] text-[12.5px] leading-[1.5] text-black/60">
-            Ask Max how Prospkt would recover the calls your shop is missing.
+            Ask Max how Prospkt would recover the calls your business is missing.
           </p>
         </div>
 

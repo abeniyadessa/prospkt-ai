@@ -111,8 +111,8 @@ export default function PrelaunchPage() {
 function Brand() {
   return (
     <div className="inline-flex items-center justify-center gap-2.5">
-      <LogoMark className="size-9 rounded-xl" />
-      <span className="text-[17px] font-semibold leading-none">Prospkt</span>
+      <LogoMark className="size-10 rounded-xl" />
+      <span className="text-[19px] font-semibold leading-none">Prospkt</span>
       <span className="ml-1.5 inline-flex items-center gap-1.5 rounded-full border border-black/[0.07] bg-white/70 px-2.5 py-1 text-[10.5px] font-medium text-black/60">
         <span className="size-1.5 rounded-full bg-[#2E7D4F]" aria-hidden />
         Early access

@@ -99,51 +99,57 @@ export function VoiceOrb({
               : { duration: 4.6, repeat: Infinity, ease: "easeInOut" }
         }
       >
-        {/* Flowing interior — soft color blobs drift/swirl inside the sphere
-            (clipped by overflow-hidden). Transform-only; off under reduced motion. */}
+        {/* Flowing interior — a slowly rotating cluster of saturated color blobs
+            plus an independent drifting light, clipped to the sphere. The blobs
+            are deeper than the base so the motion actually reads. Transform-only;
+            off under reduced motion. */}
         {!reduceMotion ? (
           <>
             <motion.span
               aria-hidden
-              className="absolute left-1/2 top-1/2 size-[80%] rounded-full"
-              style={{
-                marginLeft: "-40%",
-                marginTop: "-40%",
-                background:
-                  "radial-gradient(circle, rgba(244,168,205,0.9) 0%, rgba(244,168,205,0) 68%)",
-                filter: "blur(14px)",
-                willChange: "transform",
-              }}
-              animate={{ x: [0, 13, -9, 0], y: [0, -11, 11, 0], scale: [1, 1.14, 0.95, 1] }}
-              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            />
+              className="absolute inset-[-24%]"
+              style={{ willChange: "transform" }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+            >
+              <span
+                className="absolute left-[14%] top-[18%] size-[58%] rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(236,116,182,0.78) 0%, rgba(236,116,182,0) 65%)",
+                  filter: "blur(11px)",
+                }}
+              />
+              <span
+                className="absolute right-[10%] top-[36%] size-[54%] rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(132,146,238,0.7) 0%, rgba(132,146,238,0) 67%)",
+                  filter: "blur(12px)",
+                }}
+              />
+              <span
+                className="absolute bottom-[12%] left-[28%] size-[52%] rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(248,166,104,0.74) 0%, rgba(248,166,104,0) 65%)",
+                  filter: "blur(11px)",
+                }}
+              />
+            </motion.span>
             <motion.span
               aria-hidden
-              className="absolute left-1/2 top-1/2 size-[72%] rounded-full"
+              className="absolute left-1/2 top-1/2 size-[58%] rounded-full"
               style={{
-                marginLeft: "-36%",
-                marginTop: "-36%",
+                marginLeft: "-29%",
+                marginTop: "-29%",
                 background:
-                  "radial-gradient(circle, rgba(168,188,240,0.85) 0%, rgba(168,188,240,0) 70%)",
-                filter: "blur(16px)",
+                  "radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%)",
+                filter: "blur(9px)",
                 willChange: "transform",
               }}
-              animate={{ x: [0, -15, 10, 0], y: [0, 12, -7, 0], scale: [1, 0.94, 1.12, 1] }}
-              transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.span
-              aria-hidden
-              className="absolute left-1/2 top-1/2 size-[66%] rounded-full"
-              style={{
-                marginLeft: "-33%",
-                marginTop: "-22%",
-                background:
-                  "radial-gradient(circle, rgba(248,198,158,0.85) 0%, rgba(248,198,158,0) 70%)",
-                filter: "blur(15px)",
-                willChange: "transform",
-              }}
-              animate={{ x: [0, 11, -13, 0], y: [0, 9, 13, 0], scale: [1, 1.09, 0.93, 1] }}
-              transition={{ duration: 11.5, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ x: [0, 18, -13, 0], y: [0, -15, 13, 0], scale: [1, 1.2, 0.88, 1] }}
+              transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
             />
           </>
         ) : null}

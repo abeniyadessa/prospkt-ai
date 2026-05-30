@@ -137,8 +137,7 @@ function IdleSurface({
     <CallPanel>
       <VoiceGlow state={fetching ? "connecting" : "idle"} />
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-black/40">
-          <span className="size-1.5 rounded-full bg-[#2E7D4F]" aria-hidden />
+        <span className="rounded-full border border-black/10 bg-white px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-black/55 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
           Live demo
         </span>
 

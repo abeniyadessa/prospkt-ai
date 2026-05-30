@@ -215,6 +215,18 @@ kbd {
 .orb-ripple-2 { animation: orbRipple 3.6s cubic-bezier(0, 0.55, 0.45, 1) infinite; animation-delay: 1.2s; }
 .orb-ripple-3 { animation: orbRipple 3.6s cubic-bezier(0, 0.55, 0.45, 1) infinite; animation-delay: 2.4s; }
 
+/* "Live demo" badge — broadcast ping on the status dot */
+@keyframes prelaunchLivePing {
+  0%        { transform: scale(1);   opacity: 0.55; }
+  80%, 100% { transform: scale(2.6); opacity: 0;    }
+}
+.prelaunch-live-ping {
+  animation: prelaunchLivePing 1.7s cubic-bezier(0, 0.55, 0.45, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .prelaunch-live-ping { animation: none; }
+}
+
 /* Marketing hero field */
 .hero-shell {
   background-color: #FCFDFE;

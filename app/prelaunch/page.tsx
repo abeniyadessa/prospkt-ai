@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import {
+  CheckCircleIcon,
   LightningIcon,
   LinkedinLogoIcon,
   XLogoIcon,
@@ -86,16 +87,19 @@ export default function PrelaunchPage() {
             </div>
           </div>
 
-          <div className="mx-auto mt-6 flex flex-wrap justify-center gap-2 text-[12px]">
+          <ul className="mx-auto mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-black/55">
             {proofItems.map((item) => (
-              <span
-                key={item}
-                className="inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1.5 text-black/65 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-              >
+              <li key={item} className="inline-flex items-center gap-1.5">
+                <CheckCircleIcon
+                  size={14}
+                  weight="fill"
+                  className="text-[#2E7D4F]/80"
+                  aria-hidden
+                />
                 {item}
-              </span>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
 
         <Footer />
@@ -109,7 +113,8 @@ function Brand() {
     <div className="inline-flex items-center justify-center gap-2.5">
       <LogoMark className="size-9 rounded-xl" />
       <span className="text-[17px] font-semibold leading-none">Prospkt</span>
-      <span className="ml-2 rounded-full border border-black/10 bg-white px-2.5 py-1 text-[10.5px] font-medium uppercase tracking-[0.04em] text-black/70 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <span className="ml-1.5 inline-flex items-center gap-1.5 rounded-full border border-black/[0.07] bg-white/70 px-2.5 py-1 text-[10.5px] font-medium text-black/60">
+        <span className="size-1.5 rounded-full bg-[#2E7D4F]" aria-hidden />
         Early access
       </span>
     </div>

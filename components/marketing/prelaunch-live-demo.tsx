@@ -137,7 +137,8 @@ function IdleSurface({
     <CallPanel>
       <VoiceGlow state={fetching ? "connecting" : "idle"} />
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="rounded-full border border-black/10 bg-white px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-black/55 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-black/40">
+          <span className="size-1.5 rounded-full bg-[#2E7D4F]" aria-hidden />
           Live demo
         </span>
 
@@ -157,7 +158,7 @@ function IdleSurface({
         </div>
 
         {dropped && !fetching ? (
-          <p className="rounded-full border border-black/10 bg-white px-3 py-1 text-[11.5px] font-medium text-black/70 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+          <p className="rounded-full border border-black/[0.07] bg-white px-3 py-1 text-[11.5px] font-medium text-black/70">
             Call dropped — tap the orb to pick it back up.
           </p>
         ) : null}
@@ -384,7 +385,7 @@ function ActiveSession({
       <div className="flex flex-col items-center gap-4 text-center">
         <VoiceOrb state={visualState} volume={volume} />
 
-        <div className="flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1.5 text-[12.5px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center justify-center gap-2 rounded-full border border-black/[0.07] bg-white px-3.5 py-1.5 text-[12.5px]">
           <span
             className={cn(
               "size-1.5 rounded-full bg-black",

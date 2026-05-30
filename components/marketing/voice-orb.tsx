@@ -82,23 +82,21 @@ export function VoiceOrb({
         aria-hidden
         className="relative size-36 overflow-hidden rounded-full"
         style={{
-          // Glassy translucent bubble (reference B): see-through fill, glowing
-          // pink core, bright glass rim, refracts the page behind it.
+          // Saturated matte sphere (reference C): deeper periwinkle top, vivid
+          // peach base, richer pink core — solid, not translucent.
           background: [
-            "radial-gradient(118% 118% at 50% 8%, rgba(196,210,242,0.5) 0%, rgba(196,210,242,0) 48%)",
-            "radial-gradient(115% 115% at 50% 100%, rgba(248,205,164,0.52) 0%, rgba(248,205,164,0) 52%)",
-            "radial-gradient(82% 82% at 50% 52%, rgba(246,150,198,0.6) 0%, rgba(246,150,198,0) 58%)",
-            "linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.12) 100%)",
+            "radial-gradient(120% 120% at 50% 4%, rgba(168,182,235,0.98) 0%, rgba(168,182,235,0) 46%)",
+            "radial-gradient(122% 116% at 50% 104%, rgba(247,176,108,0.98) 0%, rgba(247,176,108,0) 52%)",
+            "radial-gradient(98% 98% at 50% 56%, rgba(238,168,202,0.92) 0%, rgba(238,168,202,0) 60%)",
+            "linear-gradient(180deg, #dde5f6 0%, #f0dbe9 50%, #fbe4ce 100%)",
           ].join(","),
-          backdropFilter: "blur(6px)",
-          WebkitBackdropFilter: "blur(6px)",
           boxShadow: [
-            "inset 0 0 0 1.5px rgba(255,255,255,0.55)",
-            "inset 11px 13px 24px rgba(255,255,255,0.62)",
-            "inset -13px -11px 26px rgba(255,255,255,0.32)",
-            "inset 0 -16px 30px rgba(170,140,175,0.16)",
-            "0 22px 34px -14px rgba(132,128,165,0.4)",
-            "0 0 24px rgba(246,150,198,0.26)",
+            "inset 0 14px 22px rgba(255,255,255,0.5)",
+            "inset 0 -22px 34px rgba(150,110,120,0.3)",
+            "inset -12px -10px 24px rgba(120,108,150,0.24)",
+            "inset 10px 6px 20px rgba(255,255,255,0.22)",
+            "0 24px 36px -14px rgba(132,124,160,0.5)",
+            "0 6px 14px -6px rgba(132,124,160,0.32)",
           ].join(","),
         }}
         animate={

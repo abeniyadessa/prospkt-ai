@@ -75,7 +75,7 @@ export function VoiceGlow({
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 bottom-0 -z-10 h-[clamp(320px,46vh,560px)] overflow-hidden"
+      className="pointer-events-none fixed inset-x-0 bottom-0 -z-10 h-[clamp(440px,64vh,820px)] overflow-hidden"
     >
       <motion.div
         className="absolute inset-0"
@@ -100,7 +100,7 @@ export function VoiceGlow({
             key={hue}
             className="absolute inset-0"
             style={{
-              background: `radial-gradient(125% 78% at 50% 118%, rgba(${HUES[hue]},1) 0%, rgba(${HUES[hue]},0.55) 26%, rgba(${HUES[hue]},0) 62%)`,
+              background: `radial-gradient(135% 100% at 50% 122%, rgba(${HUES[hue]},1) 0%, rgba(${HUES[hue]},0.55) 32%, rgba(${HUES[hue]},0) 74%)`,
               mixBlendMode: "multiply",
             }}
             animate={{

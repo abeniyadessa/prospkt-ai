@@ -82,21 +82,21 @@ export function VoiceOrb({
         aria-hidden
         className="relative size-36 overflow-hidden rounded-full"
         style={{
-          // Pale pearl (reference D): mostly white/pearlescent with only faint
-          // pastel hints — the most minimal, premium-clean surface.
+          // Soft matte pastel sphere (reference A): cool top, pink core, peach
+          // base — gentle and iridescent, the clean default.
           background: [
-            "radial-gradient(120% 120% at 50% 8%, rgba(206,216,240,0.5) 0%, rgba(206,216,240,0) 50%)",
-            "radial-gradient(118% 114% at 50% 102%, rgba(248,224,206,0.5) 0%, rgba(248,224,206,0) 52%)",
-            "radial-gradient(95% 95% at 50% 55%, rgba(244,222,232,0.45) 0%, rgba(244,222,232,0) 60%)",
-            "linear-gradient(180deg, #f6f8fc 0%, #f8f3f6 55%, #fdf6ef 100%)",
+            "radial-gradient(120% 120% at 50% 6%, rgba(196,210,242,0.95) 0%, rgba(196,210,242,0) 46%)",
+            "radial-gradient(120% 115% at 50% 102%, rgba(248,205,164,0.97) 0%, rgba(248,205,164,0) 50%)",
+            "radial-gradient(100% 100% at 50% 56%, rgba(243,194,214,0.9) 0%, rgba(243,194,214,0) 62%)",
+            "linear-gradient(180deg, #e7ecf8 0%, #f3e8f0 52%, #fcefdf 100%)",
           ].join(","),
           boxShadow: [
-            "inset 0 14px 24px rgba(255,255,255,0.7)",
-            "inset 0 -18px 30px rgba(170,160,180,0.16)",
-            "inset -10px -8px 22px rgba(150,150,175,0.12)",
-            "inset 9px 6px 20px rgba(255,255,255,0.4)",
-            "0 22px 34px -14px rgba(150,148,170,0.4)",
-            "0 6px 14px -6px rgba(150,148,170,0.26)",
+            "inset 0 13px 22px rgba(255,255,255,0.58)",
+            "inset 0 -20px 32px rgba(150,120,142,0.26)",
+            "inset -10px -8px 22px rgba(120,112,152,0.2)",
+            "inset 9px 6px 20px rgba(255,255,255,0.22)",
+            "0 24px 36px -14px rgba(132,128,165,0.5)",
+            "0 6px 14px -6px rgba(132,128,165,0.32)",
           ].join(","),
         }}
         animate={

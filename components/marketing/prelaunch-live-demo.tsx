@@ -137,14 +137,6 @@ function IdleSurface({
     <CallPanel>
       <VoiceGlow state={fetching ? "connecting" : "idle"} />
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-black/[0.07] bg-white py-1 pl-2.5 pr-3 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-black/70 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-          <span className="relative flex size-1.5" aria-hidden>
-            <span className="prelaunch-live-ping absolute inline-flex size-full rounded-full bg-[#E5484D]" />
-            <span className="relative inline-flex size-1.5 rounded-full bg-[#E5484D]" />
-          </span>
-          Live demo
-        </span>
-
         <VoiceOrb
           state={fetching ? "connecting" : "idle"}
           onClick={onStart}

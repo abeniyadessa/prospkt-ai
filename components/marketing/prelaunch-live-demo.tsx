@@ -443,7 +443,7 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
 
   if (transcript.length === 0) {
     return (
-      <div className="flex h-[150px] w-full items-center justify-center">
+      <div className="mx-auto flex h-[150px] w-full max-w-[300px] items-center justify-center">
         <p className="text-center text-[12.5px] italic text-black/55">
           Say hi to get started. Max takes it from there.
         </p>
@@ -454,7 +454,7 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
   return (
     <div
       ref={containerRef}
-      className="h-[150px] w-full overflow-y-auto px-1 py-1"
+      className="mx-auto h-[150px] w-full max-w-[300px] overflow-y-auto px-1 py-1"
     >
       <ol className="space-y-2.5">
         {transcript.map((m) => {
@@ -469,7 +469,7 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
             >
               <div
                 className={cn(
-                  "flex max-w-[85%] flex-col gap-1",
+                  "flex max-w-[80%] flex-col gap-1",
                   isMax ? "items-start" : "items-end"
                 )}
               >

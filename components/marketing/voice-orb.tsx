@@ -197,7 +197,7 @@ export function VoiceOrb({
         type="button"
         onClick={onClick}
         aria-label="Tap to talk to Max"
-        className="group relative mx-auto flex size-56 cursor-pointer items-center justify-center rounded-full transition-transform duration-200 [-webkit-tap-highlight-color:transparent] hover:scale-[1.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-4"
+        className="group relative mx-auto flex size-48 cursor-pointer sm:size-56 items-center justify-center rounded-full transition-transform duration-200 [-webkit-tap-highlight-color:transparent] hover:scale-[1.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-4"
       >
         {/* Hover affordance — signals the orb is pressable */}
         <span
@@ -234,7 +234,7 @@ export function VoiceOrb({
               ? "Listening"
               : "Connecting"
       }
-      className="relative mx-auto flex size-56 items-center justify-center"
+      className="relative mx-auto flex size-48 items-center sm:size-56 justify-center"
     >
       {content}
     </div>

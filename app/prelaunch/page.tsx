@@ -62,11 +62,11 @@ export default function PrelaunchPage() {
     // deliberate prelaunch-only exception to the CLAUDE.md "no gradients" rule:
     // a soft light anchored low on an otherwise near-white page. Keep <main>
     // transparent so the fixed -z-10 glow shows over the body background.
-    <main className="relative min-h-dvh overflow-x-hidden text-black">
+    <main className="relative min-h-svh overflow-x-hidden text-black">
       <PrelaunchAnalytics />
-      <div className="relative mx-auto flex min-h-dvh max-w-[1120px] flex-col px-5 sm:px-6 lg:px-8">
+      <div className="relative mx-auto flex min-h-svh max-w-[1120px] flex-col px-5 pb-[env(safe-area-inset-bottom)] sm:px-6 lg:px-8">
         <section
-          className="relative mx-auto flex w-full max-w-[560px] flex-1 flex-col items-center justify-center py-12 text-center"
+          className="relative mx-auto flex w-full max-w-[560px] flex-1 flex-col items-center justify-center py-10 text-center sm:py-12"
         >
           <Brand />
 

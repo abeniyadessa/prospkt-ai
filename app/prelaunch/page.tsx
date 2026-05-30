@@ -124,7 +124,7 @@ function AnimatedOutcome() {
       </span>
       <span
         aria-hidden="true"
-        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-[#1E7A45]"
+        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden"
       >
         <span className="prelaunch-outcome-track">
           {[...headlinePhrases, headlinePhrases[0]].map((phrase, index) => (
@@ -137,6 +137,24 @@ function AnimatedOutcome() {
       <style>{`
         .prelaunch-outcome-rotator {
           display: block;
+          background-image: linear-gradient(
+            100deg,
+            #6e86e8 0%,
+            #9e73da 32%,
+            #e06a9e 64%,
+            #e2722e 100%
+          );
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          color: transparent;
+        }
+
+        /* Keep selected text legible — don't show the gradient under selection */
+        .prelaunch-outcome-rotator::selection,
+        .prelaunch-outcome-rotator *::selection {
+          -webkit-text-fill-color: #16181d;
+          color: #16181d;
         }
 
         .prelaunch-outcome-track {

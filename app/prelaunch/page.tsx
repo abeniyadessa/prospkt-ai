@@ -79,6 +79,10 @@ export default function PrelaunchPage() {
             Hear how Prospkt turns a missed call into a booked job.
           </p>
 
+          <p className="mx-auto mt-2.5 max-w-[420px] text-pretty text-[13px] leading-5 text-black/55">
+            Every missed call is a job your competitor books instead.
+          </p>
+
           <div className="mx-auto mt-7 w-full max-w-[420px]">
             <PrelaunchDemo />
 
@@ -235,8 +239,10 @@ function Footer() {
   return (
     <footer className="relative z-10 mt-auto border-t border-black/[0.08] py-6">
       <div className="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
-        <p className="text-pretty text-[12.5px] leading-5 text-black/70">
-          Prospkt is launching in public. Follow the build.
+        <p className="max-w-[420px] text-pretty text-[12.5px] leading-5 text-black/70">
+          Built by an operator who&apos;s lived the missed-call problem. Launching
+          in public — follow the build.
+          <span className="mt-0.5 block text-black/45">— Abeni Dinsa, Founder</span>
         </p>
 
         <div className="flex items-center gap-1">

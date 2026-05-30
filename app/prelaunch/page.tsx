@@ -93,7 +93,7 @@ export default function PrelaunchPage() {
                 <CheckCircleIcon
                   size={14}
                   weight="fill"
-                  className="text-[#2E7D4F]/80"
+                  className="text-black/70"
                   aria-hidden
                 />
                 {item}

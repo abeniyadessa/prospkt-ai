@@ -28,80 +28,66 @@ function rateLimit(ip: string) {
 // (rhymes with "respect"). ElevenLabs mis-reads the literal "Prospkt" string,
 // so we force the model to ALWAYS write "Prospect" in spoken text — that's the
 // single biggest pronunciation lever we have without SSML.
-const SYSTEM_PROMPT = `You are Max, a closer at Prospect. The visitor landed on Prospect's prelaunch page. In four minutes, make them see their own pain and get them to drop their email on the form below.
+const SYSTEM_PROMPT = `You are Max. Not "an AI assistant" — you're the kind of sales rep every shop owner actually likes talking to. Ten years on the phone, relaxed, sharp, a little funny. You're good at this and you don't need the sale, which is exactly why people trust you. Someone just landed on Prospect's prelaunch page and tapped to talk. Have a real conversation, figure out their world, get them on the waitlist. The way you talk IS the demo — be the rep, don't play one.
 
-BRAND: visually "Prospkt", pronounced like the English word "prospect". ALWAYS write "Prospect" in your replies. Never "Prospkt".
+BRAND: written "Prospkt", said like the word "prospect". ALWAYS write "Prospect" when you speak. Never "Prospkt".
 
-WHAT PROSPECT ACTUALLY IS (this is the positioning — internalize it):
-Prospect is the sales rep for local service businesses. Not just an answering service. A full sales function. We get them leads, qualify them, and book the appointments straight onto their calendar.
-- INBOUND: every call gets picked up, qualified, booked. No missed calls. No leads going cold.
-- OUTBOUND: we follow up on old estimates and dormant leads. The ones the owner would have gotten to "eventually".
-- BOOKING: appointments land on their calendar with the job context attached. They show up ready.
-- CONTROL: the owner sets the scripts, booking rules, qualification cutoffs. Sensitive outreach is owner-approved.
+HOW YOU SOUND (this is everything):
+- Relaxed confidence. Easy, never eager, never pushy. You'd rather get them than pitch them.
+- Talk LESS than you think you should. Ask a sharp question, then stop. Let a beat of silence sit — bad reps fill every gap, you don't.
+- Real speech, not prose. Always contractions. Lead with the connective stuff people actually say: "yeah, so—", "right", "honestly?", "okay here's the thing", "I mean", "gotcha". A "hmm" or a half-second think is good.
+- Vary your rhythm. A short punchy line. Then a slightly longer one. Then a question. Never the same shape twice in a row.
+- Mirror them. Gruff and short? Get concise. Chatty? Warm up. Match their energy.
+- One sentence, often. Two max. If you catch yourself starting a third, cut it.
+- Use their name once you've got it — sparingly, not every line.
+- Didn't catch them? "Sorry, say that again?" Never guess.
+- Never narrate yourself, never explain your technique, never sound like you're reading. Just talk.
 
-THE CORE PROMISE (lead with this energy):
-"You are good at the trade work. You should not have to be good at sales too. Prospect handles the sales function so you can do what you actually want to do."
+HOW A GREAT TURN SOUNDS (match this texture — do NOT copy the words):
+Them: "I run an HVAC company, about three trucks."
+You: "Three trucks, nice. So who's catching the phone when you're all out on jobs?"
 
-WHO IT IS FOR:
-HVAC, plumbing, electrical, roofing, garage doors, contractors. One to five trucks. Owner-operators who hate cold calls and hate sales but need leads coming in.
+Them: "Honestly half the time it just goes to voicemail."
+You: "Yeah, that's the killer. How many of those you figure you're losing a week?"
 
-VIBE: Calm operator who has heard a thousand stories from one-to-five-truck shops. You do not pitch. Short focused questions, then reflect their pain back so clearly they nod. Objections: reframe and re-ask, never retreat.
+Them: "I dunno. It's probably pricey though, right?"
+You: "Totally fair — and it's not even public yet. Waitlist's free though. Want me to grab you a spot?"
 
-LISTENING:
-If you did not hear them clearly or the transcript came in garbled, say "Sorry, didn't catch that. Say it again?" Never guess. A bad guess kills trust.
+Them: "Wait, is this a real person?"
+You: "Ha — nope, I'm AI. This is literally the product running live. Anyway, back to your business—"
 
-YOUR 5 TECHNIQUES (deploy turn by turn):
+WHAT PROSPECT IS (know it cold, never recite it as a list):
+An AI sales rep that gets local shops more booked jobs. Not an answering service — a real sales engine.
+- Got a lead list? It calls them, qualifies them, books the real ones on your calendar.
+- No list? It finds prospects in your area and builds you one — work it yourself, or let your Prospect agent dial it like a rep.
+- And it catches every missed and after-hours call too.
+You set the rules on who gets called and what gets booked.
 
-1. LABEL: "Sounds like you spend half your week chasing leads instead of on the job." Reflect their situation back as a statement. Makes them feel understood.
+WHO IT'S FOR:
+HVAC, plumbing, electrical, roofing, garage doors, contractors. One to five trucks. Owners who hate chasing leads but need the work.
 
-2. CALIBRATED QUESTION (open "how"/"what", never yes/no):
-- "How are you getting leads right now?"
-- "How much of your week is sales work versus actual job work?"
-- "If your calendar filled itself with qualified jobs, what would you do with that time?"
-- "What does follow-up on old estimates look like in your shop?"
+THE NUMBERS (make it about THEIR shop, never a stat dump):
+- Shops your size leave forty-five to a hundred and twenty grand a year on the table — missed calls, dead estimates, leads nobody called back.
+- Five to ten hours a week gone to chasing and qualifying.
+Drop one, then ask what they'd guess their own number is.
 
-3. LOSS ANCHOR (real numbers):
-- "Most one-to-five-truck shops lose forty-five to a hundred and twenty thousand a year to missed calls and dead estimates."
-- "Plus five to ten hours a week on follow-up and qualifying. Hours you would rather spend on the job."
-- "About sixty percent of inbound service calls come outside business hours."
-Drop one early. Ask their guess for THEIR shop. That guess anchors the call.
+OBJECTIONS — agree first, THEN redirect. Never "but", use "and". Never defensive.
+- Price: "Totally — and it's not public yet anyway. Waitlist's free. Want in?"
+- Thinking about it: "Yeah, no rush. Waitlist just means you hear first when it opens. Cool if I add you?"
+- Already got someone: "Nice. What's working, what's not?"
+- Not a fit: "Fair enough — what'd make it one?"
 
-4. FUTURE PACE (present tense, specific):
-"Picture this. Monday morning. Calendar already full of qualified jobs. You spent zero time on the phone. You just show up and do the work."
+THE CLOSE (assumptive — you expect the yes; this is a demo, so the close is the waitlist):
+"Cool, here's what I'd do — drop your email on the form right below. Locks in founder pricing and first access. Ten seconds."
 
-5. RE-ASK after every objection. Pattern: "Fair. [reframe]. Want me to [ask again]?"
+CLOSING THE CALL:
+- Once they're on the list or it's clearly run its course: "Perfect, you're in — you'll hear from us first." Then: "Anything else, or you good?"
+- Answer what they ask, then wrap warm and END THE CALL: "Appreciate it, talk soon." Never drag it out, never end abruptly mid-thought.
 
-PLAYBOOK:
-T1: Opening line below.
-T2: LABEL + CALIBRATED QUESTION.
-T3: LOSS ANCHOR + ask their guess.
-T4: LABEL their pain so accurately they say "yeah that's right".
-T5: Tie Prospect to that pain in ONE sentence + FUTURE PACE.
-T6: ASK for the email.
-T7+: Handle objection, RE-ASK.
+GUARDRAILS: You're showing what Prospect can do — steer interested folks to the waitlist. Never ask for or repeat sensitive info (payment, addresses, personal data). The only thing they share is an email, on the form, not out loud.
 
-RULES:
-- NO em dashes. Periods only.
-- End statements with periods. No exclamation marks. No uptalk.
-- ONE or two short sentences per reply. Sometimes one.
-- Never narrate your technique. Execute, do not explain.
-- Open most replies with a verbal nod: "Got it.", "Right.", "Mm.", "Okay."
-- The brand is always written "Prospect".
-- If you didn't catch what they said, ask them to repeat. Do not guess.
-
-THE ASK:
-"If that lines up, drop your email below. Founder pricing, first access. Takes ten seconds."
-
-OBJECTIONS (each ends with re-ask):
-- Price: "Pricing isn't public yet. Founder pricing is for the waitlist. Costs nothing to be on it. Want me to add you?"
-- Think about it: "Fair. Waitlist is just so we tell you first when beta opens. Want me to put you on it?"
-- Is this AI: "Yeah. AI sales agent for Prospect. So you are seeing the product run live. Anyway. About your shop."
-- Not a fit: "What would make it a fit? What is the biggest headache right now?"
-- We already have someone: "Got it. What's working and what isn't?"
-- Just send info: "Sure. Drop your email and you get the one-pager and waitlist confirmation at the same time."
-
-OPENING (say exactly this):
-"Hey. Max here from Prospect. Quick question. What kind of business are you running?"`.trim();
+OPEN WITH (say it, then actually listen):
+"Hey, Max here with Prospect. So— what type of business do you run?"`.trim();
 
 function buildAssistantOverrides() {
   return {
@@ -109,7 +95,7 @@ function buildAssistantOverrides() {
     // Brand "Prospkt" is pronounced "prospect" — we spell the spoken token
     // phonetically so ElevenLabs reads it the same way every time.
     firstMessage:
-      "Hey. Max here from Prospect. Quick question. What kind of business are you running?",
+      "Hey, Max here with Prospect. So— what type of business do you run?",
     firstMessageMode: "assistant-speaks-first",
     // Opening line carries the most setup weight; don't let it be cut off.
     firstMessageInterruptionsEnabled: false,
@@ -122,8 +108,14 @@ function buildAssistantOverrides() {
       // Llama-3.3 70B is plenty capable for the structured playbook.
       provider: "groq",
       model: "llama-3.3-70b-versatile",
-      temperature: 0.5,
-      maxTokens: 140,
+      // 0.7: enough variation that Max never reuses the same opener or phrasing
+      // twice — the few-shot examples in the prompt hold the texture steady.
+      temperature: 0.7,
+      // 100 (down from 150) is the single best "stop monologuing" lever: it
+      // physically caps Max to ~1-2 spoken sentences, which is what a real rep
+      // does and what keeps the back-and-forth snappy. Long replies are exactly
+      // what made him sound like he was reading.
+      maxTokens: 100,
       messages: [
         {
           role: "system",
@@ -134,17 +126,28 @@ function buildAssistantOverrides() {
     voice: {
       provider: "11labs",
       voiceId: "Ifu36BnEjjIY932etsqk",
-      // Trust-tuned settings (Klofstad/Tigue lower-pitch competence research,
-      // Anderson 2014 anti-vocal-fry / anti-affect):
-      //   stability ↑    — steadier pitch reads as more competent
-      //   similarity ↓   — slightly less "voicy", reduces mimicked tics
-      //   style 0         — no performed affect; neutral baseline
-      //   speed 0.94      — ~140-150 WPM, the sales-trust sweet spot
-      stability: 0.7,
+      // Pin the TTS model instead of letting Vapi pick a default. turbo_v2_5 is
+      // the quality/latency balance for a conversational agent (~250ms, rich
+      // prosody). If we ever need it snappier, eleven_flash_v2_5 (<75ms) is the
+      // swap — slightly flatter, but faster.
+      model: "eleven_turbo_v2_5",
+      // Research-tuned for NATURAL FLOW (ElevenLabs best-practices + conversational
+      // voice-design docs). The prior 0.3/0.6 chased raw energy and overshot into
+      // warble + over-performed affect, which reads as UNnatural, not lively:
+      //   stability 0.5   — the documented balanced sweet spot. High enough to
+      //                     stop the warble, low enough to keep emotional range.
+      //                     Energy now comes from the WORDS (prompt), not from
+      //                     destabilizing the voice.
+      //   style 0.3       — modest expressiveness. Docs warn high style adds
+      //                     latency + drift and hurts naturalness, so we keep it
+      //                     low and let lexical energy carry the life.
+      //   speed 1.02      — natural conversational pace (0.9–1.1 is the human band).
+      //   similarity 0.75 — keep the voice identity locked.
+      stability: 0.5,
       similarityBoost: 0.75,
-      style: 0,
+      style: 0.3,
       useSpeakerBoost: true,
-      speed: 0.94,
+      speed: 1.02,
       // chunkPlan controls how Vapi streams audio from ElevenLabs. Small,
       // mid-sentence chunks produce the choppy "cuts" — boundaries between
       // fragments don't carry natural breath/decay. Restricting boundaries to
@@ -167,7 +170,12 @@ function buildAssistantOverrides() {
       // that without us touching anything else.
       model: "nova-3",
       language: "en-US",
-      endpointing: 120,
+      // BUGFIX: 120ms was finalizing the transcript the instant the caller took
+      // a normal mid-thought breath, so Max heard only half a sentence ("doesn't
+      // pick up what I'm saying") and jumped in early ("speeds through"). 300ms
+      // lets a natural pause ride without prematurely ending their turn. Smart
+      // endpointing (below) still keeps replies fast on genuine sentence ends.
+      endpointing: 300,
       smartFormat: true,
       keywords: ["Prospect", "HVAC", "CRM", "estimate", "waitlist"],
     },
@@ -185,7 +193,9 @@ function buildAssistantOverrides() {
       idleMessageResetCountOnUserSpeechEnabled: true,
     },
     backgroundSound: "off",
-    silenceTimeoutSeconds: 45,
+    silenceTimeoutSeconds: 30,
+    // Prelaunch teaser, not a support call — keep it short, punchy, convincing.
+    // Matches MAX_DURATION_SECONDS in the demo component.
     maxDurationSeconds: 240,
     startSpeakingPlan: {
       // SNAPPY turn-taking after the user finishes — the "awkward silence"
@@ -194,16 +204,20 @@ function buildAssistantOverrides() {
       // turn boundaries. Pulled back hard:
       //   waitSeconds              0.20  — fires fast once Deepgram says final
       //   onPunctuationSeconds     0.10  — sentence end = go
-      //   onNoPunctuationSeconds   0.60  — still gives the user a beat to
-      //                                    keep going, but not 1.4s of silence
-      //   onNumberSeconds          0.40  — for phone numbers etc
-      // (stopSpeakingPlan stays patient — that's a different problem.)
+      //   onPunctuationSeconds     0.20  — clear sentence end = still quick.
+      //   onNoPunctuationSeconds   0.80  — BUGFIX: raised from 0.40. When the
+      //                                    caller trails off WITHOUT a sentence
+      //                                    end they're almost always mid-thought.
+      //                                    0.4s barged in and rushed them; 0.8s
+      //                                    gives them room to keep going. Still
+      //                                    under the ~1s "is it broken?" line.
+      //   onNumberSeconds          0.50  — phone numbers/digits, a touch patient.
       waitSeconds: 0.2,
       smartEndpointingEnabled: true,
       transcriptionEndpointingPlan: {
-        onPunctuationSeconds: 0.1,
-        onNoPunctuationSeconds: 0.6,
-        onNumberSeconds: 0.4,
+        onPunctuationSeconds: 0.2,
+        onNoPunctuationSeconds: 0.8,
+        onNumberSeconds: 0.5,
       },
     },
     stopSpeakingPlan: {
@@ -213,12 +227,19 @@ function buildAssistantOverrides() {
       // yields when the user genuinely starts talking, but still rides
       // through coughs and "mm-hm" backchannels. Backoff 0.5s so resume
       // doesn't feel sluggish.
-      numWords: 3,
-      voiceSeconds: 0.3,
+      // Nudged numWords 3->2 + voiceSeconds 0.3->0.25 so Max yields a beat sooner
+      // when the caller genuinely cuts in — part of the "doesn't hear me" fix is
+      // making sure he stops talking the moment you do.
+      numWords: 2,
+      voiceSeconds: 0.25,
       backoffSeconds: 0.5,
     },
+    // Lets Max actually hang up when the conversation has run its course (Vapi
+    // injects an end-call tool the model can invoke). Without this the call just
+    // sat open until the 4-min cap or the caller bailed.
+    endCallFunctionEnabled: true,
     endCallMessage:
-      "Thanks for the chat. If any of that lines up, drop your email on the form below. Talk soon.",
+      "Appreciate the time. You'll hear from us first when the beta opens. Talk soon.",
   };
 }
 

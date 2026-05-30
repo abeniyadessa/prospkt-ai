@@ -213,8 +213,8 @@ export function VoiceOrb({
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         >
           <span
-            className="orb-ripple-1 absolute left-1/2 top-1/2 size-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{ border: "1.5px solid rgba(130,140,225,0.5)" }}
+            className="orb-ripple-1 absolute left-1/2 top-1/2 size-[72%] rounded-full"
+            style={{ marginLeft: "-36%", marginTop: "-36%", border: "1.5px solid rgba(130,140,225,0.5)" }}
           />
         </span>
         {content}

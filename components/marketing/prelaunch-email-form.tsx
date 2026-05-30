@@ -78,10 +78,10 @@ export function PrelaunchEmailForm() {
 
   if (success) {
     return (
-      <div className="mx-auto w-full max-w-[460px] rounded-[1.75rem] border border-white bg-white/85 p-7 text-center shadow-[0_8px_30px_rgba(0,0,0,0.14)] backdrop-blur sm:p-8">
+      <div className="mx-auto w-full max-w-[460px] rounded-[1.75rem] border border-black/[0.08] bg-white p-7 text-center shadow-[0_10px_40px_rgba(0,0,0,0.06)] sm:p-8">
         <div
           className="mx-auto flex size-12 items-center justify-center rounded-full"
-          style={{ backgroundColor: "rgba(255,255,255,0.7)", color: "#000" }}
+          style={{ backgroundColor: "#E8F3EC", color: "#1E7A45" }}
           aria-hidden
         >
           <CheckIcon size={22} weight="bold" />
@@ -93,7 +93,7 @@ export function PrelaunchEmailForm() {
           We just sent a confirmation to{" "}
           <span className="font-medium text-black">{submittedEmail}</span>.
         </p>
-        <div className="mt-5 rounded-xl border border-white/70 bg-white/60 p-4 text-left text-[13px] leading-5 text-black/70">
+        <div className="mt-5 rounded-xl border border-black/[0.07] bg-[#F7F8F9] p-4 text-left text-[13px] leading-5 text-black/70">
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-black/55">
             What happens next
           </p>
@@ -120,7 +120,7 @@ export function PrelaunchEmailForm() {
             target="_blank"
             rel="noreferrer"
             aria-label="Follow Prospkt on LinkedIn"
-            className="inline-flex size-7 items-center justify-center rounded-md text-black transition-colors hover:bg-white/60"
+            className="inline-flex size-7 items-center justify-center rounded-md text-black transition-colors hover:bg-black/[0.04]"
           >
             <LinkedinLogoIcon size={14} weight="fill" aria-hidden />
           </a>
@@ -129,7 +129,7 @@ export function PrelaunchEmailForm() {
             target="_blank"
             rel="noreferrer"
             aria-label="Follow Prospkt on X"
-            className="inline-flex size-7 items-center justify-center rounded-md text-black transition-colors hover:bg-white/60"
+            className="inline-flex size-7 items-center justify-center rounded-md text-black transition-colors hover:bg-black/[0.04]"
           >
             <XLogoIcon size={13} weight="fill" aria-hidden />
           </a>
@@ -146,8 +146,8 @@ export function PrelaunchEmailForm() {
     <form onSubmit={handleSubmit} className="w-full" noValidate>
       <div
         className={cn(
-          "group relative grid grid-cols-[minmax(0,1fr)_auto] gap-1.5 rounded-full border bg-white/90 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.14)] backdrop-blur",
-          state === "error" ? "border-black/40" : "border-white focus-within:border-black/50"
+          "group relative grid grid-cols-[minmax(0,1fr)_auto] gap-1.5 rounded-full border bg-white p-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.04),0_12px_32px_rgba(0,0,0,0.05)]",
+          state === "error" ? "border-[#E3B5B0]" : "border-black/[0.08] focus-within:border-black/30"
         )}
       >
         <label className="sr-only" htmlFor="prelaunch-email">
@@ -164,7 +164,7 @@ export function PrelaunchEmailForm() {
           aria-invalid={state === "error"}
           aria-describedby="prelaunch-form-message"
           disabled={submitting || success}
-          className="h-11 rounded-full border-transparent bg-transparent px-4 text-[14.5px] text-black placeholder:text-black/45 focus-visible:border-transparent"
+          className="h-11 rounded-full border-transparent bg-transparent px-4 text-[16px] text-black placeholder:text-black/45 focus-visible:border-transparent sm:text-[14.5px]"
         />
         <Button
           type="submit"

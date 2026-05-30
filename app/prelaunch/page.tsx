@@ -57,15 +57,11 @@ const headlinePhrases = [
 
 export default function PrelaunchPage() {
   return (
-    // NOTE: This full-page gradient is a deliberate prelaunch-only exception to the
-    // CLAUDE.md "no gradients" rule. Do not propagate to the app/dashboard.
-    <main
-      className="min-h-dvh overflow-x-hidden text-black"
-      style={{
-        background:
-          "radial-gradient(125% 125% at 50% 101%, rgba(245,87,2,1) 10.5%, rgba(245,120,2,1) 16%, rgba(245,140,2,1) 17.5%, rgba(245,170,100,1) 25%, rgba(238,174,202,1) 40%, rgba(202,179,214,1) 65%, rgba(148,201,233,1) 100%)",
-      }}
-    >
+    // NOTE: The bottom "voice glow" (components/marketing/voice-glow.tsx) is a
+    // deliberate prelaunch-only exception to the CLAUDE.md "no gradients" rule:
+    // a soft light anchored low on an otherwise near-white page. Keep <main>
+    // transparent so the fixed -z-10 glow shows over the body background.
+    <main className="relative min-h-dvh overflow-x-hidden text-black">
       <PrelaunchAnalytics />
       <div className="relative mx-auto flex min-h-dvh max-w-[1120px] flex-col px-5 sm:px-6 lg:px-8">
         <section
@@ -94,7 +90,7 @@ export default function PrelaunchPage() {
             {proofItems.map((item) => (
               <span
                 key={item}
-                className="inline-flex items-center rounded-full border border-white/70 bg-white/55 px-3 py-1.5 text-black/80"
+                className="inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1.5 text-black/65 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
               >
                 {item}
               </span>
@@ -113,7 +109,7 @@ function Brand() {
     <div className="inline-flex items-center justify-center gap-2.5">
       <LogoMark className="size-9 rounded-xl" />
       <span className="text-[17px] font-semibold leading-none">Prospkt</span>
-      <span className="ml-2 rounded-full border border-white/75 bg-white/60 px-2.5 py-1 text-[10.5px] font-medium uppercase tracking-[0.04em] text-black">
+      <span className="ml-2 rounded-full border border-black/10 bg-white px-2.5 py-1 text-[10.5px] font-medium uppercase tracking-[0.04em] text-black/70 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
         Early access
       </span>
     </div>
@@ -128,7 +124,7 @@ function AnimatedOutcome() {
       </span>
       <span
         aria-hidden="true"
-        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.35),0_2px_20px_rgba(0,0,0,0.22)]"
+        className="prelaunch-outcome-rotator mx-auto block h-[1.32em] overflow-hidden text-[#1E7A45]"
       >
         <span className="prelaunch-outcome-track">
           {[...headlinePhrases, headlinePhrases[0]].map((phrase, index) => (
@@ -215,7 +211,7 @@ function LogoMark({
 
 function Footer() {
   return (
-    <footer className="relative z-10 mt-auto border-t border-white/50 py-6">
+    <footer className="relative z-10 mt-auto border-t border-black/[0.08] py-6">
       <div className="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
         <p className="text-pretty text-[12.5px] leading-5 text-black/70">
           Prospkt is launching in public. Follow the build.

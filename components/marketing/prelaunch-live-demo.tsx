@@ -10,7 +10,8 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import Vapi from "@vapi-ai/web";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { GlassOrb } from "@/components/marketing/glass-orb";
+import { VoiceOrb, type VoiceVisualState } from "@/components/marketing/voice-orb";
+import { VoiceGlow } from "@/components/marketing/voice-glow";
 
 const MAX_DURATION_SECONDS = 240;
 
@@ -134,12 +135,13 @@ function IdleSurface({
 
   return (
     <CallPanel>
+      <VoiceGlow state={fetching ? "connecting" : "idle"} />
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="rounded-full border border-white/70 bg-white/55 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-black/70">
+        <span className="rounded-full border border-black/10 bg-white px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-black/55 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
           Live demo
         </span>
 
-        <GlassOrb
+        <VoiceOrb
           state={fetching ? "connecting" : "idle"}
           onClick={onStart}
           disabled={fetching}
@@ -149,19 +151,19 @@ function IdleSurface({
           <p className="text-[15px] font-semibold tracking-tight text-black">
             {fetching ? "Connecting…" : "Tap to talk to Max"}
           </p>
-          <p className="mx-auto max-w-[320px] text-[12.5px] leading-[1.5] text-black/70">
+          <p className="mx-auto max-w-[320px] text-[12.5px] leading-[1.5] text-black/60">
             Ask Max how Prospkt would recover the calls your shop is missing.
           </p>
         </div>
 
         {dropped && !fetching ? (
-          <p className="rounded-full border border-white/70 bg-white/55 px-3 py-1 text-[11.5px] font-medium text-black/80">
+          <p className="rounded-full border border-black/10 bg-white px-3 py-1 text-[11.5px] font-medium text-black/70 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
             Call dropped — tap the orb to pick it back up.
           </p>
         ) : null}
 
         {errored ? (
-          <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-2 text-[12px] text-black">
+          <div className="flex items-center gap-2 rounded-full border border-[#EBD6D3] bg-[#FBF4F3] px-3 py-2 text-[12px] text-[#A23A30]">
             <WarningCircleIcon size={14} weight="fill" />
             <span>{state.message}</span>
             <button
@@ -173,7 +175,7 @@ function IdleSurface({
             </button>
           </div>
         ) : (
-          <p className="text-[10.5px] text-black/55">
+          <p className="text-[10.5px] text-black/45">
             Uses your mic · Up to {Math.round(MAX_DURATION_SECONDS / 60)} min · Not recorded
           </p>
         )}
@@ -199,6 +201,9 @@ function ActiveSession({
   const [secondsLeft, setSecondsLeft] = useState(MAX_DURATION_SECONDS);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0);
+  // Who is mid-sentence right now, from Vapi `speech-update` events. Drives the
+  // green "you're talking" vs warm "Max is talking" treatment.
+  const [speaker, setSpeaker] = useState<"user" | "assistant" | null>(null);
   const startedRef = useRef(false);
   // Vapi can emit both `error` and `call-end` for one teardown; this guard makes
   // sure we report the end exactly once, keeping the first (truer) reason.
@@ -233,9 +238,19 @@ function ActiveSession({
         (msg: {
           type?: string;
           role?: string;
+          status?: string;
           transcript?: string;
           transcriptType?: string;
         }) => {
+          if (msg.type === "speech-update") {
+            const who = msg.role === "user" ? "user" : "assistant";
+            if (msg.status === "started") {
+              setSpeaker(who);
+            } else if (msg.status === "stopped") {
+              setSpeaker((cur) => (cur === who ? null : cur));
+            }
+            return;
+          }
           if (
             msg.type === "transcript" &&
             msg.transcriptType === "final" &&
@@ -325,13 +340,18 @@ function ActiveSession({
     }
   }, [isMuted]);
 
+  const agentSpeaking = speaker === "assistant" || volume > 0.06;
+  const userSpeaking = speaker === "user";
+
   const statusLabel =
     callStatus === "connecting"
       ? "Connecting…"
       : callStatus === "connected"
-        ? volume > 0.05
-          ? "Max is speaking…"
-          : "Listening…"
+        ? userSpeaking
+          ? "Listening to you…"
+          : agentSpeaking
+            ? "Max is speaking…"
+            : "Listening…"
         : callStatus === "error"
           ? "Connection error"
           : "Disconnected";
@@ -345,23 +365,26 @@ function ActiveSession({
 
   const live = callStatus === "connected";
 
+  const visualState: VoiceVisualState =
+    callStatus === "error"
+      ? "error"
+      : callStatus === "connecting"
+        ? "connecting"
+        : callStatus === "connected"
+          ? userSpeaking
+            ? "user"
+            : agentSpeaking
+              ? "agent"
+              : "listening"
+          : "idle";
+
   return (
     <CallPanel>
+      <VoiceGlow state={visualState} volume={volume} />
       <div className="flex flex-col items-center gap-4 text-center">
-        <GlassOrb
-          state={
-            callStatus === "error"
-              ? "error"
-              : callStatus === "connected"
-                ? "connected"
-                : callStatus === "connecting"
-                  ? "connecting"
-                  : "idle"
-          }
-          volume={volume}
-        />
+        <VoiceOrb state={visualState} volume={volume} />
 
-        <div className="flex items-center justify-center gap-2 rounded-full border border-white/70 bg-white/60 px-3 py-1.5 text-[12.5px]">
+        <div className="flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1.5 text-[12.5px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
           <span
             className={cn(
               "size-1.5 rounded-full bg-black",
@@ -376,7 +399,7 @@ function ActiveSession({
 
         <Transcript transcript={transcript} />
 
-        <div className="flex items-center justify-center gap-4 border-t border-white/60 pt-3.5">
+        <div className="flex items-center justify-center gap-4 border-t border-black/10 pt-3.5">
           <button
             type="button"
             onClick={handleToggleMute}
@@ -465,7 +488,7 @@ function Transcript({ transcript }: { transcript: TranscriptMessage[] }) {
                     "gap-0 rounded-2xl border-0 py-0 ring-0",
                     isMax
                       ? "bg-black text-white"
-                      : "bg-white/75 text-black ring-1 ring-inset ring-white/80"
+                      : "bg-[#F1F2F4] text-black ring-1 ring-inset ring-black/[0.05]"
                   )}
                 >
                   <CardContent className="px-3.5 py-2 text-left text-[13.5px] leading-[1.45]">

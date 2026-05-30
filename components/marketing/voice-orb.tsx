@@ -1,16 +1,16 @@
 "use client";
 
-import { MicrophoneIcon } from "@phosphor-icons/react";
+import { LightningIcon } from "@phosphor-icons/react";
 import { motion, useReducedMotion } from "framer-motion";
 
 /**
  * The conversation's visual state, shared by the orb and the bottom glow.
- *   idle       — before/after a call (neutral, soft breathing)
+ *   idle       — before/after a call (calm pastel, soft breathing)
  *   connecting — dialing Max
- *   listening  — connected, no one mid-sentence (cool blue)
- *   agent      — Max is speaking (warm)
- *   user       — the caller is speaking (green)
- *   error      — dropped/failed (faded neutral)
+ *   listening  — connected, no one mid-sentence (leans cool)
+ *   agent      — Max is speaking (leans warm)
+ *   user       — the caller is speaking (green accent + status dot)
+ *   error      — dropped/failed (desaturated)
  */
 export type VoiceVisualState =
   | "idle"
@@ -20,31 +20,22 @@ export type VoiceVisualState =
   | "user"
   | "error";
 
-// Each state tints the orb's aura — never the core. The core stays matte black
-// (brand: sharp, operator-focused) so the orb reads as one object that changes
-// mood, not a different object per state.
-const AURA: Record<VoiceVisualState, string> = {
-  idle: "120, 140, 170",
-  connecting: "120, 140, 170",
-  listening: "56, 132, 224",
-  agent: "245, 140, 43",
-  user: "46, 168, 110",
-  error: "150, 150, 150",
-};
-
-const HALO_BASE: Record<VoiceVisualState, number> = {
-  idle: 0.4,
-  connecting: 0.45,
-  listening: 0.6,
-  agent: 0.68,
-  user: 0.66,
-  error: 0.22,
+// A soft hue the base pastel leans toward per state — never a full recolor, so
+// the orb keeps its iridescent identity and just changes mood.
+const TINT: Record<VoiceVisualState, { rgb: string; opacity: number }> = {
+  idle: { rgb: "210, 205, 235", opacity: 0 },
+  connecting: { rgb: "200, 205, 230", opacity: 0.18 },
+  listening: { rgb: "150, 185, 235", opacity: 0.34 },
+  agent: { rgb: "248, 188, 148", opacity: 0.36 },
+  user: { rgb: "120, 200, 150", opacity: 0.34 },
+  error: { rgb: "186, 186, 190", opacity: 0.4 },
 };
 
 /**
- * Prospkt's voice signature. Matte black core (the "presence") wrapped in a
- * state-colored halo and, when live, expanding sonar rings. All motion is
- * transform/opacity only and respects prefers-reduced-motion.
+ * Prospkt's voice signature: a soft, matte, iridescent pastel sphere
+ * (cool top → pink core → peach base) with a state tint, an embossed brand
+ * bolt at rest, and sonar rings + a green "you're talking" dot when live.
+ * All motion is transform/opacity only and respects prefers-reduced-motion.
  *
  * Idle = the tap-to-talk control. Live = a passive visualizer driven by `volume`.
  */
@@ -63,94 +54,148 @@ export function VoiceOrb({
   const energy = Math.min(1, Math.max(0, volume));
   const interactive = (state === "idle" || state === "error") && !disabled;
   const live = state === "listening" || state === "agent" || state === "user";
-  const showMic = state === "idle" || state === "error";
+  const showBolt = !live; // idle / connecting / error show the brand mark
 
-  const aura = AURA[state];
-  const haloOpacity = HALO_BASE[state] * (live ? 0.78 + energy * 0.5 : 1);
+  const tint = TINT[state];
+  const ringRgb =
+    state === "user"
+      ? "120, 200, 150"
+      : state === "agent"
+        ? "248, 188, 148"
+        : "150, 185, 235";
 
   const content = (
     <>
-      {/* Halo — soft colored light behind the core */}
-      <motion.div
+      {/* Soft contact shadow under the sphere */}
+      <span
         aria-hidden
-        className="pointer-events-none absolute size-44 rounded-full"
-        style={{
-          background: `radial-gradient(circle at 50% 50%, rgba(${aura},0.85) 0%, rgba(${aura},0) 68%)`,
-          filter: "blur(20px)",
-        }}
-        animate={{
-          opacity: Math.min(1, haloOpacity),
-          scale: reduceMotion ? 1 : live ? 1 + energy * 0.14 : 1,
-        }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
-      />
-
-      {/* Sonar rings — only while live, never under reduced motion */}
-      {live && !reduceMotion
-        ? [0, 0.8, 1.6].map((delay) => (
-            <motion.span
-              key={delay}
-              aria-hidden
-              className="pointer-events-none absolute rounded-full"
-              style={{
-                width: 116,
-                height: 116,
-                border: `1.5px solid rgba(${aura},0.5)`,
-              }}
-              initial={{ scale: 1, opacity: 0.5 }}
-              animate={{ scale: 1.95, opacity: 0 }}
-              transition={{
-                duration: 2.6,
-                repeat: Infinity,
-                ease: "easeOut",
-                delay,
-              }}
-            />
-          ))
-        : null}
-
-      {/* Core — matte black presence */}
-      <motion.div
-        aria-hidden
-        className="relative grid size-28 place-items-center rounded-full"
+        className="pointer-events-none absolute bottom-[8%] left-1/2 h-5 w-[62%] -translate-x-1/2 rounded-[50%]"
         style={{
           background:
-            "radial-gradient(circle at 38% 30%, #303338 0%, #16181c 46%, #090a0c 100%)",
-          boxShadow: `inset 0 1px 1px rgba(255,255,255,0.14), inset 0 -8px 18px rgba(0,0,0,0.55), 0 10px 30px rgba(10,12,16,0.32), 0 0 0 1px rgba(${aura},0.22), 0 0 26px rgba(${aura},${live ? 0.35 + energy * 0.3 : 0.16})`,
+            "radial-gradient(closest-side, rgba(120,118,150,0.34), rgba(120,118,150,0) 75%)",
+          filter: "blur(6px)",
+        }}
+      />
+
+      {/* The sphere */}
+      <motion.div
+        aria-hidden
+        className="relative size-36 overflow-hidden rounded-full"
+        style={{
+          background: [
+            "radial-gradient(120% 120% at 50% 6%, rgba(196,210,242,0.95) 0%, rgba(196,210,242,0) 46%)",
+            "radial-gradient(120% 115% at 50% 102%, rgba(248,205,164,0.97) 0%, rgba(248,205,164,0) 50%)",
+            "radial-gradient(100% 100% at 50% 56%, rgba(243,194,214,0.9) 0%, rgba(243,194,214,0) 62%)",
+            "linear-gradient(180deg, #e7ecf8 0%, #f3e8f0 52%, #fcefdf 100%)",
+          ].join(","),
+          boxShadow: [
+            "inset 0 13px 22px rgba(255,255,255,0.58)",
+            "inset 0 -20px 32px rgba(150,120,142,0.26)",
+            "inset -10px -8px 22px rgba(120,112,152,0.2)",
+            "inset 9px 6px 20px rgba(255,255,255,0.22)",
+            "0 24px 36px -14px rgba(132,128,165,0.5)",
+            "0 6px 14px -6px rgba(132,128,165,0.32)",
+          ].join(","),
         }}
         animate={
           reduceMotion
             ? { scale: 1 }
             : live
-              ? { scale: 1 + energy * 0.06 }
-              : { scale: [1, 1.03, 1] }
+              ? { scale: 1 + energy * 0.05 }
+              : { scale: [1, 1.02, 1] }
         }
         transition={
           reduceMotion
             ? { duration: 0 }
             : live
-              ? { duration: 0.12, ease: "easeOut" }
-              : { duration: 4.2, repeat: Infinity, ease: "easeInOut" }
+              ? { duration: 0.14, ease: "easeOut" }
+              : { duration: 4.6, repeat: Infinity, ease: "easeInOut" }
         }
       >
-        {/* top specular sheen — subtle, matte not glossy */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute left-[24%] top-[16%] h-[26%] w-[40%] rounded-full"
-          style={{
-            background:
-              "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.45), rgba(255,255,255,0) 72%)",
-            filter: "blur(3px)",
-          }}
-        />
+        {/* state tint — keeps the pastel, just leans it */}
         <motion.span
           aria-hidden
-          animate={{ opacity: showMic ? 0.92 : 0 }}
-          transition={{ duration: 0.25 }}
-          className="relative text-white"
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: `radial-gradient(circle at 50% 60%, rgba(${tint.rgb},0.95) 0%, rgba(${tint.rgb},0) 68%)`,
+            mixBlendMode: "soft-light",
+          }}
+          animate={{ opacity: tint.opacity * (live ? 0.85 + energy * 0.45 : 1) }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+        />
+
+        {/* soft specular highlight (matte, not glossy) */}
+        <span
+          aria-hidden
+          className="absolute left-[22%] top-[14%] h-[30%] w-[44%] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle at 32% 32%, rgba(255,255,255,0.75), rgba(255,255,255,0) 70%)",
+            filter: "blur(5px)",
+          }}
+        />
+
+        {/* sonar rings (G) — clipped to the sphere, only while live */}
+        {live && !reduceMotion
+          ? [0, 0.9, 1.8].map((delay) => (
+              <motion.span
+                key={delay}
+                aria-hidden
+                className="absolute left-1/2 top-1/2 rounded-full"
+                style={{
+                  width: 44,
+                  height: 44,
+                  marginLeft: -22,
+                  marginTop: -22,
+                  border: `1.5px solid rgba(${ringRgb},0.55)`,
+                }}
+                initial={{ scale: 0.5, opacity: 0.6 }}
+                animate={{ scale: 3.4, opacity: 0 }}
+                transition={{
+                  duration: 2.8,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                  delay,
+                }}
+              />
+            ))
+          : null}
+
+        {/* embossed brand bolt (H) at rest */}
+        <motion.span
+          aria-hidden
+          className="absolute inset-0 grid place-items-center"
+          animate={{ opacity: showBolt ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
         >
-          <MicrophoneIcon size={26} weight="fill" />
+          <LightningIcon
+            size={34}
+            weight="fill"
+            style={{
+              color: "rgba(255,255,255,0.78)",
+              filter: "drop-shadow(0 1px 0.5px rgba(120,110,150,0.45))",
+            }}
+          />
         </motion.span>
+
+        {/* "you're talking" status dot (F) */}
+        <motion.span
+          aria-hidden
+          className="absolute bottom-[24%] right-[26%] size-2.5 rounded-full"
+          style={{
+            background: "#34C36B",
+            boxShadow: "0 0 8px rgba(52,195,107,0.7)",
+          }}
+          animate={{
+            opacity: state === "user" ? 1 : 0,
+            scale: state === "user" && !reduceMotion ? [1, 1.25, 1] : 1,
+          }}
+          transition={
+            state === "user" && !reduceMotion
+              ? { opacity: { duration: 0.2 }, scale: { duration: 1.1, repeat: Infinity, ease: "easeInOut" } }
+              : { duration: 0.2 }
+          }
+        />
       </motion.div>
     </>
   );
@@ -161,7 +206,7 @@ export function VoiceOrb({
         type="button"
         onClick={onClick}
         aria-label="Tap to talk to Max"
-        className="group relative mx-auto flex size-44 items-center justify-center rounded-full transition-transform duration-200 [-webkit-tap-highlight-color:transparent] hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:ring-offset-2"
+        className="group relative mx-auto flex size-44 items-center justify-center rounded-full transition-transform duration-200 [-webkit-tap-highlight-color:transparent] hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/25 focus-visible:ring-offset-2"
       >
         {content}
       </button>

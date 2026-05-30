@@ -197,8 +197,26 @@ export function VoiceOrb({
         type="button"
         onClick={onClick}
         aria-label="Tap to talk to Max"
-        className="group relative mx-auto flex size-56 items-center justify-center rounded-full transition-transform duration-200 [-webkit-tap-highlight-color:transparent] hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-4"
+        className="group relative mx-auto flex size-56 cursor-pointer items-center justify-center rounded-full transition-transform duration-200 [-webkit-tap-highlight-color:transparent] hover:scale-[1.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-4"
       >
+        {/* Hover affordance — signals the orb is pressable */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-[-10%] rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(140,150,235,0.22) 0%, rgba(140,150,235,0) 60%)",
+          }}
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        >
+          <span
+            className="orb-ripple-1 absolute left-1/2 top-1/2 size-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ border: "1.5px solid rgba(130,140,225,0.5)" }}
+          />
+        </span>
         {content}
       </button>
     );

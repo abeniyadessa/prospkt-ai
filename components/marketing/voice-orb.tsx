@@ -1,6 +1,5 @@
 "use client";
 
-import { LightningIcon } from "@phosphor-icons/react";
 import { motion, useReducedMotion } from "framer-motion";
 
 /**
@@ -54,7 +53,6 @@ export function VoiceOrb({
   const energy = Math.min(1, Math.max(0, volume));
   const interactive = (state === "idle" || state === "error") && !disabled;
   const live = state === "listening" || state === "agent" || state === "user";
-  const showBolt = !live; // idle / connecting / error show the brand mark
 
   const tint = TINT[state];
   const ringRgb =
@@ -66,17 +64,6 @@ export function VoiceOrb({
 
   const content = (
     <>
-      {/* Soft contact shadow under the sphere */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute bottom-[8%] left-1/2 h-5 w-[62%] -translate-x-1/2 rounded-[50%]"
-        style={{
-          background:
-            "radial-gradient(closest-side, rgba(120,118,150,0.34), rgba(120,118,150,0) 75%)",
-          filter: "blur(6px)",
-        }}
-      />
-
       {/* The sphere */}
       <motion.div
         aria-hidden
@@ -95,8 +82,6 @@ export function VoiceOrb({
             "inset 0 -20px 32px rgba(150,120,142,0.26)",
             "inset -10px -8px 22px rgba(120,112,152,0.2)",
             "inset 9px 6px 20px rgba(255,255,255,0.22)",
-            "0 24px 36px -14px rgba(132,128,165,0.5)",
-            "0 6px 14px -6px rgba(132,128,165,0.32)",
           ].join(","),
         }}
         animate={
@@ -162,23 +147,6 @@ export function VoiceOrb({
               />
             ))
           : null}
-
-        {/* embossed brand bolt (H) at rest */}
-        <motion.span
-          aria-hidden
-          className="absolute inset-0 grid place-items-center"
-          animate={{ opacity: showBolt ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <LightningIcon
-            size={34}
-            weight="fill"
-            style={{
-              color: "rgba(255,255,255,0.78)",
-              filter: "drop-shadow(0 1px 0.5px rgba(120,110,150,0.45))",
-            }}
-          />
-        </motion.span>
 
         {/* "you're talking" status dot (F) */}
         <motion.span

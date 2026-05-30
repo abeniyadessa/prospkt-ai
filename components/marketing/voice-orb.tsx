@@ -82,21 +82,21 @@ export function VoiceOrb({
         aria-hidden
         className="relative size-36 overflow-hidden rounded-full"
         style={{
-          // Saturated matte sphere (reference C): deeper periwinkle top, vivid
-          // peach base, richer pink core — solid, not translucent.
+          // Pale pearl (reference D): mostly white/pearlescent with only faint
+          // pastel hints — the most minimal, premium-clean surface.
           background: [
-            "radial-gradient(120% 120% at 50% 4%, rgba(168,182,235,0.98) 0%, rgba(168,182,235,0) 46%)",
-            "radial-gradient(122% 116% at 50% 104%, rgba(247,176,108,0.98) 0%, rgba(247,176,108,0) 52%)",
-            "radial-gradient(98% 98% at 50% 56%, rgba(238,168,202,0.92) 0%, rgba(238,168,202,0) 60%)",
-            "linear-gradient(180deg, #dde5f6 0%, #f0dbe9 50%, #fbe4ce 100%)",
+            "radial-gradient(120% 120% at 50% 8%, rgba(206,216,240,0.5) 0%, rgba(206,216,240,0) 50%)",
+            "radial-gradient(118% 114% at 50% 102%, rgba(248,224,206,0.5) 0%, rgba(248,224,206,0) 52%)",
+            "radial-gradient(95% 95% at 50% 55%, rgba(244,222,232,0.45) 0%, rgba(244,222,232,0) 60%)",
+            "linear-gradient(180deg, #f6f8fc 0%, #f8f3f6 55%, #fdf6ef 100%)",
           ].join(","),
           boxShadow: [
-            "inset 0 14px 22px rgba(255,255,255,0.5)",
-            "inset 0 -22px 34px rgba(150,110,120,0.3)",
-            "inset -12px -10px 24px rgba(120,108,150,0.24)",
-            "inset 10px 6px 20px rgba(255,255,255,0.22)",
-            "0 24px 36px -14px rgba(132,124,160,0.5)",
-            "0 6px 14px -6px rgba(132,124,160,0.32)",
+            "inset 0 14px 24px rgba(255,255,255,0.7)",
+            "inset 0 -18px 30px rgba(170,160,180,0.16)",
+            "inset -10px -8px 22px rgba(150,150,175,0.12)",
+            "inset 9px 6px 20px rgba(255,255,255,0.4)",
+            "0 22px 34px -14px rgba(150,148,170,0.4)",
+            "0 6px 14px -6px rgba(150,148,170,0.26)",
           ].join(","),
         }}
         animate={

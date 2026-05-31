@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useClerk } from "@clerk/nextjs";
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -16,7 +17,31 @@ import { cn } from "@/lib/utils";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
+// Clerk throws when the email is already on the waitlist; we treat that as a
+// successful "you're already in" rather than an error the visitor has to fix.
+function isAlreadyOnWaitlist(error: unknown): boolean {
+  const errors = (error as { errors?: Array<{ code?: string; message?: string }> })
+    ?.errors;
+  if (!Array.isArray(errors)) return false;
+  return errors.some((e) => {
+    const code = e.code?.toLowerCase() ?? "";
+    const msg = e.message?.toLowerCase() ?? "";
+    return (
+      code.includes("duplicate") ||
+      code.includes("already") ||
+      msg.includes("already") ||
+      msg.includes("exists")
+    );
+  });
+}
+
+function clerkErrorMessage(error: unknown): string {
+  const first = (error as { errors?: Array<{ message?: string }> })?.errors?.[0];
+  return first?.message || "Could not join the list. Try again in a moment.";
+}
+
 export function PrelaunchEmailForm() {
+  const clerk = useClerk();
   const [state, setState] = useState<FormState>("idle");
   const [error, setError] = useState("");
   const [submittedEmail, setSubmittedEmail] = useState("");
@@ -37,19 +62,9 @@ export function PrelaunchEmailForm() {
     });
 
     try {
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          source: "prelaunch",
-        }),
-      });
-      const result = (await response.json()) as { ok: boolean; error?: string };
-
-      if (!response.ok || !result.ok) {
-        throw new Error(result.error ?? "Could not join the list.");
-      }
+      // Clerk's native waitlist — signups land in the Clerk dashboard and can be
+      // invited straight into the app when the beta opens.
+      await clerk.joinWaitlist({ emailAddress: email });
 
       formElement.reset();
       trackPrelaunchEvent("waitlist_success", {
@@ -59,11 +74,19 @@ export function PrelaunchEmailForm() {
       setSubmittedEmail(email);
       setState("success");
     } catch (submitError) {
-      const message =
-        submitError instanceof Error
-          ? submitError.message
-          : "Could not join the list.";
+      // Already on the list? That's still a win — show success, not an error.
+      if (isAlreadyOnWaitlist(submitError)) {
+        formElement.reset();
+        trackPrelaunchEvent("waitlist_success", {
+          email,
+          metadata: { cta: "hero_waitlist", duplicate: true },
+        });
+        setSubmittedEmail(email);
+        setState("success");
+        return;
+      }
 
+      const message = clerkErrorMessage(submitError);
       trackPrelaunchEvent("waitlist_error", {
         email,
         metadata: { cta: "hero_waitlist", message },

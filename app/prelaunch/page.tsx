@@ -76,11 +76,11 @@ export default function PrelaunchPage() {
           </h1>
 
           <p className="mx-auto mt-4 max-w-[480px] text-pretty text-[14.5px] leading-6 text-black/75 sm:text-[15px]">
-            Talk to the AI sales rep that calls your leads, qualifies them, and books the meetings.
+            Hear Prospkt turn a cold lead into a booked job.
           </p>
 
           <p className="mx-auto mt-2.5 max-w-[420px] text-pretty text-[13px] leading-5 text-black/55">
-            It works your leads while you&apos;re on the job — so you show up to booked meetings, not an empty calendar.
+            It chases your leads so you don&apos;t have to.
           </p>
 
           <div className="mx-auto mt-7 w-full max-w-[420px]">

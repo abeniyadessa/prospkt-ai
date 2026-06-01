@@ -10,7 +10,7 @@ import { PrelaunchEmailForm } from "@/components/marketing/prelaunch-email-form"
 import { PrelaunchDemo } from "@/components/marketing/prelaunch-demo";
 import { cn } from "@/lib/utils";
 
-const pageTitle = "Prospkt Private Beta - AI Sales Rep for Local Service Teams";
+const pageTitle = "Prospkt Private Beta - AI Sales Rep for Local Service Businesses";
 const pageDescription =
   "Join the Prospkt waitlist for an AI sales rep that calls back leads, follows up on estimates, and books jobs with owner control.";
 
@@ -76,11 +76,11 @@ export default function PrelaunchPage() {
           </h1>
 
           <p className="mx-auto mt-4 max-w-[480px] text-pretty text-[14.5px] leading-6 text-black/75 sm:text-[15px]">
-            Hear how Prospkt turns a missed call into a booked job.
+            Talk to the AI sales rep that calls your leads, qualifies them, and books the meetings.
           </p>
 
           <p className="mx-auto mt-2.5 max-w-[420px] text-pretty text-[13px] leading-5 text-black/55">
-            Every missed call is a job your competitor books instead.
+            It works your leads while you&apos;re on the job — so you show up to booked meetings, not an empty calendar.
           </p>
 
           <div className="mx-auto mt-7 w-full max-w-[420px]">

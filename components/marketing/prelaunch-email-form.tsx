@@ -118,26 +118,28 @@ export function PrelaunchEmailForm() {
           access opens.
         </p>
 
-        <div className="mt-7 flex items-center justify-center gap-2.5 text-[12.5px] text-black/45">
+        <div className="mt-7 flex items-center justify-center gap-3 text-[12.5px] text-black/45">
           <span>Follow the build</span>
-          <a
-            href="https://www.linkedin.com/company/prospktai"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Follow Prospkt on LinkedIn"
-            className="inline-flex size-8 items-center justify-center rounded-full text-black/70 transition-colors hover:bg-black/[0.05] hover:text-black"
-          >
-            <LinkedinLogoIcon size={15} weight="fill" aria-hidden />
-          </a>
-          <a
-            href="https://x.com/Prospktai"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Follow Prospkt on X"
-            className="inline-flex size-8 items-center justify-center rounded-full text-black/70 transition-colors hover:bg-black/[0.05] hover:text-black"
-          >
-            <XLogoIcon size={14} weight="fill" aria-hidden />
-          </a>
+          <span className="flex items-center gap-1">
+            <a
+              href="https://www.linkedin.com/company/prospktai"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Follow Prospkt on LinkedIn"
+              className="inline-flex size-7 items-center justify-center rounded-full text-black/70 transition-colors hover:bg-black/[0.05] hover:text-black"
+            >
+              <LinkedinLogoIcon size={15} weight="fill" aria-hidden />
+            </a>
+            <a
+              href="https://x.com/Prospktai"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Follow Prospkt on X"
+              className="inline-flex size-7 items-center justify-center rounded-full text-black/70 transition-colors hover:bg-black/[0.05] hover:text-black"
+            >
+              <XLogoIcon size={14} weight="fill" aria-hidden />
+            </a>
+          </span>
         </div>
       </div>
     );

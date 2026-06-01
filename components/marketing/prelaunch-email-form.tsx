@@ -4,7 +4,6 @@ import { FormEvent, useState } from "react";
 import { useClerk } from "@clerk/nextjs";
 import {
   ArrowRightIcon,
-  CheckCircleIcon,
   CheckIcon,
   CircleNotchIcon,
   LinkedinLogoIcon,
@@ -101,98 +100,44 @@ export function PrelaunchEmailForm() {
 
   if (success) {
     return (
-      <div className="mx-auto w-full max-w-[460px] overflow-hidden rounded-[1.75rem] border border-black/[0.06] bg-white text-center shadow-[0_18px_50px_-12px_rgba(70,50,110,0.22)]">
-        {/* Pastel gradient header band — echoes the orb */}
+      <div className="mx-auto w-full max-w-[400px] rounded-[1.5rem] border border-black/[0.07] bg-white px-8 py-9 text-center shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)]">
         <div
-          className="relative flex items-center justify-center py-9"
-          style={{
-            background:
-              "radial-gradient(120% 140% at 50% 0%, #C4D2F2 0%, #F3C2D6 52%, #F8CDA4 100%)",
-          }}
+          className="mx-auto flex size-11 items-center justify-center rounded-full text-[#1E7A45]"
+          style={{ backgroundColor: "#EAF5EE" }}
+          aria-hidden
         >
-          <div
-            className="flex size-[68px] items-center justify-center rounded-full text-[#1E7A45]"
-            style={{
-              background:
-                "radial-gradient(circle at 38% 32%, #ffffff 0%, #f4fbf6 60%, #e6f3ea 100%)",
-              boxShadow:
-                "0 10px 26px rgba(60,40,90,0.18), inset 0 1px 1px rgba(255,255,255,0.9)",
-            }}
-            aria-hidden
-          >
-            <CheckIcon size={30} weight="bold" />
-          </div>
+          <CheckIcon size={20} weight="bold" />
         </div>
 
-        <div className="px-7 pb-8 pt-7 sm:px-8">
-          <h2 className="text-balance text-[24px] font-semibold leading-[1.12] tracking-tight text-black sm:text-[26px]">
-            You&apos;re on the list.
-          </h2>
-          <p className="mx-auto mt-2 max-w-[330px] text-pretty text-[14px] leading-6 text-black/60">
-            You&apos;re locked in as{" "}
-            <span className="font-medium text-black">{submittedEmail}</span>, with
-            founder pricing reserved for early access.
-          </p>
+        <h2 className="mt-5 text-[22px] font-semibold tracking-tight text-black">
+          You&apos;re on the list.
+        </h2>
+        <p className="mx-auto mt-1.5 max-w-[300px] text-[14px] leading-6 text-black/55">
+          We&apos;ll reach out to{" "}
+          <span className="font-medium text-black">{submittedEmail}</span> when early
+          access opens.
+        </p>
 
-          <div className="mt-6 rounded-2xl border border-black/[0.06] bg-[#F7F8F9] p-5 text-left">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-black/45">
-              What happens next
-            </p>
-            <ul className="mt-3 space-y-3 text-[13.5px] leading-5 text-black/70">
-              <li className="flex items-start gap-2.5">
-                <CheckCircleIcon
-                  size={16}
-                  weight="fill"
-                  className="mt-px shrink-0 text-black/70"
-                  aria-hidden
-                />
-                <span>
-                  You&apos;re among the first we&apos;ll reach out to when access
-                  opens.
-                </span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <CheckCircleIcon
-                  size={16}
-                  weight="fill"
-                  className="mt-px shrink-0 text-black/70"
-                  aria-hidden
-                />
-                <span>Founder pricing is locked in for early members.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <CheckCircleIcon
-                  size={16}
-                  weight="fill"
-                  className="mt-px shrink-0 text-black/70"
-                  aria-hidden
-                />
-                <span>Follow the build below to watch Prospkt come together.</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="mt-6 flex items-center justify-center gap-2.5 text-[12.5px] font-medium text-black/55">
-            <span>Follow the build</span>
-            <a
-              href="https://www.linkedin.com/company/prospktai"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Follow Prospkt on LinkedIn"
-              className="inline-flex size-8 items-center justify-center rounded-full border border-black/[0.08] text-black transition-colors hover:bg-black/[0.04]"
-            >
-              <LinkedinLogoIcon size={15} weight="fill" aria-hidden />
-            </a>
-            <a
-              href="https://x.com/Prospktai"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Follow Prospkt on X"
-              className="inline-flex size-8 items-center justify-center rounded-full border border-black/[0.08] text-black transition-colors hover:bg-black/[0.04]"
-            >
-              <XLogoIcon size={14} weight="fill" aria-hidden />
-            </a>
-          </div>
+        <div className="mt-7 flex items-center justify-center gap-2.5 text-[12.5px] text-black/45">
+          <span>Follow the build</span>
+          <a
+            href="https://www.linkedin.com/company/prospktai"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Follow Prospkt on LinkedIn"
+            className="inline-flex size-8 items-center justify-center rounded-full text-black/70 transition-colors hover:bg-black/[0.05] hover:text-black"
+          >
+            <LinkedinLogoIcon size={15} weight="fill" aria-hidden />
+          </a>
+          <a
+            href="https://x.com/Prospktai"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Follow Prospkt on X"
+            className="inline-flex size-8 items-center justify-center rounded-full text-black/70 transition-colors hover:bg-black/[0.05] hover:text-black"
+          >
+            <XLogoIcon size={14} weight="fill" aria-hidden />
+          </a>
         </div>
       </div>
     );

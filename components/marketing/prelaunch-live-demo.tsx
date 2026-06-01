@@ -148,7 +148,7 @@ function IdleSurface({
             {fetching ? "Connecting…" : "Tap to talk to Max"}
           </p>
           <p className="mx-auto max-w-[320px] text-[12.5px] leading-[1.5] text-black/60">
-            Ask Max how he&apos;d fill your calendar.
+            Not a recording. Talk to Max live and hear it close.
           </p>
         </div>
 

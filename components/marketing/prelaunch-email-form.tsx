@@ -4,9 +4,9 @@ import { FormEvent, useState } from "react";
 import { useClerk } from "@clerk/nextjs";
 import {
   ArrowRightIcon,
+  CheckCircleIcon,
   CheckIcon,
   CircleNotchIcon,
-  EnvelopeSimpleIcon,
   LinkedinLogoIcon,
   XLogoIcon,
 } from "@phosphor-icons/react";
@@ -101,66 +101,99 @@ export function PrelaunchEmailForm() {
 
   if (success) {
     return (
-      <div className="mx-auto w-full max-w-[460px] rounded-[1.75rem] border border-black/[0.08] bg-white p-7 text-center shadow-[0_10px_40px_rgba(0,0,0,0.06)] sm:p-8">
+      <div className="mx-auto w-full max-w-[460px] overflow-hidden rounded-[1.75rem] border border-black/[0.06] bg-white text-center shadow-[0_18px_50px_-12px_rgba(70,50,110,0.22)]">
+        {/* Pastel gradient header band — echoes the orb */}
         <div
-          className="mx-auto flex size-12 items-center justify-center rounded-full"
-          style={{ backgroundColor: "#E8F3EC", color: "#1E7A45" }}
-          aria-hidden
+          className="relative flex items-center justify-center py-9"
+          style={{
+            background:
+              "radial-gradient(120% 140% at 50% 0%, #C4D2F2 0%, #F3C2D6 52%, #F8CDA4 100%)",
+          }}
         >
-          <CheckIcon size={22} weight="bold" />
+          <div
+            className="flex size-[68px] items-center justify-center rounded-full text-[#1E7A45]"
+            style={{
+              background:
+                "radial-gradient(circle at 38% 32%, #ffffff 0%, #f4fbf6 60%, #e6f3ea 100%)",
+              boxShadow:
+                "0 10px 26px rgba(60,40,90,0.18), inset 0 1px 1px rgba(255,255,255,0.9)",
+            }}
+            aria-hidden
+          >
+            <CheckIcon size={30} weight="bold" />
+          </div>
         </div>
-        <h2 className="mt-5 text-balance text-[22px] font-semibold leading-[1.15] text-black sm:text-[24px]">
-          You&apos;re on the list.
-        </h2>
-        <p className="mt-2 text-pretty text-[14px] leading-6 text-black/70">
-          We just sent a confirmation to{" "}
-          <span className="font-medium text-black">{submittedEmail}</span>.
-        </p>
-        <div className="mt-5 rounded-xl border border-black/[0.07] bg-[#F7F8F9] p-4 text-left text-[13px] leading-5 text-black/70">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-black/55">
-            What happens next
+
+        <div className="px-7 pb-8 pt-7 sm:px-8">
+          <h2 className="text-balance text-[24px] font-semibold leading-[1.12] tracking-tight text-black sm:text-[26px]">
+            You&apos;re on the list.
+          </h2>
+          <p className="mx-auto mt-2 max-w-[330px] text-pretty text-[14px] leading-6 text-black/60">
+            You&apos;re locked in as{" "}
+            <span className="font-medium text-black">{submittedEmail}</span> — with
+            founder pricing reserved for early access.
           </p>
-          <ul className="mt-2 space-y-1.5">
-            <li className="flex items-start gap-2">
-              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-black/40" aria-hidden />
-              <span>You&apos;ll get an email the second waitlist invites go out.</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-black/40" aria-hidden />
-              <span>You&apos;re locked in at founder pricing when we launch.</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-black/40" aria-hidden />
-              <span>Want in faster? Reply to the email and tell us about your business.</span>
-            </li>
-          </ul>
+
+          <div className="mt-6 rounded-2xl border border-black/[0.06] bg-[#F7F8F9] p-5 text-left">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-black/45">
+              What happens next
+            </p>
+            <ul className="mt-3 space-y-3 text-[13.5px] leading-5 text-black/70">
+              <li className="flex items-start gap-2.5">
+                <CheckCircleIcon
+                  size={16}
+                  weight="fill"
+                  className="mt-px shrink-0 text-black/70"
+                  aria-hidden
+                />
+                <span>
+                  You&apos;re among the first we&apos;ll reach out to when access
+                  opens.
+                </span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircleIcon
+                  size={16}
+                  weight="fill"
+                  className="mt-px shrink-0 text-black/70"
+                  aria-hidden
+                />
+                <span>Founder pricing is locked in for early members.</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircleIcon
+                  size={16}
+                  weight="fill"
+                  className="mt-px shrink-0 text-black/70"
+                  aria-hidden
+                />
+                <span>Follow the build below to watch Prospkt come together.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2.5 text-[12.5px] font-medium text-black/55">
+            <span>Follow the build</span>
+            <a
+              href="https://www.linkedin.com/company/prospktai"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Follow Prospkt on LinkedIn"
+              className="inline-flex size-8 items-center justify-center rounded-full border border-black/[0.08] text-black transition-colors hover:bg-black/[0.04]"
+            >
+              <LinkedinLogoIcon size={15} weight="fill" aria-hidden />
+            </a>
+            <a
+              href="https://x.com/Prospktai"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Follow Prospkt on X"
+              className="inline-flex size-8 items-center justify-center rounded-full border border-black/[0.08] text-black transition-colors hover:bg-black/[0.04]"
+            >
+              <XLogoIcon size={14} weight="fill" aria-hidden />
+            </a>
+          </div>
         </div>
-        <div className="mt-5 flex items-center justify-center gap-3 text-[12.5px] text-black/70">
-          <span>Follow the build</span>
-          <span className="text-black/40">·</span>
-          <a
-            href="https://www.linkedin.com/company/prospktai"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Follow Prospkt on LinkedIn"
-            className="inline-flex size-7 items-center justify-center rounded-md text-black transition-colors hover:bg-black/[0.04]"
-          >
-            <LinkedinLogoIcon size={14} weight="fill" aria-hidden />
-          </a>
-          <a
-            href="https://x.com/Prospktai"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Follow Prospkt on X"
-            className="inline-flex size-7 items-center justify-center rounded-md text-black transition-colors hover:bg-black/[0.04]"
-          >
-            <XLogoIcon size={13} weight="fill" aria-hidden />
-          </a>
-        </div>
-        <p className="mt-4 inline-flex items-center justify-center gap-1.5 text-[11.5px] text-black/55">
-          <EnvelopeSimpleIcon size={11} weight="fill" />
-          Check your inbox (and spam, just in case).
-        </p>
       </div>
     );
   }

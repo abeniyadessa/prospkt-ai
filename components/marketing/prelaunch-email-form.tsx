@@ -130,7 +130,7 @@ export function PrelaunchEmailForm() {
           </h2>
           <p className="mx-auto mt-2 max-w-[330px] text-pretty text-[14px] leading-6 text-black/60">
             You&apos;re locked in as{" "}
-            <span className="font-medium text-black">{submittedEmail}</span> — with
+            <span className="font-medium text-black">{submittedEmail}</span>, with
             founder pricing reserved for early access.
           </p>
 

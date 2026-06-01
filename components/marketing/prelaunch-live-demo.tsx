@@ -154,7 +154,7 @@ function IdleSurface({
 
         {dropped && !fetching ? (
           <p className="rounded-full border border-black/[0.07] bg-white px-3 py-1 text-[11.5px] font-medium text-black/70">
-            Call dropped — tap the orb to pick it back up.
+            Call dropped. Tap the orb to pick it back up.
           </p>
         ) : null}
 

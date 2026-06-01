@@ -41,7 +41,7 @@ export function waitlistWelcomeText(opts: WaitlistWelcomeEmailOptions = {}): str
   return [
     hi,
     "",
-    "You're on the list — thank you. Prospkt is the AI sales rep for local service businesses: it calls your leads, qualifies them, and books real meetings onto your calendar. And if a call ever gets missed, it follows up before that customer calls someone else.",
+    "You're on the list. Prospkt is the AI sales rep for local service businesses: it calls your leads, qualifies them, and books real meetings onto your calendar. And if a call ever gets missed, it follows up before that customer calls someone else.",
     "",
     "What happens next:",
     "• You'll be among the first to hear when your spot opens.",
@@ -50,7 +50,7 @@ export function waitlistWelcomeText(opts: WaitlistWelcomeEmailOptions = {}): str
     "",
     "Follow the build: https://www.linkedin.com/company/prospktai",
     "",
-    "— Abeni Dinsa, Founder, Prospkt",
+    "Abeni Dinsa, Founder, Prospkt",
     "Prospkt · YALID LLC",
   ].join("\n");
 }
@@ -131,7 +131,7 @@ export function waitlistWelcomeHtml(opts: WaitlistWelcomeEmailOptions = {}): str
                 <tr>
                   <td style="padding:18px 28px 4px;">
                     <p style="margin:0 0 14px; font:400 14.5px/1.6 ${FONT_STACK}; color:${BRAND.muted};">
-                      ${greeting} you're in &mdash; thank you. Prospkt is the AI sales rep
+                      ${greeting} you're in. Prospkt is the AI sales rep
                       for local service businesses: it calls your leads, qualifies them,
                       and books real meetings onto your calendar. Miss a call? It follows
                       up before that customer phones someone else.
@@ -172,7 +172,7 @@ export function waitlistWelcomeHtml(opts: WaitlistWelcomeEmailOptions = {}): str
                 <!-- Founder sign-off -->
                 <tr>
                   <td style="padding:22px 28px 30px;">
-                    <p style="margin:0; font:400 14px/1.5 ${FONT_STACK}; color:${BRAND.ink};">&mdash; Abeni Dinsa</p>
+                    <p style="margin:0; font:400 14px/1.5 ${FONT_STACK}; color:${BRAND.ink};">Abeni Dinsa</p>
                     <p style="margin:2px 0 0; font:400 12.5px/1.4 ${FONT_STACK}; color:${BRAND.subtle};">Founder, Prospkt</p>
                   </td>
                 </tr>

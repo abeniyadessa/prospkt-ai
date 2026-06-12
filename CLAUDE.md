@@ -19,25 +19,33 @@ Prospkt is the AI front office for local service businesses — HVAC, plumbing, 
 - Next.js 14 App Router (Turbopack)
 - TypeScript — no `any` types ever
 - Tailwind CSS + shadcn/ui (Dialog, Select, Tabs, Sheet, Tooltip) + @phosphor-icons/react
-- Switzer font (Fontshare CDN)
-- Clerk for auth (existing)
-- Vercel for hosting; Vercel AI Gateway for LLM access (provider-portable, do not import `@ai-sdk/anthropic` directly)
-- SQLite via `node:sqlite` for V1 → Neon Postgres before scale-out
+- Switzer font (Fontshare CDN) — confirmed in use; do not swap (Fraunces/Poppins were tried and rejected)
+- Clerk (`@clerk/nextjs` v7) for auth + native waitlist (`clerk.joinWaitlist`)
+- Vercel for hosting
+- Data: `node:sqlite` for local dev (`data/prospkt.sqlite`) → Postgres via `pg` + Drizzle for prod (waitlist storage switches on `DATABASE_URL`; see `lib/prelaunch-storage.ts`)
 
-**V1 Voice stack (new — replaces Vapi):**
+> **Stack reality vs. plan (read this):** The original "V1 Voice stack" below (Pipecat + Twilio media streams + Cartesia + Claude Haiku via Vercel AI Gateway) was the *intended* target. **It was never built.** As of June 2026 the shipped voice stack is the Vapi pipeline. There is no Pipecat, no Cartesia, and no `ai` SDK / AI Gateway installed. Treat the block below as aspirational; treat "Actual voice stack (shipped)" as truth.
+
+**Actual voice stack (shipped — the live "Max" demo):**
+- **Orchestration:** Vapi (`@vapi-ai/web`) — config in `app/api/voice/vapi-config/route.ts`
+- **LLM:** Groq (Llama 3.3 70B) — low-latency inference
+- **STT:** Deepgram nova-3
+- **TTS:** ElevenLabs `eleven_turbo_v2_5` (tuned calm/steady: stability 0.58, style 0.22, speed 0.98)
+- `@anthropic-ai/sdk` is installed and used for Claude elsewhere (not the voice path)
+
+**Aspirational / future voice stack (NOT built):**
 - **Telephony:** Twilio Programmable Voice (websocket media streams)
-- **Orchestration:** Pipecat (Apache 2.0, Python) — provider-agnostic so we can swap any layer
-- **STT:** Whisper Turbo via Groq (free tier → cheap)
-- **LLM:** Claude Haiku 4.5 via Vercel AI Gateway
-- **TTS:** Cartesia Sonic 2 (~$0.025/min, sub-90ms TTFT)
+- **Orchestration:** Pipecat (Apache 2.0, Python)
+- **STT:** Whisper Turbo via Groq
+- **LLM:** Claude Haiku via Vercel AI Gateway
+- **TTS:** Cartesia Sonic 2
 - **Recording:** Twilio dual-channel → Vercel Blob (private)
 
-Vapi code is being phased out. New voice work goes in `lib/voice/` and `app/api/twilio/`.
-
 **Integrations:**
-- Cal.com OAuth for booking (existing — preserve)
-- Stripe for billing
+- Cal.com for booking (`lib/calendar.ts`, env `CALCOM_API_KEY`) — live
+- Resend for email (`lib/email.ts`) — wired; sends only once a domain is verified
 - Twilio for SMS notifications + phone numbers
+- Stripe for billing — NOT installed yet (future)
 
 ## Folder Conventions
 
@@ -68,6 +76,8 @@ Source of truth is the CSS variables in `globals.css` (`--canvas`, `--surface`, 
 - NO dark mode, NO gradients, NO glow effects, NO shadows beyond subtle borders
 - Status indicators: colored dots only — no filled badge backgrounds
 - Font: Switzer — 700–800 for headings, 400–500 for body, 600 uppercase for labels (use `tracking-[0.06em]`)
+
+> **Deliberate prelaunch exception:** `app/prelaunch/` intentionally breaks the "no gradients / no glow" rule — it uses a soft pastel voice-reactive bottom glow (`components/marketing/voice-glow.tsx`) and a matte pastel "voice orb" (`components/marketing/voice-orb.tsx`). This is approved, marketing-only, and must NOT propagate to the app/dashboard. Do not "fix" it. The orb is locked to the matte-pastel look (glass/saturated/pearl variants were rejected). Keep prelaunch copy tight and em-dash-free.
 
 ## Component Rules
 
